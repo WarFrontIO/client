@@ -1,7 +1,8 @@
 {
   "scripts": {
     "prebuild": "tsc --project scripts",
-    "build-dev": "webpack --config webpack.dev.js"
+    "build-dev": "webpack --config webpack.config.js --mode development",
+    "build-prod": "webpack --config webpack.config.js --mode production"
   },
   "devDependencies": {
     "typescript": "^5.4.4",
