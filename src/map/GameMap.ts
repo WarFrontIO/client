@@ -5,13 +5,13 @@ export class GameMap {
 	private name: string;
 	width: number;
 	height: number;
-	private readonly tiles: Uint8Array;
+	private readonly tiles: Uint16Array;
 
 	constructor(name: string, width: number, height: number) {
 		this.name = name;
 		this.width = width;
 		this.height = height;
-		this.tiles = new Uint8Array(width * height);
+		this.tiles = new Uint16Array(width * height);
 	}
 
 	getTile(x: number, y: number): TileType {
