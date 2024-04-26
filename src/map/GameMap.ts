@@ -18,7 +18,11 @@ export class GameMap {
 		return tileManager.fromID(this.tiles[y * this.width + x]);
 	}
 
-	setTile(x: number, y: number, tile: TileType): void {
+	setTileAt(x: number, y: number, tile: TileType): void {
 		this.tiles[y * this.width + x] = tile.id;
+	}
+
+	setTileId(index: number, tile: number): void {
+		this.tiles[index] = tile;
 	}
 }

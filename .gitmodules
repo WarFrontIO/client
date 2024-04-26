@@ -1,0 +1,3 @@
+[submodule "src/map/codec"]
+	path = src/map/codec
+	url = https://github.com/WarFrontIO/MapCodec

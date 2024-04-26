@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "rootDir": "../src/map/codec",
+    "outDir": "../build"
+  },
+  "include": ["../src/map/codec/**/*.ts"]
+}
