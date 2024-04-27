@@ -9,8 +9,15 @@ class SpawnManager {
 	backupPoints: number[];
 	isSelecting: boolean;
 
+	/**
+	 * Initialize the spawn manager with the given maximum number of players.
+	 *
+	 * The spawn points are generated based on the map size and the number of players.
+	 * Since the spawn points are generated randomly, the actual number of spawn points may be lower than the maximum number of players.
+	 * If this is the case, spawn points will be regenerated with a smaller radius until enough spawn points are available.
+	 * @param maxPlayers The maximum number of players.
+	 */
 	init(maxPlayers: number): void {
-		//generate spawn points with decreasing radius until all players can spawn
 		let radius = Math.max(5, Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2)));
 		while (radius >= 5) {
 			this.spawnPoints = this.buildSpawns(radius);
@@ -25,9 +32,16 @@ class SpawnManager {
 		this.isSelecting = true;
 	}
 
+	/**
+	 * Build spawn points with the given radius.
+	 *
+	 * The spawn points are generated using poisson disc sampling.
+	 * Algorithm by Robert Bridson (https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)
+	 * Results are filtered to only include spawn points on solid tiles.
+	 * @param radius The radius of the spawn points.
+	 * @private
+	 */
 	private buildSpawns(radius: number): number[] {
-		// Use poisson disc sampling to generate spawn points
-		// Algorithm by Robert Bridson (https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)
 		const minDistance = radius * radius;
 		const cellSize = radius / Math.sqrt(2);
 		const rows = Math.ceil(gameMap.height / cellSize);
@@ -79,7 +93,7 @@ class SpawnManager {
 					found = true;
 					const index = x + y * gameMap.width;
 					active.push(index);
-					if (gameMap.getTile(x, y).isSolid) {
+					if (gameMap.getTile(index).isSolid) {
 						points.push(index);
 					}
 					grid[Math.floor(x / cellSize) + Math.floor(y / cellSize) * cols] = index;
@@ -94,6 +108,14 @@ class SpawnManager {
 		return points;
 	}
 
+	/**
+	 * Select a random spawn point for the given player.
+	 *
+	 * The spawn point is selected from the available spawn points.
+	 * If no spawn points are available, the player will be spawned at partially blocked spawn points.
+	 * @param player The player to spawn.
+	 * @returns The selected spawn point.
+	 */
 	randomSpawnPoint(player: Player): number {
 		const target = this.spawnPoints.length > 0 ? this.spawnPoints : this.backupPoints;
 		const index = random.nextInt(target.length);
@@ -103,12 +125,21 @@ class SpawnManager {
 		return result;
 	}
 
+	/**
+	 * Select a spawn point for the given player based on the selected tile.
+	 *
+	 * Marks spawn points near the selected tile as blocked, so random spawn points will not be selected near the selected tile.
+	 * @param player The player to spawn.
+	 * @param tile The selected tile.
+	 */
 	selectSpawnPoint(player: Player, tile: number): void {
 		if (this.spawnData[player.id]) {
 			this.spawnData[player.id].pixels.forEach(pixel => territoryManager.clear(pixel));
 			this.spawnPoints.push(...this.spawnData[player.id].blockedPoints);
 			this.spawnData[player.id].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
 		}
+
+		//TODO: Check if the selected tile is a valid spawn point
 		const data = new SpawnData();
 		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);
 		data.pixels = this.getSpawnPixels(tile);
@@ -123,22 +154,24 @@ class SpawnManager {
 		}
 	}
 
+	/**
+	 * Get the spawn points near the given tile (within a 5x5 area).
+	 * @param tile The tile to get the spawn points for.
+	 * @returns The spawn points near the given tile.
+	 * @private
+	 */
 	private getSpawnPixels(tile: number): number[] {
 		let result = [];
-		const x = tile % gameMap.width;
-		const y = Math.floor(tile / gameMap.width);
 		for (let dx = -2; dx <= 2; dx++) {
 			for (let dy = -2; dy <= 2; dy++) {
 				if (Math.abs(dx) === 2 && Math.abs(dy) === 2) {
 					continue;
 				}
-				const nx = x + dx;
-				const ny = y + dy;
-				if (nx < 0 || nx >= gameMap.width || ny < 0 || ny >= gameMap.height) {
+				const index = tile + dx + dy * gameMap.width;
+				if (index < 0 || index >= gameMap.width * gameMap.height) {
 					continue;
 				}
-				const index = nx + ny * gameMap.width;
-				if (gameMap.getTile(nx, ny).isSolid && !territoryManager.hasOwner(index)) {
+				if (gameMap.getTile(index).isSolid && !territoryManager.hasOwner(index)) {
 					result.push(index);
 				}
 			}

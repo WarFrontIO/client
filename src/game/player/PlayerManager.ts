@@ -11,6 +11,12 @@ class PlayerManager implements GameTickListener {
 		gameTicker.registry.register(this);
 	}
 
+	/**
+	 * Initializes the player manager with the given players.
+	 * @param humans human players, one for local games, multiple for online games.
+	 * @param clientId Player ID of the client player (the player that is controlled this client).
+	 * @param maxPlayers The maximum number of players.
+	 */
 	init(humans: Player[], clientId: number, maxPlayers: number): void {
 		this.players = humans;
 		clientPlayer = this.players[clientId];
@@ -23,13 +29,17 @@ class PlayerManager implements GameTickListener {
 		}
 	}
 
+	/**
+	 * Get the player with the given ID.
+	 * @param id The ID of the player.
+	 */
 	getPlayer(id: number): Player {
 		return this.players[id];
 	}
 
 	tick(): void {
 		this.bots.forEach(bot => bot.tick());
-		if (gameTicker.tickCount % 10 === 0) {
+		if (gameTicker.getTickCount() % 10 === 0) {
 			this.players.forEach(player => player.income());
 		}
 	}

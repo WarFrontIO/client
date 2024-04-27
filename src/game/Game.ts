@@ -9,14 +9,24 @@ import {spawnManager} from "./player/SpawnManager";
 import {random} from "./Random";
 import {gameTicker} from "./GameTicker";
 
+/**
+ * The map of the current game.
+ */
 export let gameMap: GameMap;
+/**
+ * Local games are directly played on the client without any server interaction.
+ */
 export let isLocalGame: boolean;
 
+/**
+ * Start a new game with the given map.
+ * @param map The map to start the game with.
+ */
 export function startGame(map: GameMap) {
 	gameMap = map;
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
-	gameRenderer.updateLayers();
+	gameRenderer.initGameplayLayers();
 	territoryManager.reset();
 	spawnManager.init(500);
 	playerManager.init([new Player(0, "Player", 0, 200, 200)], 0, 500);
@@ -25,6 +35,10 @@ export function startGame(map: GameMap) {
 	random.reset(23452345);
 }
 
+/**
+ * Start the game cycle.
+ * @internal This method is called by the spawn manager when the player has selected a spawn point.
+ */
 export function startGameCycle() {
 	gameTicker.start();
 }

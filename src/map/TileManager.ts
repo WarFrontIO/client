@@ -1,7 +1,7 @@
 import {TileType} from "./tile/TileType";
 import {WaterTile} from "./tile/WaterTile";
 import {GrassTile} from "./tile/GrassTile";
-import {gameMap} from "../game/Game";
+import {UnsupportedDataException} from "../util/exception/UnsupportedDataException";
 
 export class TileManager {
 	private tileTypes: TileType[] = [];
@@ -11,48 +11,50 @@ export class TileManager {
 		this.registerTileType(new GrassTile());
 	}
 
+	/**
+	 * Registers a tile type
+	 *
+	 * Make sure to use the proper tile type ids
+	 * Only one tile type can be registered per id
+	 * @see TileTypeIds
+	 * @param tileType the tile type to register
+	 * @throws UnsupportedDataException if a tile type with the same id is already registered
+	 */
 	registerTileType(tileType: TileType): void {
-		this.tileTypes.push(tileType);
-		tileType.id = this.tileTypes.length - 1;
+		if (this.tileTypes[tileType.id] !== undefined) {
+			throw new UnsupportedDataException("TileType with id " + tileType.id + " already registered")
+		}
+		this.tileTypes[tileType.id] = tileType;
 	}
 
+	// noinspection JSUnusedGlobalSymbols - util for 3rd party code
+	/**
+	 * Allows 3rd party code to override a tile type
+	 *
+	 * Allows mods to overwrite rendering portions of a built-in tile type
+	 * Requires non-visual tile data to match the original tile type
+	 *
+	 * @param tileType the tile type to override
+	 * @throws UnsupportedDataException if the tile type is not registered or data does not match
+	 */
+	overrideTileType(tileType: TileType): void {
+		const existingTileType = this.tileTypes[tileType.id];
+		if (existingTileType === undefined) {
+			throw new UnsupportedDataException("TileType with id " + tileType.id + " not registered")
+		}
+		if (existingTileType.isSolid !== tileType.isSolid) {
+			throw new UnsupportedDataException("TileType with id " + tileType.id + " isSolid does not match")
+		}
+		this.tileTypes[tileType.id] = tileType;
+	}
+
+	/**
+	 * Retrieves a tile type by its id
+	 *
+	 * @param id the id of the tile type
+	 * @returns the tile type
+	 */
 	fromID(id: number): TileType {
 		return this.tileTypes[id];
-	}
-
-	fromColor(colorR: number, colorG: number, colorB: number): TileType {
-		let closestTile: TileType = this.tileTypes[0];
-		let closestDistance: number = Number.MAX_VALUE;
-		for (let tileType of this.tileTypes) {
-			let distance = Math.sqrt(
-				Math.pow(colorR - tileType.colorR, 2) +
-				Math.pow(colorG - tileType.colorG, 2) +
-				Math.pow(colorB - tileType.colorB, 2)
-			);
-			if (distance < closestDistance) {
-				closestTile = tileType;
-				closestDistance = distance;
-			}
-		}
-		return closestTile;
-	}
-
-	getNeighbors(tile: number): number[] {
-		let x = tile % gameMap.width;
-		let y = Math.floor(tile / gameMap.width);
-		let neighbors: number[] = [];
-		if (x > 0) {
-			neighbors.push(tile - 1);
-		}
-		if (x < gameMap.width - 1) {
-			neighbors.push(tile + 1);
-		}
-		if (y > 0) {
-			neighbors.push(tile - gameMap.width);
-		}
-		if (y < gameMap.height - 1) {
-			neighbors.push(tile + gameMap.width);
-		}
-		return neighbors;
 	}
 }

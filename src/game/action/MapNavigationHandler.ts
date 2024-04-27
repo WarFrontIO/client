@@ -2,6 +2,11 @@ import {DragEventListener, interactionManager, ScrollEventListener} from "../../
 import {gameMap} from "../Game";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 
+/**
+ * Default map navigation handler.
+ * Controls the map position and zoom level.
+ * @see MapTransformHandler
+ */
 class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 	x: number = 0;
 	y: number = 0;
@@ -9,6 +14,10 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 	dragX: number = 0;
 	dragY: number = 0;
 
+	/**
+	 * Enables the map navigation handler.
+	 * Sets the initial zoom level and position to center the map on the screen.
+	 */
 	enable() {
 		let minXZoom = window.innerWidth / gameMap.width, minYZoom = window.innerHeight / gameMap.height;
 		this.zoom = 0.9 * Math.min(minXZoom, minYZoom);
@@ -20,6 +29,9 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 		interactionManager.scroll.register(this);
 	}
 
+	/**
+	 * Disables the map navigation handler.
+	 */
 	disable() {
 		interactionManager.drag.unregister(this);
 		interactionManager.scroll.unregister(this);
@@ -55,30 +67,39 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 		mapTransformHandler.move.broadcast();
 	}
 
+	/**
+	 * Converts screen coordinates to map coordinates.
+	 * @param x The x-coordinate on the screen.
+	 */
 	getMapX(x: number): number {
 		return (x - this.x) / this.zoom;
 	}
 
+	/**
+	 * Converts screen coordinates to map coordinates.
+	 * @param y The y-coordinate on the screen.
+	 */
 	getMapY(y: number): number {
 		return (y - this.y) / this.zoom;
 	}
 
+	/**
+	 * Checks if the given screen coordinates are on the map.
+	 * Not to be confused with map coordinates (This method does not convert screen coordinates to map coordinates).
+	 * @param x The x-coordinate on the screen.
+	 * @param y The y-coordinate on the screen.
+	 */
 	isOnMap(x: number, y: number): boolean {
 		return x >= this.x && x < this.x + gameMap.width * this.zoom && y >= this.y && y < this.y + gameMap.height * this.zoom;
 	}
 
+	/**
+	 * Converts screen coordinates to a map tile index.
+	 * @param x The x-coordinate on the screen.
+	 * @param y The y-coordinate on the screen.
+	 */
 	getIndex(x: number, y: number): number {
 		return Math.floor((y - this.y) / this.zoom) * gameMap.width + Math.floor((x - this.x) / this.zoom);
-	}
-
-	centerOnTile(tile: number, size: number) : void {
-		const x = tile % gameMap.width;
-		const y = Math.floor(tile / gameMap.width);
-		this.zoom = gameMap.width / size;
-		mapTransformHandler.scale.broadcast();
-		this.x = window.innerWidth / 2 - x * this.zoom;
-		this.y = window.innerHeight / 2 - y * this.zoom;
-		mapTransformHandler.move.broadcast();
 	}
 }
 

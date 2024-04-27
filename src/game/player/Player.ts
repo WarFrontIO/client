@@ -1,8 +1,10 @@
-import {tileManager} from "../../Loader";
 import {territoryManager} from "../TerritoryManager";
 import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
 import {gameMap} from "../Game";
+import {getNeighbors} from "../../util/MathUtil";
 
+//TODO: This needs major refactoring
+// rendering logic should be separated from the game logic
 export class Player {
 	id: number;
 	name: string;
@@ -51,7 +53,7 @@ export class Player {
 			this.territoryMap[tile] = 1;
 			territoryRenderer.set(tile, this.territoryR, this.territoryG, this.territoryB);
 		}
-		for (const neighbor of tileManager.getNeighbors(tile)) {
+		for (const neighbor of getNeighbors(tile)) {
 			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				territoryRenderer.set(neighbor, this.territoryR, this.territoryG, this.territoryB);
 				this.territoryMap[neighbor] = 1;
@@ -69,7 +71,7 @@ export class Player {
 		this.territorySize--;
 		this.borderTiles.delete(tile);
 		this.territoryMap[tile] = 0;
-		for (const neighbor of tileManager.getNeighbors(tile)) {
+		for (const neighbor of getNeighbors(tile)) {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				territoryRenderer.set(neighbor, this.borderR, this.borderG, this.borderB);

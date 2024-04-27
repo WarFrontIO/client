@@ -5,6 +5,7 @@ import {random} from "../Random";
 import {gameMap} from "../Game";
 import {Player} from "../player/Player";
 
+//TODO: This requires new attack logic
 class AttackActionHandler implements GameTickListener {
 	attacks: Attack[] = [];
 	playerIndex: Attack[][] = [];
@@ -91,7 +92,7 @@ class AttackActionHandler implements GameTickListener {
 				}
 				attack.troops -= attackCost + 1;
 				attack.time -= timeCost;
-				if (attack.target !== territoryManager.OWNER_NONE) playerManager.getPlayer(attack.target).troops = Math.max(0, playerManager.getPlayer(attack.target).troops - defenceCost);
+				if (playerManager.getPlayer(attack.target)) playerManager.getPlayer(attack.target).troops = Math.max(0, playerManager.getPlayer(attack.target).troops - defenceCost);
 				territoryManager.conquer(target, attack.player);
 			}
 		}

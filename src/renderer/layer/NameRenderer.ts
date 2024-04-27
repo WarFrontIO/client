@@ -2,6 +2,8 @@ import {RendererLayer} from "./RendererLayer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 
+//TODO: This requires major refactoring
+//TODO: Invert the dependency on Player class
 export class NameRenderer implements RendererLayer {
 	render(context: CanvasRenderingContext2D): void {
 		context.textRendering = "optimizeSpeed";

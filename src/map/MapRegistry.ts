@@ -1,5 +1,6 @@
 import {decodeMap} from "./codec/MapCodec";
 import {GameMap} from "./GameMap";
+import {InvalidArgumentException} from "../util/exception/InvalidArgumentException";
 
 const mapRegistry: EncodedMapData[] = [];
 
@@ -16,10 +17,16 @@ function registerMap(name: string, base64Data: string) {
 	});
 }
 
+/**
+ * Retrieves a map from the registry by its ID.
+ * @param id numeric ID of the map
+ * @returns the map
+ * @throws InvalidArgumentException if the map is not found
+ */
 export function mapFromId(id: number): GameMap {
 	const data = mapRegistry[id];
 	if (!data) {
-		throw new Error(`Map with id ${id} not found`);
+		throw new InvalidArgumentException(`Map with id ${id} not found`);
 	}
 	const decoded = decodeMap(data.data);
 	const map = new GameMap(data.name, decoded.width, decoded.height);

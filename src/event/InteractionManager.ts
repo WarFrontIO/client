@@ -1,9 +1,25 @@
 import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
 
+/**
+ * Manages interactions with the user.
+ * This includes click, drag, scroll and hover events.
+ *
+ * All these events only apply to the topmost element at the given position.
+ * @see PrioritizedEventHandlerRegistry
+ *
+ * @see ClickEventListener
+ * @see DragEventListener
+ * @see ScrollEventListener
+ * @see HoverEventListener
+ */
 class InteractionManager {
+	/** Registry for click event listeners. */
 	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for drag event listeners. */
 	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for scroll event listeners. */
 	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for hover event listeners. */
 	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
@@ -57,27 +73,97 @@ class InteractionManager {
 	}
 }
 
+/**
+ * Listener for basic interactions.
+ * This interface is not meant to be implemented directly.
+ * Refer to the specific event listener interfaces instead.
+ */
 export interface BasicInteractionListener {
+	/**
+	 * Tests if the listener should receive events at the given position.
+	 * @param x The screen x-coordinate of the event.
+	 * @param y The screen y-coordinate of the event.
+	 * @returns True if the listener should receive events at the given position.
+	 */
 	test(x: number, y: number): boolean;
 }
 
+/**
+ * Listener for click events.
+ *
+ * Register a listener with the click registry to receive click events.
+ * @see InteractionManager.click
+ * @see PrioritizedEventHandlerRegistry.register
+ */
 export interface ClickEventListener extends BasicInteractionListener {
+	/**
+	 * Called when the user clicks at the given position.
+	 * @param x The screen x-coordinate of the click.
+	 * @param y The screen y-coordinate of the click.
+	 */
 	onClick(x: number, y: number): void;
 }
 
+/**
+ * Listener for drag events.
+ *
+ * Register a listener with the drag registry to receive drag events.
+ * @see InteractionManager.drag
+ * @see PrioritizedEventHandlerRegistry.register
+ */
 export interface DragEventListener extends BasicInteractionListener {
+	/**
+	 * Called when the user starts dragging at the given position.
+	 * @param x The screen x-coordinate of the drag start.
+	 * @param y The screen y-coordinate of the drag start.
+	 */
 	onDragStart(x: number, y: number): void;
 
+	/**
+	 * Called when the user drags to the given position.
+	 * @param x The screen x-coordinate of the drag move.
+	 * @param y The screen y-coordinate of the drag move.
+	 */
 	onDragMove(x: number, y: number): void;
 
+	/**
+	 * Called when the user stops dragging at the given position.
+	 * @param x The screen x-coordinate of the drag end.
+	 * @param y The screen y-coordinate of the drag end.
+	 */
 	onDragEnd(x: number, y: number): void;
 }
 
+/**
+ * Listener for scroll events.
+ *
+ * Register a listener with the scroll registry to receive scroll events.
+ * @see InteractionManager.scroll
+ * @see PrioritizedEventHandlerRegistry.register
+ */
 export interface ScrollEventListener extends BasicInteractionListener {
+	/**
+	 * Called when the user scrolls at the given position.
+	 * @param x The screen x-coordinate of the scroll.
+	 * @param y The screen y-coordinate of the scroll.
+	 * @param delta The scroll delta.
+	 */
 	onScroll(x: number, y: number, delta: number): void;
 }
 
+/**
+ * Listener for hover events.
+ *
+ * Register a listener with the hover registry to receive hover events.
+ * @see InteractionManager.hover
+ * @see PrioritizedEventHandlerRegistry.register
+ */
 export interface HoverEventListener extends BasicInteractionListener {
+	/**
+	 * Called when the user hovers at the given position.
+	 * @param x The screen x-coordinate of the hover.
+	 * @param y The screen y-coordinate of the hover.
+	 */
 	onHover(x: number, y: number): void;
 }
 

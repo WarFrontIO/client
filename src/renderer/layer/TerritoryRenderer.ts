@@ -2,8 +2,13 @@ import {CachedLayer} from "./CachedLayer";
 import {gameMap} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
 
+/**
+ * Territory renderer.
+ * Renders territory colors on the map (e.g. player territories).
+ * @internal
+ */
 export class TerritoryRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
-	private imgData: ImageData;
+	private readonly imgData: ImageData;
 	private readonly pixels: Uint8ClampedArray;
 	private hasChanges: boolean = false;
 
@@ -26,6 +31,14 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 		this.scale = scale;
 	}
 
+	/**
+	 * Set the color of a pixel on the territory layer.
+	 * Pixel will be rendered on the next render tick.
+	 * @param index index of the pixel
+	 * @param r red color value
+	 * @param g green color value
+	 * @param b blue color value
+	 */
 	set(index: number, r: number, g: number, b: number) {
 		const i = index * 4;
 		this.pixels[i] = r;
@@ -35,6 +48,11 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 		this.hasChanges = true;
 	}
 
+	/**
+	 * Clear the color of a pixel on the territory layer.
+	 * Pixel will be fully transparent afterward.
+	 * @param index index of the pixel
+	 */
 	clear(index: number) {
 		const i = index * 4;
 		this.pixels[i] = 0;
@@ -53,4 +71,5 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 	}
 }
 
+//TODO: Remove this. Changed tiles should be staged in a separate manager first
 export let territoryRenderer: TerritoryRenderer;

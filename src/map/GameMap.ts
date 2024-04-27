@@ -2,9 +2,9 @@ import {TileType} from "./tile/TileType";
 import {tileManager} from "../Loader";
 
 export class GameMap {
-	private name: string;
-	width: number;
-	height: number;
+	private readonly name: string;
+	readonly width: number;
+	readonly height: number;
 	private readonly tiles: Uint16Array;
 
 	constructor(name: string, width: number, height: number) {
@@ -14,14 +14,17 @@ export class GameMap {
 		this.tiles = new Uint16Array(width * height);
 	}
 
-	getTile(x: number, y: number): TileType {
-		return tileManager.fromID(this.tiles[y * this.width + x]);
+	getTile(index: number): TileType {
+		return tileManager.fromID(this.tiles[index]);
 	}
 
-	setTileAt(x: number, y: number, tile: TileType): void {
-		this.tiles[y * this.width + x] = tile.id;
-	}
-
+	/**
+	 * Manipulates the tile at the given index.
+	 *
+	 * This method should only be called by map loaders / generators.
+	 * @param index The index of the tile.
+	 * @param tile The new tile.
+	 */
 	setTileId(index: number, tile: number): void {
 		this.tiles[index] = tile;
 	}
