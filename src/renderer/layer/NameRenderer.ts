@@ -1,36 +1,29 @@
 import {RendererLayer} from "./RendererLayer";
-import {playerManager} from "../../game/player/PlayerManager";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
+import {playerNameRenderingManager} from "../manager/PlayerNameRenderingManager";
 
-//TODO: This requires major refactoring
-//TODO: Invert the dependency on Player class
 export class NameRenderer implements RendererLayer {
 	render(context: CanvasRenderingContext2D): void {
 		context.textRendering = "optimizeSpeed";
 		context.textAlign = "center";
+		context.textBaseline = "bottom";
+		context.fillStyle = "rgb(255, 255, 255)";
 		const zoom = mapNavigationHandler.zoom;
 		const x = mapNavigationHandler.x;
 		const y = mapNavigationHandler.y;
-		//TODO: Optimize this
-		playerManager.players.forEach(player => {
-			player.update();
-			context.fillStyle = "rgb(255, 255, 255)";
-			context.font = "bold " + (player.nameSize * zoom) + "px Arial";
-			context.textBaseline = "bottom";
-			context.fillText(player.name, player.nameX * zoom + x, player.nameY * zoom + y);
-			context.font = "bold " + (player.troopSize * zoom) + "px Arial";
-			context.textBaseline = "top";
-			context.fillText(this.formatTroops(player.troops), player.nameX * zoom + x, player.nameY * zoom + y);
-		});
-	}
-
-	formatTroops(troops: number): string {
-		let result = "";
-		while (troops > 1000) {
-			result = (troops % 1000).toString().padStart(3, "0") + result;
-			troops = Math.floor(troops / 1000);
-			if (troops > 0) result = "." + result;
+		let currentSize = 0;
+		let currentBaseline = "bottom";
+		for (const data of playerNameRenderingManager.getTextData()) {
+			if (data.size === 0) continue;
+			if (data.size !== currentSize) {
+				context.font = "bold " + Math.floor(data.size * zoom / 4) + "px Arial";
+				currentSize = data.size;
+			}
+			if (data.baseline !== currentBaseline) {
+				context.textBaseline = data.baseline;
+				currentBaseline = data.baseline;
+			}
+			context.fillText(data.text, data.x * zoom + x, data.y * zoom + y);
 		}
-		return troops.toString() + result;
 	}
 }

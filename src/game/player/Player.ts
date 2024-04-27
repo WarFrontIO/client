@@ -2,27 +2,19 @@ import {territoryManager} from "../TerritoryManager";
 import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
 import {gameMap} from "../Game";
 import {getNeighbors} from "../../util/MathUtil";
+import {PlayerNameRenderingData, playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 //TODO: This needs major refactoring
 // rendering logic should be separated from the game logic
 export class Player {
-	id: number;
-	name: string;
+	readonly id: number;
+	readonly name: string;
 	troops: number = 1000;
-	borderTiles: Set<number> = new Set();
+	readonly borderTiles: Set<number> = new Set();
 	territorySize: number = 0;
 	nameUpdateTimer: number = 0;
-	territoryMap: Uint16Array = new Uint16Array(gameMap.width * gameMap.height);
-	minX: number = Infinity;
-	maxX: number = 0;
-	minY: number = Infinity;
-	maxY: number = 0;
-	nameX: number = 0;
-	nameY: number = 0;
-	nameLength: number = 0;
-	troopLength: number = 0;
-	nameSize: number = 0;
-	troopSize: number = 0;
+	readonly territoryMap: Uint8Array = new Uint8Array(gameMap.width * gameMap.height);
+	readonly nameRenderingData: PlayerNameRenderingData;
 
 	constructor(id: number, name: string, r: number, g: number, b: number) {
 		this.id = id;
@@ -33,8 +25,7 @@ export class Player {
 		this.borderR = r < 128 ? r + 32 : r - 32;
 		this.borderG = g < 128 ? g + 32 : g - 32;
 		this.borderB = b < 128 ? b + 32 : b - 32;
-		this.nameLength = territoryRenderer.context.measureText(this.name).width / 10;
-		this.troopLength = territoryRenderer.context.measureText("123.").width / 10;
+		this.nameRenderingData = playerNameRenderingManager.registerPlayer(this);
 	}
 
 	territoryR: number = 0;
@@ -60,10 +51,7 @@ export class Player {
 			}
 		}
 
-		if (tile % gameMap.width < this.minX) this.minX = tile % gameMap.width;
-		if (tile % gameMap.width > this.maxX) this.maxX = tile % gameMap.width;
-		if (Math.floor(tile / gameMap.width) < this.minY) this.minY = Math.floor(tile / gameMap.width);
-		if (Math.floor(tile / gameMap.width) > this.maxY) this.maxY = Math.floor(tile / gameMap.width);
+		this.nameRenderingData.updateBounds(tile % gameMap.width, Math.floor(tile / gameMap.width));
 		this.nameUpdateTimer++;
 	}
 
@@ -79,18 +67,7 @@ export class Player {
 			}
 		}
 
-		if (tile % gameMap.width === this.minX || tile % gameMap.width === this.maxX || Math.floor(tile / gameMap.width) === this.minY || Math.floor(tile / gameMap.width) === this.maxY) {
-			this.minX = gameMap.width;
-			this.maxX = 0;
-			this.minY = gameMap.height;
-			this.maxY = 0;
-			for (const tile of this.borderTiles) {
-				if (tile % gameMap.width < this.minX) this.minX = tile % gameMap.width;
-				if (tile % gameMap.width > this.maxX) this.maxX = tile % gameMap.width;
-				if (Math.floor(tile / gameMap.width) < this.minY) this.minY = Math.floor(tile / gameMap.width);
-				if (Math.floor(tile / gameMap.width) > this.maxY) this.maxY = Math.floor(tile / gameMap.width);
-			}
-		}
+		this.nameRenderingData.removeBounds(tile % gameMap.width, Math.floor(tile / gameMap.width), this.borderTiles);
 		this.nameUpdateTimer++;
 	}
 
@@ -102,39 +79,10 @@ export class Player {
 	update() {
 		if (this.territorySize === 0) return;
 		if (this.nameUpdateTimer > Math.min(200, this.territorySize / 10)) {
-			this.calculateNamePosition();
+			this.nameRenderingData.updateNamePosition(this.territoryMap, this.borderTiles);
 			this.nameUpdateTimer = 0;
 		} else if (this.nameUpdateTimer > 0) {
 			this.nameUpdateTimer++;
 		}
-	}
-
-	calculateNamePosition() {
-		const xSize = this.maxX - this.minX + 1;
-		const ySize = this.maxY - this.minY + 1;
-		let max = 0;
-		let maxPos = [0, 0];
-		let currentRow = new Array(xSize).fill(0);
-		let previousRow = new Array(xSize).fill(0);
-
-		for (let y = 0; y < ySize; y++) {
-			for (let x = 0; x < xSize; x++) {
-				let entry = this.territoryMap[(y + this.minY) * gameMap.width + x + this.minX];
-				if (entry && x) entry = Math.min(currentRow[x - 1], previousRow[x - 1], currentRow[x]) + 1;
-
-				previousRow[x] = currentRow[x];
-				currentRow[x] = entry;
-
-				if (entry > max) {
-					max = entry;
-					maxPos = [x, y];
-				}
-			}
-		}
-
-		this.nameX = this.minX + maxPos[0] - max / 2 + 1;
-		this.nameY = this.minY + maxPos[1] - max / 2 + 1;
-		this.nameSize = Math.min(1 / this.nameLength, 0.4) * max;
-		this.troopSize = Math.min(1 / this.troopLength / Math.max(3, this.troops.toString().length) * 3, 0.4) * max;
 	}
 }

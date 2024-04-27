@@ -4,7 +4,7 @@ import {spawnManager} from "./SpawnManager";
 import {gameTicker, GameTickListener} from "../GameTicker";
 
 class PlayerManager implements GameTickListener {
-	players: Player[];
+	private players: Player[];
 	private bots: BotPlayer[];
 
 	constructor() {
