@@ -9,6 +9,7 @@ import {spawnManager} from "./player/SpawnManager";
 import {random} from "./Random";
 import {gameTicker} from "./GameTicker";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
+import {attackActionHandler} from "./action/AttackActionHandler";
 
 /**
  * The map of the current game.
@@ -30,6 +31,7 @@ export function startGame(map: GameMap) {
 	gameRenderer.initGameplayLayers();
 	territoryManager.reset();
 	playerNameRenderingManager.reset();
+	attackActionHandler.init(500);
 	spawnManager.init(500);
 	playerManager.init([new Player(0, "Player", 0, 200, 200)], 0, 500);
 

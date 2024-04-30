@@ -3,6 +3,7 @@ import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
 import {gameMap} from "../Game";
 import {getNeighbors} from "../../util/MathUtil";
 import {PlayerNameRenderingData, playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {attackActionHandler} from "../action/AttackActionHandler";
 
 //TODO: This needs major refactoring
 // rendering logic should be separated from the game logic
@@ -51,6 +52,7 @@ export class Player {
 			}
 		}
 
+		attackActionHandler.handleTerritoryAdd(tile, this.id);
 		this.nameRenderingData.updateBounds(tile % gameMap.width, Math.floor(tile / gameMap.width));
 		this.nameUpdateTimer++;
 	}
@@ -67,6 +69,7 @@ export class Player {
 			}
 		}
 
+		attackActionHandler.handleTerritoryRemove(tile, this.id);
 		this.nameRenderingData.removeBounds(tile % gameMap.width, Math.floor(tile / gameMap.width), this.borderTiles);
 		this.nameUpdateTimer++;
 	}

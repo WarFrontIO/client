@@ -1,146 +1,187 @@
-import {clientPlayer, playerManager} from "../player/PlayerManager";
+import {playerManager} from "../player/PlayerManager";
 import {gameTicker, GameTickListener} from "../GameTicker";
 import {territoryManager} from "../TerritoryManager";
-import {random} from "../Random";
-import {gameMap} from "../Game";
 import {Player} from "../player/Player";
+import {AttackExecutor} from "./AttackExecutor";
+import {gameMap} from "../Game";
 
-//TODO: This requires new attack logic
 class AttackActionHandler implements GameTickListener {
-	attacks: Attack[] = [];
-	playerIndex: Attack[][] = [];
+	private attacks: AttackExecutor[] = [];
+	private playerIndex: AttackExecutor[][] = [];
+	private unclaimedIndex: AttackExecutor[] = [];
+	private playerAttackList: AttackExecutor[][] = [];
+	private targetAttackList: AttackExecutor[][] = [];
+	private unclaimedAttackList: AttackExecutor[] = [];
+	amountCache: Uint8Array;
 
 	constructor() {
 		gameTicker.registry.register(this);
 	}
 
-	attackPlayer(player: number, target: number, percentage: number): void {
-		if (player === clientPlayer.id) {
-			console.log(playerManager.getPlayer(player).troops + "troops attacking " + target + " with " + percentage + " troops.");
-		}
+	init(maxPlayers: number): void {
+		this.attacks = [];
+		this.playerIndex = new Array(maxPlayers).fill(null).map(() => new Array(maxPlayers).fill(null));
+		this.playerAttackList = new Array(maxPlayers).fill(null).map(() => []);
+		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
+		this.unclaimedIndex = [];
+		this.amountCache = new Uint8Array(gameMap.width * gameMap.height);
+	}
+
+	//TODO: Move this out of here
+	preprocessAttack(player: number, target: number, percentage: number): void {
 		if (player === target || target === territoryManager.OWNER_NONE - 1) {
 			return;
 		}
-		if (!this.playerIndex[player]) this.playerIndex[player] = [];
-		if (!this.playerIndex[target]) this.playerIndex[target] = [];
 
 		let troopCount = Math.floor(playerManager.getPlayer(player).troops * percentage);
 		playerManager.getPlayer(player).troops -= troopCount;
 
-		const parent = this.playerIndex[player][target];
+		if (target === territoryManager.OWNER_NONE) {
+			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
+			return;
+		}
+		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
+	}
+
+	/**
+	 * Schedule an attack on an unclaimed territory.
+	 * @param player The player that is attacking.
+	 * @param troops The amount of troops that are attacking.
+	 */
+	attackUnclaimed(player: Player, troops: number): void {
+		const parent = this.unclaimedIndex[player.id];
 		if (parent) {
-			parent.troops += troopCount;
+			parent.modifyTroops(troops);
 			return;
 		}
 
-		const opposite = this.playerIndex[target][player];
-		if (opposite) {
-			if (opposite.troops > troopCount) {
-				opposite.troops -= troopCount;
-				return;
-			}
-			this.attacks.splice(this.attacks.indexOf(opposite), 1);
-			this.playerIndex[target][player] = null;
-			troopCount -= opposite.troops;
+		this.addUnclaimed(player, troops);
+	}
+
+	/**
+	 * Schedule an attack on a player.
+	 * @param player The player that is attacking.
+	 * @param target The player that is being attacked.
+	 * @param troops The amount of troops that are attacking.
+	 */
+	attackPlayer(player: Player, target: Player, troops: number): void {
+		const parent = this.getAttack(player, target);
+		if (parent) {
+			parent.modifyTroops(troops);
+			return;
 		}
 
-		const attack = new Attack();
-		attack.player = player;
-		attack.target = target;
-		attack.troops = troopCount;
+		const opposite = this.getAttack(target, player);
+		if (opposite) {
+			if (opposite.oppose(troops)) return;
+			this.removeAttack(opposite);
+			troops -= opposite.getTroops();
+		}
+
+		this.addAttack(player, target, troops);
+	}
+
+	/**
+	 * Get the attack executor for the given players.
+	 * @param player The player that is attacking.
+	 * @param target The player that is being attacked.
+	 * @returns The attack executor for the given players.
+	 * @private
+	 */
+	private getAttack(player: Player, target: Player): AttackExecutor {
+		return this.playerIndex[player.id][target.id];
+	}
+
+	/**
+	 * Add an unclaimed attack to the list of ongoing attacks.
+	 * @param player The player that is attacking.
+	 * @param troops The amount of troops that are attacking.
+	 * @private
+	 */
+	private addUnclaimed(player: Player, troops: number): void {
+		const attack = new AttackExecutor(player, null, troops);
 		this.attacks.push(attack);
-		this.playerIndex[player][target] = attack;
+		this.unclaimedIndex[player.id] = attack;
+		this.playerAttackList[player.id].push(attack);
+		this.unclaimedAttackList.push(attack);
+	}
+
+	/**
+	 * Add an attack to the list of ongoing attacks.
+	 * @param player The player that is attacking.
+	 * @param target The player that is being attacked.
+	 * @param troops The amount of troops that are attacking.
+	 * @private
+	 */
+	private addAttack(player: Player, target: Player, troops: number): void {
+		const attack = new AttackExecutor(player, target, troops);
+		this.attacks.push(attack);
+		this.playerIndex[player.id][target.id] = attack;
+		this.playerAttackList[player.id].push(attack);
+		this.targetAttackList[target.id].push(attack);
+	}
+
+	/**
+	 * Remove an attack from the list of ongoing attacks.
+	 * @param attack The attack to remove.
+	 * @private
+	 */
+	private removeAttack(attack: AttackExecutor): void {
+		this.attacks.splice(this.attacks.indexOf(attack), 1);
+		if (attack.target) {
+			this.playerIndex[attack.player.id][attack.target.id] = null;
+			this.playerAttackList[attack.player.id].splice(this.playerAttackList[attack.player.id].indexOf(attack), 1);
+			this.targetAttackList[attack.target.id].splice(this.targetAttackList[attack.target.id].indexOf(attack), 1);
+		} else {
+			this.unclaimedIndex[attack.player.id] = null;
+			this.unclaimedAttackList.splice(this.unclaimedAttackList.indexOf(attack), 1);
+		}
 	}
 
 	tick(): void {
 		for (const attack of this.attacks) {
-			attack.time++;
-			if (attack.troops < 1) {
-				this.attacks.splice(this.attacks.indexOf(attack), 1);
-				this.playerIndex[attack.player][attack.target] = null;
+			if (attack.tick()) {
 				continue;
 			}
-
-			let tiles = this.calculateAttackedTiles(attack.player, attack.target);
-			if (tiles.length < 1) {
-				playerManager.getPlayer(attack.player).troops += attack.troops;
-				this.attacks.splice(this.attacks.indexOf(attack), 1);
-				this.playerIndex[attack.player][attack.target] = null;
-				continue;
-			}
-
-			while (attack.time > 0) {
-				if (tiles.length < 1) {
-					break;
-				}
-				const target = tiles[random.nextInt(tiles.length)];
-				if (territoryManager.getOwner(target) !== attack.target) {
-					tiles.splice(tiles.indexOf(target), 1);
-					continue;
-				}
-				const attackCost = this.calculateAttackCost(playerManager.getPlayer(attack.target));
-				const defenceCost = Math.floor(attackCost / 2);
-				if (attack.troops < attackCost + 1) {
-					playerManager.getPlayer(attack.player).troops += attack.troops;
-					this.attacks.splice(this.attacks.indexOf(attack), 1);
-					this.playerIndex[attack.player][attack.target] = null;
-					break;
-				}
-				const timeCost = 3 / tiles.length * this.calculateSpeedFactor(playerManager.getPlayer(attack.player), playerManager.getPlayer(attack.target)); //TODO
-				if (attack.time < timeCost) {
-					break;
-				}
-				attack.troops -= attackCost + 1;
-				attack.time -= timeCost;
-				if (playerManager.getPlayer(attack.target)) playerManager.getPlayer(attack.target).troops = Math.max(0, playerManager.getPlayer(attack.target).troops - defenceCost);
-				territoryManager.conquer(target, attack.player);
-			}
+			playerManager.getPlayer(attack.player.id).troops += attack.getTroops();
+			this.removeAttack(attack);
 		}
 	}
 
-	//Note: These are weighted, tiles with multiple neighbors appear more than once
-	calculateAttackedTiles(player: number, target: number): number[] {
-		const result = [], tileOwners = territoryManager.tileOwners;
-		for (const tile of playerManager.getPlayer(player).borderTiles) {
-			const x = tile % gameMap.width;
-			const y = Math.floor(tile / gameMap.width);
-			if (x > 0 && tileOwners[tile - 1] === target) {
-				result.push(tile - 1);
-			}
-			if (x < gameMap.width - 1 && tileOwners[tile + 1] === target) {
-				result.push(tile + 1);
-			}
-			if (y > 0 && tileOwners[tile - gameMap.width] === target) {
-				result.push(tile - gameMap.width);
-			}
-			if (y < gameMap.height - 1 && tileOwners[tile + gameMap.width] === target) {
-				result.push(tile + gameMap.width);
-			}
+	/**
+	 * Handle a tile being added to a player.
+	 * @param tile The tile that was added.
+	 * @param player The player that the tile was added to.
+	 */
+	handleTerritoryAdd(tile: number, player: number): void {
+		for (let i = 0; i < this.playerAttackList[player].length; i++) {
+			this.playerAttackList[player][i].handlePlayerTileAdd(tile);
 		}
-		return result;
+
+		for (let i = 0; i < this.targetAttackList[player].length; i++) {
+			this.targetAttackList[player][i].handleTargetTileAdd(tile);
+		}
 	}
 
-	calculateAttackCost(target: Player): number {
-		if (!target) return 0;
-		return Math.floor(target.troops / target.territorySize);
-	}
+	/**
+	 * Handle a tile being removed from a player.
+	 * @param tile The tile that was removed.
+	 * @param player The player that the tile was removed from.
+	 */
+	handleTerritoryRemove(tile: number, player: number): void {
+		for (let i = 0; i < this.playerAttackList[player].length; i++) {
+			this.playerAttackList[player][i].handlePlayerTileRemove(tile);
+		}
 
-	calculateSpeedFactor(player: Player, target: Player): number {
-		if (!target) return 1;
-		return Math.max(0.3, Math.min(2, target.territorySize / player.territorySize))
+		for (let i = 0; i < this.targetAttackList[player].length; i++) {
+			this.targetAttackList[player][i].handleTargetTileRemove(tile);
+		}
 	}
 
 	clear(): void {
 		this.attacks = [];
 		this.playerIndex = [];
 	}
-}
-
-class Attack {
-	player: number;
-	target: number;
-	troops: number;
-	time: number = 0
 }
 
 export const attackActionHandler = new AttackActionHandler();

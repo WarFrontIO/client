@@ -25,9 +25,9 @@ export class BotPlayer extends Player {
 			return;
 		}
 		if (targets.includes(territoryManager.OWNER_NONE)) {
-			attackActionHandler.attackPlayer(this.id, territoryManager.OWNER_NONE, 0.1);
+			attackActionHandler.preprocessAttack(this.id, territoryManager.OWNER_NONE, 0.1);
 			return;
 		}
-		attackActionHandler.attackPlayer(this.id, targets[random.nextInt(targets.length)], 0.1);
+		attackActionHandler.preprocessAttack(this.id, targets[random.nextInt(targets.length)], 0.1);
 	}
 }
