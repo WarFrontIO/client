@@ -33,8 +33,8 @@ class AttackActionHandler implements GameTickListener {
 			return;
 		}
 
-		let troopCount = Math.floor(playerManager.getPlayer(player).troops * percentage);
-		playerManager.getPlayer(player).troops -= troopCount;
+		let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
+		playerManager.getPlayer(player).removeTroops(troopCount);
 
 		if (target === territoryManager.OWNER_NONE) {
 			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
@@ -143,7 +143,7 @@ class AttackActionHandler implements GameTickListener {
 			if (attack.tick()) {
 				continue;
 			}
-			playerManager.getPlayer(attack.player.id).troops += attack.getTroops();
+			playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
 			this.removeAttack(attack);
 		}
 	}

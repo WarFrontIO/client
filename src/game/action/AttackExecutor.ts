@@ -75,7 +75,7 @@ export class AttackExecutor {
 			conquered++;
 		}
 
-		if (this.target) this.target.troops = Math.max(0, this.target.troops - conquered * defenseCost);
+		if (this.target) this.target.removeTroops(conquered * defenseCost);
 
 		if (this.tileQueue.isEmpty() || this.troops < attackCost) return false;
 
@@ -187,7 +187,7 @@ export class AttackExecutor {
 	 */
 	private calculateSpeedFactor(): number {
 		if (!this.target) return 1;
-		return 0.65 + Math.log(1 + Math.min(50, this.player.territorySize * this.player.troops / Math.max(1, this.target.territorySize) / Math.max(1, this.target.troops))) / 2;
+		return 0.65 + Math.log(1 + Math.min(50, this.player.getTerritorySize() * this.player.getTroops() / Math.max(1, this.target.getTerritorySize()) / Math.max(1, this.target.getTroops()))) / 2;
 	}
 
 	/**
@@ -198,6 +198,6 @@ export class AttackExecutor {
 	 */
 	private calculateAttackCost() {
 		if (!this.target) return 1;
-		return 1 + Math.min(20, Math.floor(this.target.troops / Math.max(1, this.player.troops) * 3));
+		return 1 + Math.min(20, Math.floor(this.target.getTroops() / Math.max(1, this.player.getTroops()) * 3));
 	}
 }

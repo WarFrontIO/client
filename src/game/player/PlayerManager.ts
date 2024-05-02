@@ -2,6 +2,7 @@ import {Player} from "./Player";
 import {BotPlayer} from "./BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker, GameTickListener} from "../GameTicker";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 class PlayerManager implements GameTickListener {
 	private players: Player[];
@@ -26,6 +27,10 @@ class PlayerManager implements GameTickListener {
 			this.players.push(bot);
 			this.bots.push(bot);
 			spawnManager.randomSpawnPoint(bot);
+		}
+
+		for (const player of this.players) {
+			playerNameRenderingManager.registerPlayer(player);
 		}
 	}
 

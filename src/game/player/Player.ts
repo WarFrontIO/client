@@ -1,19 +1,16 @@
 import {territoryManager} from "../TerritoryManager";
 import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
-import {gameMap} from "../Game";
 import {getNeighbors} from "../../util/MathUtil";
-import {PlayerNameRenderingData, playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../action/AttackActionHandler";
 
-//TODO: This needs major refactoring
-// rendering logic should be separated from the game logic
 export class Player {
 	readonly id: number;
 	readonly name: string;
-	troops: number = 1000;
+	private troops: number = 1000;
 	readonly borderTiles: Set<number> = new Set();
-	territorySize: number = 0;
-	readonly nameRenderingData: PlayerNameRenderingData;
+	private territorySize: number = 0;
+	private alive: boolean = true;
 
 	constructor(id: number, name: string, r: number, g: number, b: number) {
 		this.id = id;
@@ -24,9 +21,9 @@ export class Player {
 		this.borderR = r < 128 ? r + 32 : r - 32;
 		this.borderG = g < 128 ? g + 32 : g - 32;
 		this.borderB = b < 128 ? b + 32 : b - 32;
-		this.nameRenderingData = playerNameRenderingManager.registerPlayer(this);
 	}
 
+	//TODO: remove this
 	territoryR: number = 0;
 	territoryG: number = 0;
 	territoryB: number = 0;
@@ -34,6 +31,12 @@ export class Player {
 	borderG: number = 0;
 	borderB: number = 0;
 
+	/**
+	 * Add a tile to the player's territory.
+	 * WARNING: Make sure to call this method AFTER updating the territory manager.
+	 * @param tile
+	 * @internal
+	 */
 	addTile(tile: number): void {
 		this.territorySize++;
 		if (territoryManager.isBorder(tile)) {
@@ -53,6 +56,12 @@ export class Player {
 		attackActionHandler.handleTerritoryAdd(tile, this.id);
 	}
 
+	/**
+	 * Remove a tile from the player's territory.
+	 * WARNING: Make sure to call this method AFTER updating the territory manager.
+	 * @param tile The tile to remove.
+	 * @internal
+	 */
 	removeTile(tile: number): void {
 		this.territorySize--;
 		if (!this.borderTiles.delete(tile)) {
@@ -67,10 +76,54 @@ export class Player {
 		}
 
 		attackActionHandler.handleTerritoryRemove(tile, this.id);
+
+		if (this.territorySize === 0) {
+			this.alive = false;
+		}
 	}
 
+	/**
+	 * Process one tick worth of income.
+	 */
 	income() {
-		this.troops += Math.max(1, Math.floor(this.territorySize / 50) + Math.floor(this.troops / 30));
-		this.troops = Math.min(this.territorySize * 100, this.troops);
+		this.addTroops(Math.max(1, Math.floor(this.territorySize / 50) + Math.floor(this.getTroops() / 30)));
+	}
+
+	/**
+	 * @returns The amount of troops the player has.
+	 */
+	getTroops(): number {
+		return this.troops;
+	}
+
+	/**
+	 * Add troops to the player.
+	 * Troops will be capped at 100 times the territory size.
+	 * @param amount The amount of troops to add.
+	 */
+	addTroops(amount: number) {
+		this.troops = Math.min(this.territorySize * 100, this.troops + amount);
+	}
+
+	/**
+	 * Remove troops from the player.
+	 * @param amount The amount of troops to remove.
+	 */
+	removeTroops(amount: number) {
+		this.troops = Math.max(0, this.troops - amount);
+	}
+
+	/**
+	 * @returns The size of the player's territory (in tiles).
+	 */
+	getTerritorySize(): number {
+		return this.territorySize;
+	}
+
+	/**
+	 * @returns True if the player is alive, false otherwise.
+	 */
+	isAlive(): boolean {
+		return this.alive;
 	}
 }

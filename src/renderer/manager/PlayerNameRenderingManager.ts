@@ -17,12 +17,10 @@ class PlayerNameRenderingManager {
 	 * Register a player for name rendering.
 	 * @param player The player to register.
 	 */
-	registerPlayer(player: Player): PlayerNameRenderingData {
+	registerPlayer(player: Player): void {
 		const nameLength = territoryRenderer.context.measureText(player.name).width / 10;
 		const troopLength = territoryRenderer.context.measureText("123.").width / 10;
-		const data = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles);
-		this.playerData[player.id] = data;
-		return data;
+		this.playerData[player.id] = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles);
 	}
 
 	/**
@@ -34,10 +32,10 @@ class PlayerNameRenderingManager {
 		const data: RenderTextData[] = [];
 		for (let i = 0; i < this.playerData.length; i++) {
 			const player = playerManager.getPlayer(i);
-			if (player) {
+			if (player && player.isAlive()) {
 				const playerData = this.playerData[i];
 				const name = player.name;
-				const troopSize = Math.floor(playerData.troopSize / Math.max(3, player.troops.toString().length) * 3);
+				const troopSize = Math.floor(playerData.troopSize / Math.max(3, player.getTroops().toString().length) * 3);
 				data.push({
 					text: name,
 					x: playerData.nameX,
@@ -46,7 +44,7 @@ class PlayerNameRenderingManager {
 					baseline: "bottom"
 				});
 				data.push({
-					text: formatTroops(player.troops),
+					text: formatTroops(player.getTroops()),
 					x: playerData.nameX,
 					y: playerData.nameY,
 					size: troopSize,
