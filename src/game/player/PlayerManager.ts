@@ -19,18 +19,30 @@ class PlayerManager implements GameTickListener {
 	 * @param maxPlayers The maximum number of players.
 	 */
 	init(humans: Player[], clientId: number, maxPlayers: number): void {
-		this.players = humans;
-		clientPlayer = this.players[clientId];
+		this.players = [];
 		this.bots = [];
-		while (this.players.length < maxPlayers) {
-			const bot = new BotPlayer(this.players.length);
-			this.players.push(bot);
-			this.bots.push(bot);
-			spawnManager.randomSpawnPoint(bot);
+
+		clientPlayer = humans[clientId];
+		for (const player of humans) {
+			this.registerPlayer(player, false);
 		}
 
-		for (const player of this.players) {
-			playerNameRenderingManager.registerPlayer(player);
+		for (let i = humans.length; i < maxPlayers; i++) {
+			this.registerPlayer(new BotPlayer(this.players.length), true);
+		}
+	}
+
+	/**
+	 * Register a player.
+	 * @param player The player to register.
+	 * @param isBot Whether the player is a bot.
+	 */
+	registerPlayer(player: Player, isBot: boolean): void {
+		playerNameRenderingManager.registerPlayer(player);
+		this.players.push(player);
+		if (isBot) {
+			this.bots.push(player as BotPlayer);
+			spawnManager.randomSpawnPoint(player);
 		}
 	}
 
@@ -42,6 +54,7 @@ class PlayerManager implements GameTickListener {
 		return this.players[id];
 	}
 
+	//TODO: bot ticking should be done in a separate bot manager
 	tick(): void {
 		this.bots.forEach(bot => bot.tick());
 		if (gameTicker.getTickCount() % 10 === 0) {
