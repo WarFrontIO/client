@@ -6,9 +6,11 @@ import {formatTroops} from "../../util/StringFormatter";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
+	private nameDepth: Uint16Array;
 
 	reset() {
 		this.playerData = [];
+		this.nameDepth = new Uint16Array(gameMap.width * gameMap.height);
 	}
 
 	/**
@@ -18,7 +20,7 @@ class PlayerNameRenderingManager {
 	registerPlayer(player: Player): PlayerNameRenderingData {
 		const nameLength = territoryRenderer.context.measureText(player.name).width / 10;
 		const troopLength = territoryRenderer.context.measureText("123.").width / 10;
-		const data = new PlayerNameRenderingData(nameLength, troopLength);
+		const data = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles);
 		this.playerData[player.id] = data;
 		return data;
 	}
@@ -33,7 +35,6 @@ class PlayerNameRenderingManager {
 		for (let i = 0; i < this.playerData.length; i++) {
 			const player = playerManager.getPlayer(i);
 			if (player) {
-				player.update();
 				const playerData = this.playerData[i];
 				const name = player.name;
 				const troopSize = Math.floor(playerData.troopSize / Math.max(3, player.troops.toString().length) * 3);
@@ -56,101 +57,159 @@ class PlayerNameRenderingManager {
 		data.sort((a, b) => a.size - b.size);
 		return data;
 	}
+
+	/**
+	 * Update the player name rendering data.
+	 * @internal
+	 */
+	addTile(tile: number, player: number): void {
+		this.nameDepth[tile] = 65535; // force recalculation
+		this.recalculateFrom(tile, false, this.playerData[player]);
+	}
+
+	/**
+	 * Update the player name rendering data.
+	 * @internal
+	 */
+	removeTile(tile: number, player: number): void {
+		this.nameDepth[tile] = 0;
+		this.recalculateFrom(tile, true, this.playerData[player]);
+	}
+
+	/**
+	 * Recalculate the name depth map from a specific tile.
+	 * Name depth refers to the maximum size a square can be with the bottom-right corner at the tile.
+	 * @param tile The tile to recalculate from.
+	 * @param isRemoval Whether the recalculation is due to a tile removal.
+	 * @param playerData The player's rendering data.
+	 * @private
+	 */
+	private recalculateFrom(tile: number, isRemoval: boolean, playerData: PlayerNameRenderingData): void {
+		let currentOrigin = tile;
+		let isColumn = false;
+		let changed = true;
+		let max = 0;
+		let maxPos = 0;
+		while (true) {
+			let current = currentOrigin;
+			if (isRemoval && currentOrigin === tile) {
+				current++;
+			}
+			while (true) {
+				if (!this.nameDepth[current]) break; // Border / unclaimed tile
+				const value = Math.min(this.nameDepth[current - 1], this.nameDepth[current - gameMap.width], this.nameDepth[current - gameMap.width - 1]) + 1;
+				if (value === this.nameDepth[current]) break;
+
+				if (isRemoval) {
+					if (playerData.stackMap[current]) {
+						playerData.removeStack(current);
+					}
+				}
+				if (value > max) {
+					max = value;
+					maxPos = current;
+				}
+
+				changed = true;
+				this.nameDepth[current] = value;
+
+				current += isColumn ? gameMap.width : 1;
+			}
+			if (isColumn) {
+				if (!changed) break;
+				changed = false;
+				currentOrigin++;
+				isColumn = false;
+			} else {
+				isColumn = true;
+				currentOrigin += gameMap.width;
+			}
+		}
+
+		if (isRemoval && playerData.stackMap[tile]) {
+			playerData.removeStack(tile);
+			if (this.nameDepth[tile - gameMap.width - 1] && this.nameDepth[tile - gameMap.width - 1] > max) {
+				max = this.nameDepth[tile - gameMap.width - 1];
+				maxPos = tile - gameMap.width - 1;
+			}
+		}
+		playerData.insertStack(max, maxPos);
+	}
 }
 
 export class PlayerNameRenderingData {
-	private minX: number = Infinity;
-	private maxX: number = 0;
-	private minY: number = Infinity;
-	private maxY: number = 0;
 	nameX: number = 0;
 	nameY: number = 0;
 	private readonly nameLength: number;
 	private readonly troopLength: number;
 	nameSize: number = 0;
 	troopSize: number = 0;
+	private readonly positionStack: number[] = [];
+	private readonly valueStack: number[] = [];
+	private readonly borderSet: Set<number>;
+	readonly stackMap: boolean[] = [];
 
-	constructor(nameLength: number, troopLength: number) {
+	constructor(nameLength: number, troopLength: number, borderSet: Set<number>) {
 		this.nameLength = nameLength;
 		this.troopLength = troopLength;
+		this.borderSet = borderSet;
 	}
 
 	/**
-	 * Update the bounds of the player's territory.
-	 * @param x The x coordinate of the new tile.
-	 * @param y The y coordinate of the new tile.
+	 * Insert a tile into the name rendering stack.
+	 * @param value Size of square top-left of the tile.
+	 * @param tile The tile to insert.
 	 */
-	updateBounds(x: number, y: number): void {
-		this.minX = Math.min(this.minX, x);
-		this.maxX = Math.max(this.maxX, x);
-		this.minY = Math.min(this.minY, y);
-		this.maxY = Math.max(this.maxY, y);
-	}
-
-	/**
-	 * Recalculate the player bounds if necessary.
-	 * @param x The x coordinate of the removed tile.
-	 * @param y The y coordinate of the removed tile.
-	 * @param all All border tiles of the player.
-	 */
-	removeBounds(x: number, y: number, all: Set<number>): void {
-		if (x === this.minX || x === this.maxX || y === this.minY || y === this.maxY) {
-			this.minX = Infinity;
-			this.maxX = 0;
-			this.minY = Infinity;
-			this.maxY = 0;
-			for (const tile of all) {
-				const x = tile % gameMap.width;
-				const y = Math.floor(tile / gameMap.width);
-				if (x < this.minX) this.minX = x;
-				if (x > this.maxX) this.maxX = x;
-				if (y < this.minY) this.minY = y;
-				if (y > this.maxY) this.maxY = y;
+	insertStack(value: number, tile: number): void {
+		if (value > this.valueStack[this.valueStack.length - 1] || this.positionStack.length < 5) {
+			if (this.stackMap[tile]) {
+				this.removeStack(tile);
 			}
-		}
-	}
-
-	/**
-	 * Update the position of the player's name and troop count.
-	 *
-	 * Calculates the largest square of the player's territory and places the name in the center.
-	 * @param territoryMap Bitmap of the player's territory.
-	 * @param borderTiles All border tiles of the player.
-	 */
-	updateNamePosition(territoryMap: Uint8Array, borderTiles: Set<number>): void {
-		const xSize = this.maxX - this.minX + 1;
-		const ySize = this.maxY - this.minY + 1;
-		let max = 0;
-		let maxPos = [0, 0];
-		let currentRow = new Uint16Array(xSize);
-		let previousRow = new Uint16Array(xSize);
-
-		for (let y = 0; y < ySize; y++) {
-			for (let x = 0; x < xSize; x++) {
-				let entry = territoryMap[(y + this.minY) * gameMap.width + x + this.minX];
-				if (entry && x) entry = Math.min(currentRow[x - 1], previousRow[x - 1], currentRow[x]) + 1;
-
-				previousRow[x] = currentRow[x];
-				currentRow[x] = entry;
-
-				if (entry > max) {
-					max = entry;
-					maxPos = [x, y];
+			const index = this.valueStack.findIndex(v => v < value);
+			if (index === -1) {
+				this.positionStack.push(tile);
+				this.valueStack.push(value);
+			} else {
+				this.positionStack.splice(index, 0, tile);
+				this.valueStack.splice(index, 0, value);
+				if (this.positionStack.length > 5) {
+					this.positionStack.pop();
+					this.valueStack.pop();
 				}
 			}
+			this.stackMap[tile] = true;
+			this.updateStack();
+		}
+	}
+
+	/**
+	 * Remove a tile from the name rendering stack.
+	 * @param tile The tile to remove.
+	 */
+	removeStack(tile: number): void {
+		const index = this.positionStack.indexOf(tile);
+		if (index !== -1) {
+			this.positionStack.splice(index, 1);
+			this.valueStack.splice(index, 1);
+		}
+		delete this.stackMap[tile];
+		this.updateStack();
+	}
+
+	private updateStack(): void {
+		if (this.positionStack.length === 0) {
+			this.setPosAt(this.borderSet.values().next().value, 1);
+			return;
 		}
 
-		// If the player has no territory, place the name on a random border tile
-		if (max === 0) {
-			max = 1;
-			const pos = borderTiles.values().next().value;
-			maxPos = [pos % gameMap.width - this.minX, Math.floor(pos / gameMap.width) - this.minY];
-		}
+		this.setPosAt(this.positionStack[0], this.valueStack[0]);
+	}
 
-		this.nameX = this.minX + maxPos[0] - max / 2 + 1;
-		this.nameY = this.minY + maxPos[1] - max / 2 + 1;
-		this.nameSize = Math.floor(Math.min(1 / this.nameLength, 0.4) * max * 4);
-		this.troopSize = 1 / this.troopLength * max * 4;
+	private setPosAt(tile: number, size: number): void {
+		this.nameX = tile % gameMap.width - size / 2 + 1;
+		this.nameY = Math.floor(tile / gameMap.width) - size / 2 + 1;
+		this.nameSize = Math.floor(Math.min(1 / this.nameLength, 0.4) * size * 4);
+		this.troopSize = 1 / this.troopLength * size * 4;
 	}
 }
 
