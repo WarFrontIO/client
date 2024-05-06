@@ -1,4 +1,5 @@
 {
+  "name": "warfront-client",
   "scripts": {
     "prebuild": "tsc --project scripts",
     "build-dev": "webpack --config webpack.config.js --mode development",
