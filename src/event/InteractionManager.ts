@@ -28,6 +28,9 @@ class InteractionManager {
 	constructor() {
 		document.addEventListener("pointerdown", this.onPointerDown);
 		document.addEventListener("pointerup", this.onPointerUp);
+		document.addEventListener("pointerout", this.onPointerUp);
+		document.addEventListener("pointerleave", this.onPointerUp);
+		document.addEventListener("pointercancel", this.onPointerUp);
 		document.addEventListener("pointermove", this.onHover);
 		document.addEventListener("wheel", this.onScroll);
 	}
