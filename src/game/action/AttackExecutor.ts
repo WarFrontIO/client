@@ -2,7 +2,7 @@ import {Player} from "../player/Player";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../Game";
-import {getNeighbors} from "../../util/MathUtil";
+import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
 
@@ -90,12 +90,12 @@ export class AttackExecutor {
 	 */
 	handlePlayerTileAdd(tile: number) {
 		delete this.pixelMap[tile];
-		for (const neighbor of getNeighbors(tile)) {
+		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE) && !this.pixelMap[neighbor]) {
 				this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, neighbor]);
 				this.pixelMap[neighbor] = true;
 			}
-		}
+		});
 	}
 
 	/**
@@ -104,16 +104,11 @@ export class AttackExecutor {
 	 * @param tile The tile that was removed.
 	 */
 	handlePlayerTileRemove(tile: number) {
-		for (const neighbor of getNeighbors(tile)) {
-			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				for (const n of getNeighbors(neighbor)) {
-					if (territoryManager.isOwner(n, this.player.id)) {
-						return;
-					}
-				}
+		onNeighbors(tile, neighbor => {
+			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE) && !bordersTile(neighbor, this.player.id)) {
 				delete this.pixelMap[neighbor];
 			}
-		}
+		});
 	}
 
 	/**
@@ -122,12 +117,9 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handleTargetTileAdd(tile: number) {
-		for (const neighbor of getNeighbors(tile)) {
-			if (territoryManager.isOwner(neighbor, this.player.id) && !this.pixelMap[tile]) {
-				this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, tile]);
-				this.pixelMap[tile] = true;
-				return;
-			}
+		if (!this.pixelMap[tile] && bordersTile(tile, this.player.id)) {
+			this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, tile]);
+			this.pixelMap[tile] = true;
 		}
 	}
 

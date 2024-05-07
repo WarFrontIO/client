@@ -2,7 +2,7 @@ import {Player} from "./Player";
 import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
 import {attackActionHandler} from "../action/AttackActionHandler";
-import {getNeighbors} from "../../util/MathUtil";
+import {onNeighbors} from "../../util/MathUtil";
 
 export class BotPlayer extends Player {
 	constructor(id: number) {
@@ -14,12 +14,12 @@ export class BotPlayer extends Player {
 		if (random.nextInt(20) < 19) return;
 		let targets: number[] = [];
 		for (const border of this.borderTiles) {
-			for (const neighbor of getNeighbors(border)) {
+			onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner !== this.id && !targets.includes(owner)) {
 					targets.push(owner);
 				}
-			}
+			});
 		}
 		if (targets.length < 1) {
 			return;

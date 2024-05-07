@@ -1,6 +1,6 @@
 import {territoryManager} from "../TerritoryManager";
 import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
-import {getNeighbors} from "../../util/MathUtil";
+import {onNeighbors} from "../../util/MathUtil";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../action/AttackActionHandler";
 
@@ -46,12 +46,12 @@ export class Player {
 			playerNameRenderingManager.addTile(tile, this.id);
 			territoryRenderer.set(tile, this.territoryR, this.territoryG, this.territoryB);
 		}
-		for (const neighbor of getNeighbors(tile)) {
+		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				territoryRenderer.set(neighbor, this.territoryR, this.territoryG, this.territoryB);
 				playerNameRenderingManager.addTile(neighbor, this.id);
 			}
-		}
+		});
 
 		attackActionHandler.handleTerritoryAdd(tile, this.id);
 	}
@@ -67,13 +67,13 @@ export class Player {
 		if (!this.borderTiles.delete(tile)) {
 			playerNameRenderingManager.removeTile(tile, this.id);
 		}
-		for (const neighbor of getNeighbors(tile)) {
+		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				territoryRenderer.set(neighbor, this.borderR, this.borderG, this.borderB);
 				playerNameRenderingManager.removeTile(neighbor, this.id);
 			}
-		}
+		});
 
 		attackActionHandler.handleTerritoryRemove(tile, this.id);
 
