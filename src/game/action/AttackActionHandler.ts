@@ -128,9 +128,9 @@ class AttackActionHandler implements GameTickListener {
 	 */
 	private removeAttack(attack: AttackExecutor): void {
 		this.attacks.splice(this.attacks.indexOf(attack), 1);
+		this.playerAttackList[attack.player.id].splice(this.playerAttackList[attack.player.id].indexOf(attack), 1);
 		if (attack.target) {
 			this.playerIndex[attack.player.id][attack.target.id] = null;
-			this.playerAttackList[attack.player.id].splice(this.playerAttackList[attack.player.id].indexOf(attack), 1);
 			this.targetAttackList[attack.target.id].splice(this.targetAttackList[attack.target.id].indexOf(attack), 1);
 		} else {
 			this.unclaimedIndex[attack.player.id] = null;
