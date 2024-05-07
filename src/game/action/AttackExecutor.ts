@@ -11,7 +11,6 @@ export class AttackExecutor {
 	readonly target: Player | null;
 	private troops: number;
 	private tileQueue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] < b[0]);
-	private pixelMap: boolean[] = [];
 	private basePriority: number = 0;
 
 	/**
@@ -68,10 +67,11 @@ export class AttackExecutor {
 		let conquered = 0;
 		while (this.troops >= attackCost && !this.tileQueue.isEmpty() && this.tileQueue.peek()[0] < this.basePriority) {
 			const [_, tile] = this.tileQueue.pop();
-			if (this.pixelMap[tile] && (this.target || !territoryManager.hasOwner(tile))) territoryManager.conquer(tile, this.player.id);
+			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
+			if (!bordersTile(tile, this.player.id)) continue;
+			territoryManager.conquer(tile, this.player.id);
 
 			this.troops -= attackCost;
-			delete this.pixelMap[tile];
 			conquered++;
 		}
 
@@ -89,24 +89,9 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handlePlayerTileAdd(tile: number) {
-		delete this.pixelMap[tile];
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE) && !this.pixelMap[neighbor]) {
+			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
 				this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, neighbor]);
-				this.pixelMap[neighbor] = true;
-			}
-		});
-	}
-
-	/**
-	 * Handle the removal of a tile from the player's territory.
-	 * Called when a tile is removed from the player's territory.
-	 * @param tile The tile that was removed.
-	 */
-	handlePlayerTileRemove(tile: number) {
-		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE) && !bordersTile(neighbor, this.player.id)) {
-				delete this.pixelMap[neighbor];
 			}
 		});
 	}
@@ -117,19 +102,9 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handleTargetTileAdd(tile: number) {
-		if (!this.pixelMap[tile] && bordersTile(tile, this.player.id)) {
+		if (bordersTile(tile, this.player.id)) {
 			this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, tile]);
-			this.pixelMap[tile] = true;
 		}
-	}
-
-	/**
-	 * Handle the removal of a tile from the target's territory.
-	 * Called when a tile is removed from the target's territory.
-	 * @param tile The tile that was removed.
-	 */
-	handleTargetTileRemove(tile: number) {
-		delete this.pixelMap[tile];
 	}
 
 	/**
@@ -167,7 +142,6 @@ export class AttackExecutor {
 			const priority = 4 - amountCache[tile] + random.next() * 3;
 			amountCache[tile] = 0;
 			this.tileQueue.push([priority, tile]);
-			this.pixelMap[tile] = true;
 		}
 	}
 

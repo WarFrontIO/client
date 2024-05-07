@@ -163,21 +163,6 @@ class AttackActionHandler implements GameTickListener {
 		}
 	}
 
-	/**
-	 * Handle a tile being removed from a player.
-	 * @param tile The tile that was removed.
-	 * @param player The player that the tile was removed from.
-	 */
-	handleTerritoryRemove(tile: number, player: number): void {
-		for (let i = 0; i < this.playerAttackList[player].length; i++) {
-			this.playerAttackList[player][i].handlePlayerTileRemove(tile);
-		}
-
-		for (let i = 0; i < this.targetAttackList[player].length; i++) {
-			this.targetAttackList[player][i].handleTargetTileRemove(tile);
-		}
-	}
-
 	clear(): void {
 		this.attacks = [];
 		this.playerIndex = [];

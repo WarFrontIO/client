@@ -75,8 +75,6 @@ export class Player {
 			}
 		});
 
-		attackActionHandler.handleTerritoryRemove(tile, this.id);
-
 		if (this.territorySize === 0) {
 			this.alive = false;
 		}
