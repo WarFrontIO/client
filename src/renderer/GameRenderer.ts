@@ -17,6 +17,7 @@ export class GameRenderer implements WindowResizeListener {
 
 	constructor() {
 		this.canvas = document.createElement("canvas");
+		this.canvas.style.touchAction = "none";
 		this.context = this.canvas.getContext("2d");
 
 		this.doRenderTick();

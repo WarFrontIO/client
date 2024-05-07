@@ -1,4 +1,9 @@
-import {DragEventListener, interactionManager, ScrollEventListener} from "../../event/InteractionManager";
+import {
+	DragEventListener,
+	interactionManager,
+	PinchEventListener,
+	ScrollEventListener
+} from "../../event/InteractionManager";
 import {gameMap} from "../Game";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 
@@ -7,7 +12,7 @@ import {mapTransformHandler} from "../../event/MapTransformHandler";
  * Controls the map position and zoom level.
  * @see MapTransformHandler
  */
-class MapNavigationHandler implements ScrollEventListener, DragEventListener {
+class MapNavigationHandler implements ScrollEventListener, DragEventListener, PinchEventListener {
 	x: number = 0;
 	y: number = 0;
 	zoom: number = 1;
@@ -27,6 +32,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 		mapTransformHandler.move.broadcast();
 		interactionManager.drag.register(this);
 		interactionManager.scroll.register(this);
+		interactionManager.pinch.register(this);
 	}
 
 	/**
@@ -35,12 +41,20 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener {
 	disable() {
 		interactionManager.drag.unregister(this);
 		interactionManager.scroll.unregister(this);
+		interactionManager.pinch.unregister(this);
 	}
 
 	onScroll(x: number, y: number, delta: number): void {
+		this.processZoom(x, y, this.zoom - Math.max(-1, Math.min(1, delta)) * 0.3 * this.zoom);
+	}
+
+	onPinch(x: number, y: number, delta: number) {
+		this.processZoom(x, y, this.zoom * delta);
+	}
+
+	private processZoom(x: number, y: number, newZoom: number) {
 		let mapX = this.getMapX(x), mapY = this.getMapY(y);
-		this.zoom -= Math.max(-1, Math.min(1, delta)) * 0.3 * this.zoom;
-		this.zoom = Math.max(0.5, Math.min(1000, this.zoom));
+		this.zoom = newZoom;
 		this.x = Math.max(Math.min(-mapX * this.zoom + x, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(-mapY * this.zoom + y, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
 		mapTransformHandler.scale.broadcast();

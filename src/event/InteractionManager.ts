@@ -19,11 +19,14 @@ class InteractionManager {
 	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for scroll event listeners. */
 	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for pinch event listeners. */
+	pinch: PrioritizedEventHandlerRegistry<PinchEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for hover event listeners. */
 	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
 	pressY: number = 0;
+	touchPoints: Map<number, { x: number, y: number }> = new Map();
 
 	constructor() {
 		document.addEventListener("pointerdown", this.onPointerDown);
@@ -36,6 +39,12 @@ class InteractionManager {
 	}
 
 	private onPointerDown(event: PointerEvent) {
+		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
+		if (interactionManager.touchPoints.size > 1) {
+			clearTimeout(interactionManager.dragTimeout);
+			interactionManager.dragTimeout = null;
+			return;
+		}
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
 		interactionManager.dragTimeout = setTimeout(() => {
@@ -46,6 +55,8 @@ class InteractionManager {
 	}
 
 	private onPointerUp(event: PointerEvent) {
+		interactionManager.touchPoints.delete(event.pointerId);
+		if (interactionManager.touchPoints.size > 0) return;
 		if (interactionManager.dragTimeout) {
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
@@ -58,6 +69,10 @@ class InteractionManager {
 	}
 
 	private onHover(event: PointerEvent) {
+		if (interactionManager.touchPoints.size > 1) {
+			interactionManager.checkMobileGesture(event);
+			return;
+		}
 		if (interactionManager.dragTimeout) {
 			if (Math.abs(event.x - interactionManager.pressX) + Math.abs(event.y - interactionManager.pressY) < 10) return;
 			clearTimeout(interactionManager.dragTimeout);
@@ -73,6 +88,24 @@ class InteractionManager {
 	private onScroll(event: WheelEvent) {
 		interactionManager.scroll.choose(event.x, event.y);
 		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, event.deltaY));
+	}
+
+	private checkMobileGesture(event: PointerEvent) {
+		if (interactionManager.touchPoints.size !== 2) return;
+		const [oldPoint1, oldPoint2] = Array.from(this.touchPoints.values());
+		this.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
+		const [newPoint1, newPoint2] = Array.from(this.touchPoints.values());
+
+		const oldDistance = Math.hypot(oldPoint1.x - oldPoint2.x, oldPoint1.y - oldPoint2.y);
+		const newDistance = Math.hypot(newPoint1.x - newPoint2.x, newPoint1.y - newPoint2.y);
+		const zoomFactor = newDistance / oldDistance;
+
+		const xDiff2 = Math.abs(oldPoint2.x - newPoint2.x), yDiff2 = Math.abs(oldPoint2.y - newPoint2.y);
+		const xDiff1 = Math.abs(oldPoint1.x - newPoint1.x), yDiff1 = Math.abs(oldPoint1.y - newPoint1.y);
+		let centerY = (yDiff1 * newPoint2.y + yDiff2 * newPoint1.y) / (yDiff1 + yDiff2) || (oldPoint1.y + oldPoint2.y) / 2;
+		let centerX = (xDiff1 * newPoint2.x + xDiff2 * newPoint1.x) / (xDiff1 + xDiff2) || (oldPoint1.x + oldPoint2.x) / 2;
+		interactionManager.pinch.choose(centerX, centerY);
+		interactionManager.pinch.call(l => l.onPinch(centerX, centerY, zoomFactor));
 	}
 }
 
@@ -152,6 +185,23 @@ export interface ScrollEventListener extends BasicInteractionListener {
 	 * @param delta The scroll delta.
 	 */
 	onScroll(x: number, y: number, delta: number): void;
+}
+
+/**
+ * Listener for pinch events.
+ *
+ * Register a listener with the pinch registry to receive pinch events.
+ * @see InteractionManager.pinch
+ * @see PrioritizedEventHandlerRegistry.register
+ */
+export interface PinchEventListener extends BasicInteractionListener {
+	/**
+	 * Called when the user pinches at the given position.
+	 * @param x The screen x-coordinate of the pinch.
+	 * @param y The screen y-coordinate of the pinch.
+	 * @param delta The pinch delta.
+	 */
+	onPinch(x: number, y: number, delta: number): void;
 }
 
 /**
