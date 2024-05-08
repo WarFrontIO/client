@@ -1,5 +1,7 @@
 # WarFront.io
 
+<a href="https://discord.gg/tvgfpeCGaD">![Discord](https://img.shields.io/discord/1085091019265159198?logo=discord&label=discord&color=%235865F2)</a>
+
 WarFront.io is a real-time strategy game that is played in the browser. Still early in development.
 
 ## Building
