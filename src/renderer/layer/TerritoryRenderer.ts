@@ -8,15 +8,9 @@ import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../even
  * @internal
  */
 export class TerritoryRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
-	private readonly imgData: ImageData;
-	private readonly pixels: Uint8ClampedArray;
-	private hasChanges: boolean = false;
-
 	constructor() {
 		super();
 		this.resizeCanvas(gameMap.width, gameMap.height);
-		this.imgData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
-		this.pixels = this.imgData.data;
 		mapTransformHandler.move.register(this);
 		mapTransformHandler.scale.register(this);
 		territoryRenderer = this;
@@ -34,40 +28,24 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 	/**
 	 * Set the color of a pixel on the territory layer.
 	 * Pixel will be rendered on the next render tick.
-	 * @param index index of the pixel
+	 * @param tile index of the pixel
 	 * @param r red color value
 	 * @param g green color value
 	 * @param b blue color value
 	 */
-	set(index: number, r: number, g: number, b: number) {
-		const i = index * 4;
-		this.pixels[i] = r;
-		this.pixels[i + 1] = g;
-		this.pixels[i + 2] = b;
-		this.pixels[i + 3] = 255;
-		this.hasChanges = true;
+	set(tile: number, r: number, g: number, b: number) {
+		//TODO: We can probably save some rendering time by sorting operations by territory owner
+		this.context.fillStyle = `rgb(${r},${g},${b})`;
+		this.context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 	}
 
 	/**
 	 * Clear the color of a pixel on the territory layer.
 	 * Pixel will be fully transparent afterward.
-	 * @param index index of the pixel
+	 * @param tile index of the pixel
 	 */
-	clear(index: number) {
-		const i = index * 4;
-		this.pixels[i] = 0;
-		this.pixels[i + 1] = 0;
-		this.pixels[i + 2] = 0;
-		this.pixels[i + 3] = 0;
-		this.hasChanges = true;
-	}
-
-	render(context: CanvasRenderingContext2D) {
-		if (this.hasChanges) {
-			this.context.putImageData(this.imgData, 0, 0);
-			this.hasChanges = false;
-		}
-		super.render(context);
+	clear(tile: number) {
+		this.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 	}
 }
 
