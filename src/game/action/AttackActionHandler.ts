@@ -3,6 +3,7 @@ import {gameTicker, GameTickListener} from "../GameTicker";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
+import {DonateExecutor} from "./DonateExecutor";
 import {gameMap} from "../Game";
 
 class AttackActionHandler implements GameTickListener {
@@ -12,6 +13,7 @@ class AttackActionHandler implements GameTickListener {
 	private playerAttackList: AttackExecutor[][] = [];
 	private targetAttackList: AttackExecutor[][] = [];
 	private unclaimedAttackList: AttackExecutor[] = [];
+    private donateQueue: DonateExecutor[] = [];
 	amountCache: Uint8Array;
 
 	constructor() {
@@ -24,6 +26,7 @@ class AttackActionHandler implements GameTickListener {
 		this.playerAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.unclaimedIndex = [];
+        this.donateQueue = [];
 		this.amountCache = new Uint8Array(gameMap.width * gameMap.height);
 	}
 
@@ -34,17 +37,14 @@ class AttackActionHandler implements GameTickListener {
             return;
         }
 
-        if (target !== territoryManager.OWNER_NONE) {
-            if (playerManager.getPlayer(player).team === playerManager.getPlayer(target).team) {
-                return;
-            }
-        }
-
         let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
         playerManager.getPlayer(player).removeTroops(troopCount);
 
         if (target === territoryManager.OWNER_NONE) {
             this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
+            return;
+        } else if (playerManager.getPlayer(player).team === playerManager.getPlayer(target).team && playerManager.getPlayer(player).team !== null){
+            this.addDonation(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
             return;
         }
         this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
@@ -87,6 +87,16 @@ class AttackActionHandler implements GameTickListener {
 
 		this.addAttack(player, target, troops);
 	}
+
+    /**
+     * Schedule a donation of troops.
+     * @param player The player that is donating.
+     * @param target The player that is receiving the donation.
+     * @param troops The amount of troops that are being donated.
+     */
+    private addDonation(player: Player, target: Player, troops: number): void {
+        this.donateQueue.push(new DonateExecutor(player, target, troops));
+    }
 
 	/**
 	 * Get the attack executor for the given players.
@@ -153,6 +163,11 @@ class AttackActionHandler implements GameTickListener {
 			playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
 			this.removeAttack(attack);
 		}
+        
+        for (const donation of this.donateQueue) {
+            donation.runDonation();
+        }
+        this.donateQueue = [];
 	}
 
 	/**
