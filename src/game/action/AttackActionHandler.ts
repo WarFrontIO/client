@@ -28,22 +28,29 @@ class AttackActionHandler implements GameTickListener {
 	}
 
 	//TODO: Move this out of here
-	preprocessAttack(player: number, target: number, percentage: number): void {
-		if (player === target || target === territoryManager.OWNER_NONE - 1) {
-			return;
-		}
+    preprocessAttack(player: number, target: number, percentage: number): void {
+        console.log("Attack: " + player + " -> " + target + " (" + percentage + ")");
+        if (player === target || target === territoryManager.OWNER_NONE - 1) {
+            return;
+        }
 
-		let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
-		playerManager.getPlayer(player).removeTroops(troopCount);
+        if (target !== territoryManager.OWNER_NONE) {
+            if (playerManager.getPlayer(player).team === playerManager.getPlayer(target).team) {
+                return;
+            }
+        }
 
-		if (target === territoryManager.OWNER_NONE) {
-			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
-			return;
-		}
-		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
-	}
+        let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
+        playerManager.getPlayer(player).removeTroops(troopCount);
 
-	/**
+        if (target === territoryManager.OWNER_NONE) {
+            this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
+            return;
+        }
+        this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
+    }
+
+    /**
 	 * Schedule an attack on an unclaimed territory.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.

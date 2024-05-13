@@ -3,11 +3,12 @@ import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
 import {attackActionHandler} from "../action/AttackActionHandler";
 import {onNeighbors} from "../../util/MathUtil";
+import { Team } from "../Team";
 
 export class BotPlayer extends Player {
-	constructor(id: number) {
-		super(id, "Bot", Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256));
-	}
+    constructor(id: number, team: Team = null) {
+        super(id, "Bot", team);
+    }
 
 	//TODO: Implement bot logic
 	tick(): void {

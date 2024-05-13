@@ -3,6 +3,7 @@ import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
 import {onNeighbors} from "../../util/MathUtil";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../action/AttackActionHandler";
+import {Team} from "../Team";
 
 export class Player {
 	readonly id: number;
@@ -11,17 +12,26 @@ export class Player {
 	readonly borderTiles: Set<number> = new Set();
 	private territorySize: number = 0;
 	private alive: boolean = true;
+    team: Team;
 
-	constructor(id: number, name: string, r: number, g: number, b: number) {
-		this.id = id;
-		this.name = name;
-		this.territoryR = r;
-		this.territoryG = g;
-		this.territoryB = b;
-		this.borderR = r < 128 ? r + 32 : r - 32;
-		this.borderG = g < 128 ? g + 32 : g - 32;
-		this.borderB = b < 128 ? b + 32 : b - 32;
-	}
+    constructor(id: number, name: string, team: Team = null) {
+        this.id = id;
+        this.name = name;
+        if (team) {
+            this.team = team;
+            let colors = team.getNewPlayerColor();
+            this.territoryR = colors[0];
+            this.territoryG = colors[1];
+            this.territoryB = colors[2];
+        } else {
+            this.territoryR = Math.floor(Math.random() * 256);
+            this.territoryG = Math.floor(Math.random() * 256);
+            this.territoryB = Math.floor(Math.random() * 256);
+        }
+        this.borderR = this.territoryR < 128 ? this.territoryR + 32 : this.territoryR - 32;
+        this.borderG = this.territoryG < 128 ? this.territoryG + 32 : this.territoryG - 32;
+        this.borderB = this.territoryB < 128 ? this.territoryB + 32 : this.territoryB - 32;
+    }
 
 	//TODO: remove this
 	territoryR: number = 0;
