@@ -33,7 +33,7 @@ export function startGame(map: GameMap) {
 	playerNameRenderingManager.reset();
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init([new Player(0, "Player")], 0, 500, 10);
+	playerManager.init([new Player(0, "Player")], 0, 500, 0);
 
 	isLocalGame = true;
 	random.reset(23452345);

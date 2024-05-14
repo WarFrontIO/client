@@ -11,6 +11,7 @@ export class BotPlayer extends Player {
     }
 
 	//TODO: Implement bot logic
+    //Note attacks are treated the same as donations, so the bot may donate to bordering teammates.
 	tick(): void {
 		if (random.nextInt(20) < 19) return;
 		let targets: number[] = [];

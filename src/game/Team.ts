@@ -1,5 +1,3 @@
-import { Player } from "./player/Player";
-
 export class Team {
     private color: number[] = [0, 0, 0];
 

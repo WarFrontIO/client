@@ -12,7 +12,7 @@ export class Player {
 	readonly borderTiles: Set<number> = new Set();
 	private territorySize: number = 0;
 	private alive: boolean = true;
-    team: Team;
+    team: Team = null;
 
     constructor(id: number, name: string, team: Team = null) {
         this.id = id;
