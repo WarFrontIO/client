@@ -19,13 +19,14 @@ class PlayerManager implements GameTickListener {
      * @param humans human players, one for local games, multiple for online games.
      * @param clientId Player ID of the client player (the player that is controlled this client).
      * @param maxPlayers The maximum number of players.
+     * @param teams The number of teams (0 for none).
      */
-    init(humans: Player[], clientId: number, maxPlayers: number, teams: boolean = false): void {
+    init(humans: Player[], clientId: number, maxPlayers: number, teams: number = 0): void {
         this.players = [];
         this.bots = [];
 
         if (teams) {
-            this.generateTeams(2);
+            this.generateTeams(teams);
         }
 
         clientPlayer = humans[clientId];

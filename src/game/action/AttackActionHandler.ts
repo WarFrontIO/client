@@ -32,7 +32,6 @@ class AttackActionHandler implements GameTickListener {
 
 	//TODO: Move this out of here
     preprocessAttack(player: number, target: number, percentage: number): void {
-        console.log("Attack: " + player + " -> " + target + " (" + percentage + ")");
         if (player === target || target === territoryManager.OWNER_NONE - 1) {
             return;
         }

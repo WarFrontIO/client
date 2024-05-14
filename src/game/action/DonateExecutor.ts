@@ -18,7 +18,7 @@ export class DonateExecutor {
         if (this.player.getTroops() < this.troops) {
             this.troops = this.player.getTroops();
         }
-        this.target.addTroops(this.troops * 0.9);
+        this.target.addTroops(Math.ceil(this.troops * 0.9));
         this.player.removeTroops(this.troops);
     }
 }
