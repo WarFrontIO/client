@@ -1,6 +1,7 @@
 import {CachedLayer} from "./CachedLayer";
 import {gameMap} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
+import {Color} from "../../util/Color";
 
 /**
  * Territory renderer.
@@ -29,13 +30,11 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 	 * Set the color of a pixel on the territory layer.
 	 * Pixel will be rendered on the next render tick.
 	 * @param tile index of the pixel
-	 * @param r red color value
-	 * @param g green color value
-	 * @param b blue color value
+	 * @param color color of the pixel
 	 */
-	set(tile: number, r: number, g: number, b: number) {
+	set(tile: number, color: Color) {
 		//TODO: We can probably save some rendering time by sorting operations by territory owner
-		this.context.fillStyle = `rgb(${r},${g},${b})`;
+		this.context.fillStyle = color.toString();
 		this.context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 	}
 

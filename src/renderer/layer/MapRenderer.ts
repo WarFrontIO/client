@@ -1,6 +1,7 @@
 import {CachedLayer} from "./CachedLayer";
 import {gameMap} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
+import {theme} from "../../Loader";
 
 /**
  * Map background renderer.
@@ -13,11 +14,7 @@ export class MapRenderer extends CachedLayer implements MapMoveListener, MapScal
 		this.resizeCanvas(gameMap.width, gameMap.height);
 		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
 		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
-			const tile = gameMap.getTile(i);
-			imageData.data[4 * i] = tile.colorR;
-			imageData.data[4 * i + 1] = tile.colorG;
-			imageData.data[4 * i + 2] = tile.colorB;
-			imageData.data[4 * i + 3] = 255;
+			theme.getTileColor(gameMap.getTile(i)).writeToBuffer(imageData.data, i * 4);
 		}
 		this.context.putImageData(imageData, 0, 0);
 		mapTransformHandler.move.register(this);

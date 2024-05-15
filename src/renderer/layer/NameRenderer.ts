@@ -7,7 +7,8 @@ export class NameRenderer implements RendererLayer {
 		context.textRendering = "optimizeSpeed";
 		context.textAlign = "center";
 		context.textBaseline = "bottom";
-		context.fillStyle = "rgb(255, 255, 255)";
+		//TODO: This needs to be decided on a per-player basis (by the theme)
+		context.fillStyle = "rgb(0, 0, 0)";
 		const zoom = mapNavigationHandler.zoom;
 		const x = mapNavigationHandler.x;
 		const y = mapNavigationHandler.y;

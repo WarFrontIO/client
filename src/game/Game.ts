@@ -10,6 +10,7 @@ import {random} from "./Random";
 import {gameTicker} from "./GameTicker";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "./action/AttackActionHandler";
+import {Color} from "../util/Color";
 
 /**
  * The map of the current game.
@@ -33,7 +34,7 @@ export function startGame(map: GameMap) {
 	playerNameRenderingManager.reset();
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init([new Player(0, "Player", 0, 200, 200)], 0, 500);
+	playerManager.init([new Player(0, "Player", Color.fromRGB(0, 200, 200))], 0, 500);
 
 	isLocalGame = true;
 	random.reset(23452345);

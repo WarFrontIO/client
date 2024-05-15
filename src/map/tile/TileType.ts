@@ -1,3 +1,5 @@
+import {Color} from "../../util/Color";
+
 /**
  * Tile types are used to define the properties of a tile.
  * They are used to render the map and to determine the behavior of the tile.
@@ -6,9 +8,7 @@
  * Subclasses mustn't have any mutable state.
  */
 export abstract class TileType {
-	abstract readonly colorR: number;
-	abstract readonly colorG: number;
-	abstract readonly colorB: number;
+	abstract readonly baseColor: Color;
 	abstract readonly id: number;
 	abstract readonly isSolid: boolean;
 
