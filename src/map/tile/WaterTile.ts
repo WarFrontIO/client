@@ -4,6 +4,7 @@ import {Color} from "../../util/Color";
 
 export class WaterTile extends TileType {
 	readonly id: number = TileTypeIds.WATER;
+	readonly internalName = "water";
 	readonly baseColor: Color = Color.fromRGB(0, 0, 200);
 	readonly isSolid: boolean = false;
 

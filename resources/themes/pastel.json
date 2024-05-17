@@ -1,0 +1,17 @@
+{
+  "territory": [
+    "saturation * 0.7",
+    "lightness = 0.6"
+  ],
+  "border": [
+    "saturation * 0.7",
+    "lightness = 0.75"
+  ],
+  "tiles": [
+    "lightness = 0.8"
+  ],
+  "tileOverwrite": {
+    "grass": "rgb(240, 210, 160)",
+    "water": "rgb(160, 200, 200)"
+  }
+}

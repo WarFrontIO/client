@@ -4,6 +4,7 @@ import {Color} from "../../util/Color";
 
 export class GrassTile extends TileType {
 	readonly id: number = TileTypeIds.GRASS;
+	readonly internalName = "grass";
 	readonly baseColor: Color = Color.fromRGB(40, 200, 20);
 	readonly isSolid: boolean = true;
 

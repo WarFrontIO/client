@@ -30,13 +30,19 @@ module.exports = {
 				test: /\.ts$/,
 				use: ["menu-loader"],
 				include: path.resolve(__dirname, "./src/ui/ModuleLoader.ts")
+			},
+			{
+				test: /\.ts$/,
+				use: ["theme-loader"],
+				include: path.resolve(__dirname, "./src/renderer/GameTheme.ts")
 			}
 		]
 	},
 	resolveLoader: {
 		alias: {
 			"map-loader": path.resolve(__dirname, "./scripts/map-loader.js"),
-			"menu-loader": path.resolve(__dirname, "./scripts/menu-loader.js")
+			"menu-loader": path.resolve(__dirname, "./scripts/menu-loader.js"),
+			"theme-loader": path.resolve(__dirname, "./scripts/theme-loader.js")
 		}
 	},
 	plugins: [new HtmlWebpackPlugin({

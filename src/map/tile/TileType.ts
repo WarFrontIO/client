@@ -8,8 +8,9 @@ import {Color} from "../../util/Color";
  * Subclasses mustn't have any mutable state.
  */
 export abstract class TileType {
-	abstract readonly baseColor: Color;
 	abstract readonly id: number;
+	abstract readonly internalName: string;
+	abstract readonly baseColor: Color;
 	abstract readonly isSolid: boolean;
 
 	//TODO: This is a placeholder for now
