@@ -19,14 +19,21 @@ class WebpackUIModuleLoader {
 					});
 				}
 
-				//Inject CSS file
+				//Inject CSS files
+				const css = [];
+				for (const file of readdirSync("resources/themes")) {
+					if (!file.endsWith(".css")) continue;
+					const content = readFileSync("resources/themes/" + file, "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ");
+					css.push(`.theme-${file.replace(".css", "")} { ${content} }`);
+				}
+
 				if (!data.headTags) data.headTags = [];
 				data.headTags.push({
 					tagName: "style",
 					attributes: {
 						type: "text/css"
 					},
-					innerHTML: readFileSync("resources/style.css", "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ")
+					innerHTML: css.join("\n")
 				});
 
 				cb(null, data);

@@ -12,3 +12,4 @@ window.addEventListener("load", () => {
 
 //TODO: Move this to user settings when implemented
 export const theme : GameTheme = getTheme("pastel");
+document.documentElement.classList.add("theme-pastel");

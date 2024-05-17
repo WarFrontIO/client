@@ -10,7 +10,14 @@ Both files must have the same name, the name will later be used to load the them
 
 #### CSS file:
 
-- Define any rules here, refer to other themes for classes and ids to style
+Define any rules here, refer to other themes for classes and ids to style
+
+Pro-tip: Head over to one of the modules [here](/src/ui/modules/) and paste / modify the following code to see the theme in action, without having to compile the game:
+```html
+<ignore>
+	<link rel="stylesheet" type="text/css" href="../../../resources/themes/<yourtheme>.css">
+</ignore>
+```
 
 #### JSON file:
 
