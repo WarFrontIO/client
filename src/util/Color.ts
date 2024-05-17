@@ -38,7 +38,7 @@ export class Color {
 	 * @returns A new color with the hue value set.
 	 */
 	withHue(h: number): Color {
-		return new Color(h, this.s, this.l, this.a);
+		return new Color((h % 360 + 360) % 360, this.s, this.l, this.a);
 	}
 
 	/**
@@ -46,7 +46,7 @@ export class Color {
 	 * @returns A new color with the saturation value set.
 	 */
 	withSaturation(s: number): Color {
-		return new Color(this.h, s, this.l, this.a);
+		return new Color(this.h, Math.min(Math.max(s, 0), 1), this.l, this.a);
 	}
 
 	/**
@@ -54,7 +54,7 @@ export class Color {
 	 * @returns A new color with the lightness value set.
 	 */
 	withLightness(l: number): Color {
-		return new Color(this.h, this.s, l, this.a);
+		return new Color(this.h, this.s, Math.min(Math.max(l, 0), 1), this.a);
 	}
 
 	/**
@@ -62,7 +62,7 @@ export class Color {
 	 * @returns A new color with the alpha value set.
 	 */
 	withAlpha(a: number): Color {
-		return new Color(this.h, this.s, this.l, a);
+		return new Color(this.h, this.s, this.l, Math.min(Math.max(a, 0), 1));
 	}
 
 	/**
