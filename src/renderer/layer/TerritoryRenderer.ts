@@ -34,6 +34,9 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 	 */
 	set(tile: number, color: Color) {
 		//TODO: We can probably save some rendering time by sorting operations by territory owner
+		if (color.a !== 1) {
+			this.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+		}
 		this.context.fillStyle = color.toString();
 		this.context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 	}
