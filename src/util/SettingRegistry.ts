@@ -105,8 +105,12 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 			const setting = this.registry[key];
 			const value = localStorage.getItem(key);
 			if (value && value.match(/^.*:\d+$/)) {
-				const [_, encoded, version] = value.match(/^(.*):(\d+)$/);
-				setting.value = setting.decode(encoded, parseInt(version));
+				try {
+					const [_, encoded, version] = value.match(/^(.*):(\d+)$/);
+					setting.value = setting.decode(encoded, parseInt(version));
+				} catch (e) {
+					console.error(`Failed to load setting ${key}:`, e);
+				}
 			}
 		}
 	}
