@@ -9,6 +9,8 @@ const registry = SettingRegistry.init()
 
 registry.load();
 
+const listeners: Record<string, ((value: any) => void)[]> = {};
+
 /**
  * Get a setting value
  * @param key identifier of the setting
@@ -23,6 +25,22 @@ export function getSetting<K extends keyof typeof registry["registry"]>(key: K):
  * @param value new value
  */
 export function updateSetting<K extends keyof typeof registry["registry"]>(key: K, value: typeof registry["registry"][K]["value"]) {
+	if (listeners[key]) {
+		for (const listener of listeners[key]) {
+			listener(value);
+		}
+	}
+
 	registry.get(key).value = value;
 	registry.saveSetting(key);
+}
+
+/**
+ * Register a setting listener that will be called before the value is updated
+ * @param key identifier of the setting
+ * @param listener listener to register, argument is the new value of the setting
+ */
+export function registerSettingListener<K extends keyof typeof registry["registry"]>(key: K, listener: (value: typeof registry["registry"][K]["value"]) => void) {
+	if (!listeners[key]) listeners[key] = [];
+	listeners[key].push(listener);
 }
