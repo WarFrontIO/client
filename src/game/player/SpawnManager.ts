@@ -123,7 +123,7 @@ class SpawnManager {
 		const result = target[index];
 		target.splice(index, 1);
 		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id));
-		territoryRenderingManager.applyTransaction(player);
+		territoryRenderingManager.applyTransaction(player, player);
 		return result;
 	}
 
@@ -149,7 +149,7 @@ class SpawnManager {
 		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player.id));
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player.id] = data;
-		territoryRenderingManager.applyTransaction(player);
+		territoryRenderingManager.applyTransaction(player, player);
 
 		if (isLocalGame) {
 			this.isSelecting = false;

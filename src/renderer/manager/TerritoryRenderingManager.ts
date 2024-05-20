@@ -3,10 +3,17 @@ import {gameMap} from "../../game/Game";
 import {getSetting} from "../../util/UserSettingManager";
 import {Color} from "../../util/Color";
 
+/**
+ * When a player claims a tile, three types of updates are required:
+ * 1. The tile can become a border tile of the player's territory.
+ * 2. The tile can become an inner tile of the player's territory.
+ * 3. A neighboring tile can become a border tile of the player's territory.
+ */
 class TerritoryRenderingManager {
 	private context: CanvasRenderingContext2D;
 	private readonly territoryQueue: Array<number> = [];
-	private readonly borderQueue: Array<number> = [];
+	private readonly playerBorderQueue: Array<number> = [];
+	private readonly targetBorderQueue: Array<number> = [];
 
 	/**
 	 * Add a tile to the territory update queue.
@@ -20,8 +27,16 @@ class TerritoryRenderingManager {
 	 * Add a border to the territory update queue.
 	 * @param tile index of the tile
 	 */
-	setBorder(tile: number): void {
-		this.borderQueue.push(tile);
+	setPlayerBorder(tile: number): void {
+		this.playerBorderQueue.push(tile);
+	}
+
+	/**
+	 * Add a border to the territory update queue.
+	 * @param tile index of the tile
+	 */
+	setTargetBorder(tile: number): void {
+		this.targetBorderQueue.push(tile);
 	}
 
 	/**
@@ -35,13 +50,16 @@ class TerritoryRenderingManager {
 	/**
 	 * Execute the transaction.
 	 * @param player the player to apply the transaction to
+	 * @param target the target player
 	 * @internal
 	 */
-	applyTransaction(player: Player): void {
-		this.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(player.baseColor));
+	applyTransaction(player: Player, target: Player): void {
+		this.paintTiles(this.targetBorderQueue, getSetting("theme").getBorderColor(target.baseColor));
+		this.paintTiles(this.playerBorderQueue, getSetting("theme").getBorderColor(player.baseColor));
 		this.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(player.baseColor));
 
-		this.borderQueue.length = 0;
+		this.targetBorderQueue.length = 0;
+		this.playerBorderQueue.length = 0;
 		this.territoryQueue.length = 0;
 	}
 

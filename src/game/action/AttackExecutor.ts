@@ -76,7 +76,7 @@ export class AttackExecutor {
 			conquered++;
 		}
 
-		territoryRenderingManager.applyTransaction(this.player);
+		territoryRenderingManager.applyTransaction(this.player, this.target || this.player);
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);
 

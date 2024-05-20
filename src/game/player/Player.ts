@@ -30,7 +30,7 @@ export class Player {
 		this.territorySize++;
 		if (territoryManager.isBorder(tile)) {
 			this.borderTiles.add(tile);
-			territoryRenderingManager.setBorder(tile);
+			territoryRenderingManager.setPlayerBorder(tile);
 		} else {
 			playerNameRenderingManager.addTile(tile, this.id);
 			territoryRenderingManager.setTerritory(tile);
@@ -59,7 +59,7 @@ export class Player {
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
-				territoryRenderingManager.setBorder(neighbor);
+				territoryRenderingManager.setTargetBorder(neighbor);
 				playerNameRenderingManager.removeTile(neighbor, this.id);
 			}
 		});
