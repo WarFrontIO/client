@@ -98,7 +98,6 @@ const functions = {
 	"scaleSaturation": {args: 2, func: "($1 + Math.floor(color.s * $2))"},
 	"scaleLightness": {args: 2, func: "($1 + Math.floor(color.l * $2))"},
 	"scaleAlpha": {args: 2, func: "($1 + Math.floor(color.a * $2))"},
-	"rand": {args: 2, func: "(Math.random() * ($2 - $1) + $1)"},
 	"step": {args: 2, func: "Math.floor($1 / $2) * $2"}
 }
 

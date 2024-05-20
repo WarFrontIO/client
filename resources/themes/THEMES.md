@@ -48,13 +48,17 @@ There are also some utility functions available:
 - `min(<value1>, <value2>)` to get the minimum of two values
 - `max(<value1>, <value2>)` to get the maximum of two values
 - `clamp(<min>, <value>, <max>)` to clamp a value between min and max (Warning: the min and max values will be very common)
-- `rand(<min>, <max>)` to generate a random number between min and max
+- `step(<value>, <distance>)` to force a value to be one of a set of steps (multiple of distance)
 
 Some examples:
-- `hue + rand(-10, 10)` will shift the hue by a random value between -10 and 10
+- `step(hue, 30)` will force the hue to be a multiple of 30
 - `scaleLightness(0.6, 0.8)` will scale the lightness to be between 0.6 and 0.8
 - `min(alpha, 0.5)` will set the alpha to 0.5 if it is below 0.5
-- `clamp(0.2, saturation + rand(-0.3, 0.3), 0.8)` will clamp a randomized saturation between 0.2 and 0.8
+- `step(clamp(0.2, saturation, 0.8), 0.1)` will clamp saturation between 0.2 and 0.8 and floor it to the nearest 0.1
+
+If needed, you can make components dependent on each other by using the `=` operator, the operator is needed when multiple components are used in the same expression. <br>
+e.g. `alpha = 0.5 + step(hue, 30) * 0.1` will set the alpha to 0.5 and add 0.1 for every 30 degrees of hue
+Note, that the expressions will be evaluated in the order you define them in the JSON file, so they don't necessarily have the original values (you can change the order to get the desired result).
 
 #### Tile overwrites
 
@@ -80,7 +84,7 @@ The color can be in hex, rgb(a) or hsl(a) format.
   "territory": [
     "saturation * 0.8",
     "scaleLightness(0.6, 0.8)",
-    "alpha = 0.5 + rand(-0.1, 0.1)"
+    "alpha = 0.5 + step(hue, 30) * 0.1"
   ],
   "border": [
     "hue + 180"
