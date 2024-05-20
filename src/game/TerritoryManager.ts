@@ -1,6 +1,6 @@
 import {gameMap} from "./Game";
 import {playerManager} from "./player/PlayerManager";
-import {territoryRenderer} from "../renderer/layer/TerritoryRenderer";
+import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
@@ -90,7 +90,7 @@ class TerritoryManager {
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile);
-			territoryRenderer.clear(tile);
+			territoryRenderingManager.clear(tile);
 		}
 	}
 }

@@ -1,10 +1,9 @@
 import {territoryManager} from "../TerritoryManager";
-import {territoryRenderer} from "../../renderer/layer/TerritoryRenderer";
 import {onNeighbors} from "../../util/MathUtil";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../action/AttackActionHandler";
 import {Color} from "../../util/Color";
-import {getSetting} from "../../util/UserSettingManager";
+import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 
 export class Player {
 	readonly id: number;
@@ -31,14 +30,14 @@ export class Player {
 		this.territorySize++;
 		if (territoryManager.isBorder(tile)) {
 			this.borderTiles.add(tile);
-			territoryRenderer.set(tile, getSetting("theme").getBorderColor(this.baseColor));
+			territoryRenderingManager.setBorder(tile);
 		} else {
 			playerNameRenderingManager.addTile(tile, this.id);
-			territoryRenderer.set(tile, getSetting("theme").getTerritoryColor(this.baseColor));
+			territoryRenderingManager.setTerritory(tile);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
-				territoryRenderer.set(neighbor, getSetting("theme").getTerritoryColor(this.baseColor));
+				territoryRenderingManager.setTerritory(neighbor);
 				playerNameRenderingManager.addTile(neighbor, this.id);
 			}
 		});
@@ -60,7 +59,7 @@ export class Player {
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
-				territoryRenderer.set(neighbor, getSetting("theme").getBorderColor(this.baseColor));
+				territoryRenderingManager.setBorder(neighbor);
 				playerNameRenderingManager.removeTile(neighbor, this.id);
 			}
 		});
