@@ -2,6 +2,7 @@ import {Player} from "../../game/player/Player";
 import {gameMap} from "../../game/Game";
 import {getSetting} from "../../util/UserSettingManager";
 import {Color} from "../../util/Color";
+import {territoryRenderer} from "../layer/TerritoryRenderer";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -10,7 +11,6 @@ import {Color} from "../../util/Color";
  * 3. A neighboring tile can become a border tile of the player's territory.
  */
 class TerritoryRenderingManager {
-	private context: CanvasRenderingContext2D;
 	private readonly territoryQueue: Array<number> = [];
 	private readonly playerBorderQueue: Array<number> = [];
 	private readonly targetBorderQueue: Array<number> = [];
@@ -44,7 +44,7 @@ class TerritoryRenderingManager {
 	 * @param tile index of the tile
 	 */
 	clear(tile: number): void {
-		this.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+		territoryRenderer.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 	}
 
 	/**
@@ -65,28 +65,22 @@ class TerritoryRenderingManager {
 
 	/**
 	 * Paint a tile.
-	 * @param tiles
-	 * @param color
+	 * @param tiles the tiles to paint
+	 * @param color the color to paint the tiles
 	 */
 	private paintTiles(tiles: number[], color: Color): void {
-		this.context.fillStyle = color.toString();
+		const context = territoryRenderer.context;
+		context.fillStyle = color.toString();
 		if (color.a < 1) {
 			for (const tile of tiles) {
-				this.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
-				this.context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+				context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+				context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 			}
 		} else {
 			for (const tile of tiles) {
-				this.context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+				context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 			}
 		}
-	}
-
-	/**
-	 * Set the rendering context.
-	 */
-	setContext(context: CanvasRenderingContext2D): void {
-		this.context = context;
 	}
 }
 

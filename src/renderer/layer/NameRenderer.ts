@@ -2,7 +2,7 @@ import {RendererLayer} from "./RendererLayer";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {playerNameRenderingManager} from "../manager/PlayerNameRenderingManager";
 
-export class NameRenderer implements RendererLayer {
+class NameRenderer implements RendererLayer {
 	render(context: CanvasRenderingContext2D): void {
 		context.textRendering = "optimizeSpeed";
 		context.textAlign = "center";
@@ -28,3 +28,5 @@ export class NameRenderer implements RendererLayer {
 		}
 	}
 }
+
+export const nameRenderer = new NameRenderer();

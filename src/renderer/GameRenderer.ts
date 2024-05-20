@@ -1,9 +1,9 @@
 import {RendererLayer} from "./layer/RendererLayer";
-import {MapRenderer} from "./layer/MapRenderer";
+import {mapRenderer} from "./layer/MapRenderer";
 import {windowResizeHandler, WindowResizeListener} from "../event/WindowResizeHandler";
-import {BackgroundLayer} from "./layer/BackgroundLayer";
-import {TerritoryRenderer} from "./layer/TerritoryRenderer";
-import {NameRenderer} from "./layer/NameRenderer";
+import {backgroundLayer} from "./layer/BackgroundLayer";
+import {territoryRenderer} from "./layer/TerritoryRenderer";
+import {nameRenderer} from "./layer/NameRenderer";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -32,10 +32,10 @@ export class GameRenderer implements WindowResizeListener {
 	 */
 	initGameplayLayers(): void {
 		this.layers = [];
-		this.registerLayer(new BackgroundLayer());
-		this.registerLayer(new MapRenderer());
-		this.registerLayer(new TerritoryRenderer());
-		this.registerLayer(new NameRenderer());
+		this.registerLayer(backgroundLayer);
+		this.registerLayer(mapRenderer);
+		this.registerLayer(territoryRenderer);
+		this.registerLayer(nameRenderer);
 	}
 
 	/**
@@ -47,6 +47,7 @@ export class GameRenderer implements WindowResizeListener {
 	 * @param layer the layer to be rendered.
 	 */
 	registerLayer(layer: RendererLayer): void {
+		layer.invalidateCaches?.();
 		this.layers.push(layer);
 	}
 

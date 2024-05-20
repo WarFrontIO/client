@@ -1,20 +1,21 @@
 import {CachedLayer} from "./CachedLayer";
 import {gameMap} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
-import {territoryRenderingManager} from "../manager/TerritoryRenderingManager";
 
 /**
  * Territory renderer.
  * Renders territory colors on the map (e.g. player territories).
  * @internal
  */
-export class TerritoryRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
+class TerritoryRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
 	constructor() {
 		super();
-		this.resizeCanvas(gameMap.width, gameMap.height);
 		mapTransformHandler.move.register(this);
 		mapTransformHandler.scale.register(this);
-		territoryRenderingManager.setContext(this.context);
+	}
+
+	invalidateCaches(): void {
+		this.resizeCanvas(gameMap.width, gameMap.height);
 	}
 
 	onMapMove(x: number, y: number): void {
@@ -26,3 +27,5 @@ export class TerritoryRenderer extends CachedLayer implements MapMoveListener, M
 		this.scale = scale;
 	}
 }
+
+export const territoryRenderer = new TerritoryRenderer();
