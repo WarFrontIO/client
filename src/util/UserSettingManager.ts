@@ -1,9 +1,11 @@
 import {SettingRegistry} from "./SettingRegistry";
+import {getTheme} from "../renderer/GameTheme";
 
 /**
  * Setting registry, all register calls need to be chained together
  */
 const registry = SettingRegistry.init()
+	.registerUpdatable("theme", getTheme("pastel"), (value: string) => getTheme(value))
 
 registry.load();
 

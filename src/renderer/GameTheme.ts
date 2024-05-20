@@ -6,6 +6,8 @@ import {TileType} from "../map/tile/TileType";
  * This allows for easy customization of the game's appearance.
  */
 export type GameTheme = {
+	readonly id: string;
+
 	/**
 	 * Get the color of a territory.
 	 * @param color base player color
@@ -32,29 +34,32 @@ const registry: Record<string, GameTheme> = {};
 
 /**
  * Registers a theme.
- * @param name the name of the theme
+ * @param id the name of the theme
  * @param theme the theme
  * @param tileOverrides overrides for tile colors
  */
-export function registerTheme(name: string, theme: GameTheme, tileOverrides: Record<string, Color>) {
+export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOverrides: Record<string, Color>) {
 	theme.getTileColor = (tile: TileType) => {
 		if (tile.internalName in tileOverrides) {
 			return tileOverrides[tile.internalName];
 		}
 		return theme.getTileColor(tile);
 	}
-	registry[name] = theme;
+	registry[id] = {
+		id,
+		...theme
+	}
 }
 
 /**
  * Retrieves a theme from the registry by its name.
- * @param name the name of the theme
+ * @param id the name of the theme
  * @returns the theme
  */
-export function getTheme(name: string): GameTheme {
-	const theme = registry[name];
+export function getTheme(id: string): GameTheme {
+	const theme = registry[id];
 	if (!theme) {
-		throw new Error(`Theme ${name} not found`);
+		throw new Error(`Theme ${id} not found`);
 	}
 	return theme;
 }
