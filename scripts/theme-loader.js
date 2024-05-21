@@ -10,10 +10,10 @@ module.exports = async function (theme) {
 
 			const name = file.replace(".json", "");
 			const data = JSON.parse(readFileSync("resources/themes/" + file, "utf8"));
-			if (!data.territory) data.territory = [];
-			if (!data.border) data.border = [];
-			if (!data.tiles) data.tiles = [];
-			if (!data.tileOverwrite) data.tileOverwrite = {};
+
+			for (const key in defaultTheme) {
+				if (!(key in data)) data[key] = defaultTheme[key];
+			}
 
 			const obj = {};
 			for (const key of ["territory", "border", "tiles"]) {
@@ -35,7 +35,13 @@ module.exports = async function (theme) {
 				getTileColor(tile: TileType): Color {
 					const color = tile.baseColor;
 					return ${obj.tiles};
-				}			
+				},
+				getBackgroundColor(): Color {
+					return ${parseColor(data.background)};
+				},
+				getFont(): string {
+					return "${data.font}";
+				}
 			}`;
 
 			themes.push({
@@ -52,8 +58,13 @@ module.exports = async function (theme) {
 
 function parseColor(color) {
 	if (color.startsWith("#")) {
-		const hex = parseInt(color.slice(1), 16);
-		return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+		if (color.length === 4) {
+			const hex = parseInt(color.slice(1), 16);
+			return "Color.fromRGB(" + (((hex >> 8) & 0xF) * 17) + ", " + (((hex >> 4) & 0xF) * 17) + ", " + ((hex & 0xF) * 17) + ")";
+		} else {
+			const hex = parseInt(color.slice(1), 16);
+			return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+		}
 	}
 	if (color.startsWith("rgb")) {
 		const rgb = color.match(/\d+/g);
@@ -72,6 +83,15 @@ function parseColor(color) {
 		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
 	}
 	throw new Error("Invalid color format: " + color);
+}
+
+const defaultTheme = {
+	territory: [],
+	border: [],
+	tiles: [],
+	tileOverwrite: {},
+	background: "#555",
+	font: "Arial"
 }
 
 const components = {

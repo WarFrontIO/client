@@ -1,6 +1,7 @@
 import {RendererLayer} from "./RendererLayer";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {playerNameRenderingManager} from "../manager/PlayerNameRenderingManager";
+import {getSetting} from "../../util/UserSettingManager";
 
 class NameRenderer implements RendererLayer {
 	render(context: CanvasRenderingContext2D): void {
@@ -9,6 +10,7 @@ class NameRenderer implements RendererLayer {
 		context.textBaseline = "bottom";
 		//TODO: This needs to be decided on a per-player basis (by the theme)
 		context.fillStyle = "rgb(0, 0, 0)";
+		const font = getSetting("theme").getFont();
 		const zoom = mapNavigationHandler.zoom;
 		const x = mapNavigationHandler.x;
 		const y = mapNavigationHandler.y;
@@ -17,7 +19,7 @@ class NameRenderer implements RendererLayer {
 		for (const data of playerNameRenderingManager.getTextData()) {
 			if (data.size === 0) continue;
 			if (data.size !== currentSize) {
-				context.font = "bold " + Math.floor(data.size * zoom / 4) + "px Arial";
+				context.font = "bold " + Math.floor(data.size * zoom / 4) + "px " + font;
 				currentSize = data.size;
 			}
 			if (data.baseline !== currentBaseline) {

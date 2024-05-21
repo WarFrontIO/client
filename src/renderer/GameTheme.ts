@@ -29,6 +29,18 @@ export type GameTheme = {
 	 * @returns the color of the tile
 	 */
 	getTileColor(tile: TileType): Color;
+
+	/**
+	 * Get the color of the background.
+	 * @returns the color of the background
+	 */
+	getBackgroundColor(): Color;
+
+	/**
+	 * Get the font of the game.
+	 * @returns the font of the game
+	 */
+	getFont() : string;
 }
 
 const registry: Record<string, GameTheme> = {};

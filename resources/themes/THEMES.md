@@ -22,7 +22,7 @@ Pro-tip: Head over to one of the modules [here](/src/ui/modules/) and paste / mo
 #### JSON file:
 
 The JSON file defines the theming of the game map. <br>
-Elements are styled on a per-type basis, with the following types available:
+Rendered tiles are styled on a per-type basis, with the following types available:
 - `territory` for player territories
 - `border` for player borders (same base color as territory)
 - `tiles` for map tiles (the map background itself)
@@ -76,6 +76,12 @@ The object has to be structured as follows:
 
 where `<tileId>` is the id of the tile you want (e.g. `grass` or `water`) and `<color>` is the color you want to set. <br>
 The color can be in hex, rgb(a) or hsl(a) format.
+
+#### Misc properties
+
+You can also define the following properties in the JSON file:
+- `background` to set the background color of the game
+- `font` to set the font used in the game
 
 #### Full example theme
 
