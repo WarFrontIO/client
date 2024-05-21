@@ -1,8 +1,11 @@
 import {Player} from "../../game/player/Player";
-import {gameMap} from "../../game/Game";
-import {getSetting} from "../../util/UserSettingManager";
+import {gameMap, isPlaying} from "../../game/Game";
+import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {Color} from "../../util/Color";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
+import {playerManager} from "../../game/player/PlayerManager";
+import {territoryManager} from "../../game/TerritoryManager";
+import {GameTheme} from "../GameTheme";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -82,6 +85,30 @@ class TerritoryRenderingManager {
 			}
 		}
 	}
+
+	/**
+	 * Force a repaint of the territory layer.
+	 */
+	forceRepaint(theme: GameTheme): void {
+		if (!isPlaying) return;
+		territoryRenderer.context.clearRect(0, 0, gameMap.width, gameMap.height);
+		const colorCache: string[] = [];
+		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
+			const owner = territoryManager.getOwner(i);
+			if (owner !== territoryManager.OWNER_NONE && owner !== territoryManager.OWNER_NONE - 1) {
+				const player = playerManager.getPlayer(owner);
+				const isTerritory = territoryManager.isTerritory(i);
+				const index = (owner << 1) + (isTerritory ? 1 : 0);
+				if (!colorCache[index]) {
+					colorCache[index] = isTerritory ? theme.getTerritoryColor(player.baseColor).toString() : theme.getBorderColor(player.baseColor).toString();
+				}
+				territoryRenderer.context.fillStyle = colorCache[index];
+				territoryRenderer.context.fillRect(i % gameMap.width, Math.floor(i / gameMap.width), 1, 1);
+			}
+		}
+	}
 }
 
 export const territoryRenderingManager = new TerritoryRenderingManager();
+
+registerSettingListener("theme", territoryRenderingManager.forceRepaint);

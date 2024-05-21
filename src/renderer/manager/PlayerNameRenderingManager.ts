@@ -58,6 +58,16 @@ class PlayerNameRenderingManager {
 	}
 
 	/**
+	 * Check if a tile is considered for name rendering.
+	 * @param tile The tile to check.
+	 * @returns True if the tile is considered, false otherwise.
+	 * @internal Use {@link TerritoryManager.isTerritory} instead.
+	 */
+	isConsidered(tile: number): boolean {
+		return this.nameDepth[tile] > 0;
+	}
+
+	/**
 	 * Update the player name rendering data.
 	 * @internal
 	 */

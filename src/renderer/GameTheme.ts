@@ -7,6 +7,7 @@ import {TileType} from "../map/tile/TileType";
  */
 export type GameTheme = {
 	readonly id: string;
+	toString(): string;
 
 	/**
 	 * Get the color of a territory.
@@ -39,14 +40,18 @@ const registry: Record<string, GameTheme> = {};
  * @param tileOverrides overrides for tile colors
  */
 export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOverrides: Record<string, Color>) {
+	const originalGetTileColor = theme.getTileColor;
 	theme.getTileColor = (tile: TileType) => {
 		if (tile.internalName in tileOverrides) {
 			return tileOverrides[tile.internalName];
 		}
-		return theme.getTileColor(tile);
+		return originalGetTileColor(tile);
 	}
 	registry[id] = {
 		id,
+		toString: function (this: GameTheme) {
+			return this.id
+		},
 		...theme
 	}
 }

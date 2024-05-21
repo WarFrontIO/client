@@ -1,10 +1,15 @@
-import {getSetting} from "../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../util/UserSettingManager";
 
 const modules = new Map<string, HTMLDivElement>();
 const moduleAdapters = new Map<string, ModuleAdapter>();
 let currentModule: string | null = null;
 
 document.documentElement.classList.add("theme-" + getSetting("theme").id);
+
+registerSettingListener("theme", (theme) => {
+	document.documentElement.classList.remove("theme-" + getSetting("theme").id);
+	document.documentElement.classList.add("theme-" + theme.id);
+});
 
 export function openMenu(name: string) {
 	const module = modules.get(name);
