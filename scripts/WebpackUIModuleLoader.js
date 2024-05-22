@@ -33,13 +33,40 @@ class WebpackUIModuleLoader {
 					attributes: {
 						type: "text/css"
 					},
-					innerHTML: css.join("\n")
+					innerHTML: processCssFiles(css)
 				});
 
 				cb(null, data);
 			});
 		});
 	}
+}
+
+function processCssFiles(files) {
+	const variables = {};
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
+		const resources = file.match(/url\((.*?)\)/g);
+		if (resources) {
+			for (const resource of resources) {
+				let url = resource.slice(4, -1);
+				if (url.startsWith("'") || url.startsWith("\"")) {
+					url = url.slice(1, -1);
+				}
+				if (variables[url]) {
+					files[i] = files[i].replace(resource, `var(--${variables[url]})`);
+				} else {
+					const name = `res-${Object.keys(variables).length}`;
+					variables[url] = name;
+					files[i] = files[i].replace(resource, `var(--${name})`);
+				}
+			}
+		}
+	}
+
+	const css = files.join("\n");
+	const vars = Object.entries(variables).map(([url, name]) => `--${name}: url(data:image/png;base64,${readFileSync("./" + url).toString("base64")});`).join(" ");
+	return `:root { ${vars} } ${css}`;
 }
 
 module.exports = WebpackUIModuleLoader;
