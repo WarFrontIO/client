@@ -76,29 +76,33 @@ module.exports = async function (theme) {
 
 function parseColor(color) {
 	if (color.startsWith("#")) {
-		if (color.length === 4) {
-			const hex = parseInt(color.slice(1), 16);
-			return "Color.fromRGB(" + (((hex >> 8) & 0xF) * 17) + ", " + (((hex >> 4) & 0xF) * 17) + ", " + ((hex & 0xF) * 17) + ")";
-		} else {
-			const hex = parseInt(color.slice(1), 16);
-			return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+		const hex = parseInt(color.slice(1), 16);
+		switch (color.length) {
+			case 4:
+				return "Color.fromRGB(" + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+			case 5:
+				return "Color.fromRGBA(" + ((hex >> 12) & 0xF) * 17 + ", " + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+			case 7:
+				return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+			case 9:
+				return "Color.fromRGBA(" + ((hex >> 24) & 0xFF) + ", " + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
 		}
+	}
+	if (color.startsWith("rgba")) {
+		const rgb = color.match(/[\d.]+/g);
+		return "Color.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
 	}
 	if (color.startsWith("rgb")) {
 		const rgb = color.match(/\d+/g);
 		return "Color.fromRGB(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
 	}
-	if (color.startsWith("rgba")) {
-		const rgb = color.match(/\d+/g);
-		return "Color.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
+	if (color.startsWith("hsla")) {
+		const hsl = color.match(/[\d.]+/g);
+		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
 	}
 	if (color.startsWith("hsl")) {
 		const hsl = color.match(/\d+/g);
 		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ")";
-	}
-	if (color.startsWith("hsla")) {
-		const hsl = color.match(/\d+/g);
-		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
 	}
 	throw new Error("Invalid color format: " + color);
 }
