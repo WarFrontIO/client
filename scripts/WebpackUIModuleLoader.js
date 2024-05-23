@@ -20,7 +20,7 @@ class WebpackUIModuleLoader {
 				}
 
 				//Inject CSS files
-				const css = [];
+				const css = [readFileSync("resources/base.css", "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ")];
 				for (const file of readdirSync("resources/themes")) {
 					if (!file.endsWith(".css")) continue;
 					const content = readFileSync("resources/themes/" + file, "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ");
@@ -45,7 +45,10 @@ class WebpackUIModuleLoader {
 function processCssFiles(files) {
 	const variables = {};
 	for (let i = 0; i < files.length; i++) {
-		const file = files[i];
+		let file = files[i];
+
+		file = file.replace(/@import [^;]+;/g, "");
+
 		const resources = file.match(/url\((.*?)\)/g);
 		if (resources) {
 			for (const resource of resources) {
@@ -54,14 +57,16 @@ function processCssFiles(files) {
 					url = url.slice(1, -1);
 				}
 				if (variables[url]) {
-					files[i] = files[i].replace(resource, `var(--${variables[url]})`);
+					file = file.replace(resource, `var(--${variables[url]})`);
 				} else {
 					const name = `res-${Object.keys(variables).length}`;
 					variables[url] = name;
-					files[i] = files[i].replace(resource, `var(--${name})`);
+					file = file.replace(resource, `var(--${name})`);
 				}
 			}
 		}
+
+		files[i] = file;
 	}
 
 	const css = files.join("\n");
