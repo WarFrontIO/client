@@ -79,6 +79,18 @@ The object has to be structured as follows:
 where `<tileId>` is the id of the tile you want (e.g. `grass` or `water`) and `<color>` is the color you want to set. <br>
 The color can be in hex, rgb(a) or hsl(a) format.
 
+#### Shaders
+
+Shaders can be used to apply effects to the game. <br>
+
+The following shaders are available:
+- `territory-outline` to add an outline around land territories on the map (applies to the water around the territory). Arguments: `color`, `thickness`
+- `territory-inline` to add an inline around land territories on the map (applies to the territory next to the water). Arguments: `color`, `thickness`
+- `territory-outline-smooth` to add a gradient outline around land territories on the map (applies to the water around the territory). Arguments: `color`, `thickness`
+- `territory-inline-smooth` to add a gradient inline around land territories on the map (applies to the territory next to the water). Arguments: `color`, `thickness`
+- `fixed-distance` to shade all tiles based on their distance to the nearest non-solid tile (negative if the tile is non-solid). Arguments: `color`, `min`, `max`
+- `dynamic-distance` to apply a gradient to all tiles based on their distance to the nearest non-solid tile (negative if the tile is non-solid). Arguments: `color`, `min`, `max`, `gradient`
+
 #### Misc properties
 
 You can also define the following properties in the JSON file:
@@ -103,6 +115,21 @@ You can also define the following properties in the JSON file:
   "tileOverwrites": {
     "grass": "hsl(120, 50%, 50%)",
     "water": "hsl(200, 50%, 50%)"
-  }
+  },
+  "shaders": [
+    {
+      "type": "territory-outline-smooth",
+      "color": "rgba(0, 0, 0, 0.1)",
+      "thickness": 4
+    },
+    {
+      "type": "fixed-distance",
+      "color": "rgba(0, 0, 0, 0.5)",
+      "min": 5,
+      "max": 10
+    }
+  ],
+  "background": "#555",
+  "font": "Arial"
 }
 ```
