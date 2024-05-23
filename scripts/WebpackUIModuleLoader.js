@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const {readdirSync, readFileSync} = require("fs");
+const {lookup} = require("mrmime");
 
 class WebpackUIModuleLoader {
 	// noinspection JSUnusedGlobalSymbols
@@ -70,7 +71,7 @@ function processCssFiles(files) {
 	}
 
 	const css = files.join("\n");
-	const vars = Object.entries(variables).map(([url, name]) => `--${name}: url(data:image/png;base64,${readFileSync("./" + url).toString("base64")});`).join(" ");
+	const vars = Object.entries(variables).map(([url, name]) => `--${name}: url(data:${lookup(url)};base64,${readFileSync("./" + url).toString("base64")});`).join(" ");
 	return `:root { ${vars} } ${css}`;
 }
 
