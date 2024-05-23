@@ -40,7 +40,14 @@ export type GameTheme = {
 	 * Get the font of the game.
 	 * @returns the font of the game
 	 */
-	getFont() : string;
+	getFont(): string;
+
+	/**
+	 * Get the list of shaders to use.
+	 * @returns the list of shaders to use
+	 * @internal
+	 */
+	getShaderArgs(): {name: string, args: {[key: string]: any}}[];
 }
 
 const registry: Record<string, GameTheme> = {};

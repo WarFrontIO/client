@@ -3,6 +3,7 @@ import {gameMap, isPlaying} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {GameTheme} from "../GameTheme";
+import {applyPostGenerationShaders} from "../shader/ShaderManager";
 
 /**
  * Map background renderer.
@@ -32,6 +33,7 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 			//TODO: This does a lot of unnecessary work, consider caching the rgba values of the colors
 			tileColors[tile.id].writeToBuffer(imageData.data, i * 4);
 		}
+		applyPostGenerationShaders(imageData.data);
 		this.context.putImageData(imageData, 0, 0);
 	}
 

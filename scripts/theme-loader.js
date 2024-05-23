@@ -25,6 +25,21 @@ module.exports = async function (theme) {
 				overwrites[key] = parseColor(data.tileOverwrite[key]);
 			}
 
+			const shaders = [];
+			for (const shader of data.shaders) {
+				if (!shader.type) throw new Error("Shader missing type");
+				const args = {};
+				for (const arg of Object.keys(shader)) {
+					if (arg === "type") continue;
+					try {
+						args[arg] = parseColor(shader[arg]);
+					} catch (e) {
+						args[arg] = shader[arg];
+					}
+				}
+				shaders.push({name: shader.type, args: args});
+			}
+
 			const stringified = `{
 				getTerritoryColor(color: Color): Color {
 					return ${obj.territory};
@@ -41,6 +56,9 @@ module.exports = async function (theme) {
 				},
 				getFont(): string {
 					return "${data.font}";
+				},
+				getShaderArgs(): {name: string, args: {[key: string]: any}}[] {
+					return [${shaders.map(shader => `{name: "${shader.name}", args: {${Object.keys(shader.args).map(key => `"${key}": ${shader.args[key]}`).join(", ")}}}`).join(", ")}];
 				}
 			}`;
 
@@ -91,7 +109,8 @@ const defaultTheme = {
 	tiles: [],
 	tileOverwrite: {},
 	background: "#555",
-	font: "Arial"
+	font: "Arial",
+	shaders: []
 }
 
 const components = {
