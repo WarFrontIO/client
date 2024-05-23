@@ -3,7 +3,7 @@ import {gameMap, isPlaying} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {GameTheme} from "../GameTheme";
-import {applyPostGenerationShaders} from "../shader/ShaderManager";
+import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
 
 /**
  * Map background renderer.
@@ -19,6 +19,7 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 
 	invalidateCaches(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
+		loadShaders();
 		this.forceRepaint(getSetting("theme"));
 	}
 

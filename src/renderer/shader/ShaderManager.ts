@@ -1,5 +1,5 @@
 import {PostGenerationShader} from "./PostGenerationShader";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/UserSettingManager";
 import {FixedDistanceShader} from "./FixedDistanceShader";
 import {Color} from "../../util/Color";
 import {DynamicDistanceShader} from "./DynamicDistanceShader";
@@ -17,7 +17,7 @@ const activePostGeneration: PostGenerationShader[] = [];
 /**
  * Load all shaders from the current theme.
  */
-function loadShaders(): void {
+export function loadShaders(): void {
 	for (const shaderData of getSetting("theme").getShaderArgs()) {
 		const shader = shaderList[shaderData.name];
 		if (!shader) {
@@ -25,7 +25,6 @@ function loadShaders(): void {
 			continue;
 		}
 		const obj = shader.build(shaderData.args);
-		console.log(obj);
 		if (shader.type === "post-generation") {
 			addPostGenerationShader(obj);
 		}
@@ -50,7 +49,3 @@ export function applyPostGenerationShaders(pixels: Uint8ClampedArray): void {
 		shader.apply(pixels);
 	}
 }
-
-loadShaders();
-
-registerSettingListener("theme", loadShaders);
