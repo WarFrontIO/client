@@ -33,6 +33,7 @@ export function mapFromId(id: number): GameMap {
 	for (let i = 0; i < decoded.tiles.length; i++) {
 		map.setTileId(i, decoded.tiles[i]);
 	}
+	map.calculateDistanceMap();
 	return map;
 }
 

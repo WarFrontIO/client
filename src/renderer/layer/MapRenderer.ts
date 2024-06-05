@@ -1,24 +1,41 @@
 import {CachedLayer} from "./CachedLayer";
-import {gameMap} from "../../game/Game";
+import {gameMap, isPlaying} from "../../game/Game";
 import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
-import {theme} from "../../Loader";
+import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {GameTheme} from "../GameTheme";
+import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
 
 /**
  * Map background renderer.
  * All static map tiles (and possibly other static objects) should be rendered here.
  * @internal
  */
-export class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
+class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
 	constructor() {
 		super();
-		this.resizeCanvas(gameMap.width, gameMap.height);
-		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
-		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
-			theme.getTileColor(gameMap.getTile(i)).writeToBuffer(imageData.data, i * 4);
-		}
-		this.context.putImageData(imageData, 0, 0);
 		mapTransformHandler.move.register(this);
 		mapTransformHandler.scale.register(this);
+	}
+
+	invalidateCaches(): void {
+		this.resizeCanvas(gameMap.width, gameMap.height);
+		loadShaders();
+		this.forceRepaint(getSetting("theme"));
+	}
+
+	forceRepaint(theme: GameTheme): void {
+		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
+		const tileColors = [];
+		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
+			const tile = gameMap.getTile(i);
+			if (!tileColors[tile.id]) {
+				tileColors[tile.id] = theme.getTileColor(tile);
+			}
+			//TODO: This does a lot of unnecessary work, consider caching the rgba values of the colors
+			tileColors[tile.id].writeToBuffer(imageData.data, i * 4);
+		}
+		applyPostGenerationShaders(imageData.data);
+		this.context.putImageData(imageData, 0, 0);
 	}
 
 	onMapMove(x: number, y: number): void {
@@ -30,3 +47,7 @@ export class MapRenderer extends CachedLayer implements MapMoveListener, MapScal
 		this.scale = scale;
 	}
 }
+
+export const mapRenderer = new MapRenderer();
+
+registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

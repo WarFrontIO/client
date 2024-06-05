@@ -13,5 +13,22 @@
   "tileOverwrite": {
     "grass": "rgb(240, 210, 160)",
     "water": "rgb(160, 200, 200)"
-  }
+  },
+  "shaders": [
+    {
+      "type": "territory-outline",
+      "color": "rgba(0, 0, 0, 0.01)",
+      "thickness": 10
+    },
+    {
+      "type": "territory-outline-smooth",
+      "color": "rgba(0, 0, 0, 0.1)",
+      "thickness": 4
+    },
+    {
+      "type": "territory-inline",
+      "color": "rgba(0, 0, 0, 0.1)",
+      "thickness": 1
+    }
+  ]
 }

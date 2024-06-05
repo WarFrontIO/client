@@ -1,5 +1,4 @@
 import {Player} from "../../game/player/Player";
-import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {gameMap} from "../../game/Game";
 import {playerManager} from "../../game/player/PlayerManager";
 import {formatTroops} from "../../util/StringFormatter";
@@ -18,8 +17,10 @@ class PlayerNameRenderingManager {
 	 * @param player The player to register.
 	 */
 	registerPlayer(player: Player): void {
-		const nameLength = territoryRenderer.context.measureText(player.name).width / 10;
-		const troopLength = territoryRenderer.context.measureText("123.").width / 10;
+		const canvas = document.createElement("canvas");
+		const context = canvas.getContext("2d");
+		const nameLength = context.measureText(player.name).width / 10;
+		const troopLength = context.measureText("123.").width / 10;
 		this.playerData[player.id] = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles);
 	}
 
@@ -54,6 +55,16 @@ class PlayerNameRenderingManager {
 		}
 		data.sort((a, b) => a.size - b.size);
 		return data;
+	}
+
+	/**
+	 * Check if a tile is considered for name rendering.
+	 * @param tile The tile to check.
+	 * @returns True if the tile is considered, false otherwise.
+	 * @internal Use {@link TerritoryManager.isTerritory} instead.
+	 */
+	isConsidered(tile: number): boolean {
+		return this.nameDepth[tile] > 0;
 	}
 
 	/**

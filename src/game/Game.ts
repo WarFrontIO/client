@@ -17,6 +17,10 @@ import {Color} from "../util/Color";
  */
 export let gameMap: GameMap;
 /**
+ * Whether the game is currently running.
+ */
+export let isPlaying: boolean;
+/**
  * Local games are directly played on the client without any server interaction.
  */
 export let isLocalGame: boolean;
@@ -36,6 +40,7 @@ export function startGame(map: GameMap) {
 	spawnManager.init(500);
 	playerManager.init([new Player(0, "Player", Color.fromRGB(0, 200, 200))], 0, 500);
 
+	isPlaying = true;
 	isLocalGame = true;
 	random.reset(23452345);
 }

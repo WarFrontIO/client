@@ -10,10 +10,10 @@ module.exports = async function (theme) {
 
 			const name = file.replace(".json", "");
 			const data = JSON.parse(readFileSync("resources/themes/" + file, "utf8"));
-			if (!data.territory) data.territory = [];
-			if (!data.border) data.border = [];
-			if (!data.tiles) data.tiles = [];
-			if (!data.tileOverwrite) data.tileOverwrite = {};
+
+			for (const key in defaultTheme) {
+				if (!(key in data)) data[key] = defaultTheme[key];
+			}
 
 			const obj = {};
 			for (const key of ["territory", "border", "tiles"]) {
@@ -23,6 +23,21 @@ module.exports = async function (theme) {
 			const overwrites = {};
 			for (const key in data.tileOverwrite) {
 				overwrites[key] = parseColor(data.tileOverwrite[key]);
+			}
+
+			const shaders = [];
+			for (const shader of data.shaders) {
+				if (!shader.type) throw new Error("Shader missing type");
+				const args = {};
+				for (const arg of Object.keys(shader)) {
+					if (arg === "type") continue;
+					try {
+						args[arg] = parseColor(shader[arg]);
+					} catch (e) {
+						args[arg] = shader[arg];
+					}
+				}
+				shaders.push({name: shader.type, args: args});
 			}
 
 			const stringified = `{
@@ -35,7 +50,16 @@ module.exports = async function (theme) {
 				getTileColor(tile: TileType): Color {
 					const color = tile.baseColor;
 					return ${obj.tiles};
-				}			
+				},
+				getBackgroundColor(): Color {
+					return ${parseColor(data.background)};
+				},
+				getFont(): string {
+					return "${data.font}";
+				},
+				getShaderArgs(): {name: string, args: {[key: string]: any}}[] {
+					return [${shaders.map(shader => `{name: "${shader.name}", args: {${Object.keys(shader.args).map(key => `"${key}": ${shader.args[key]}`).join(", ")}}}`).join(", ")}];
+				}
 			}`;
 
 			themes.push({
@@ -53,25 +77,44 @@ module.exports = async function (theme) {
 function parseColor(color) {
 	if (color.startsWith("#")) {
 		const hex = parseInt(color.slice(1), 16);
-		return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+		switch (color.length) {
+			case 4:
+				return "Color.fromRGB(" + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+			case 5:
+				return "Color.fromRGBA(" + ((hex >> 12) & 0xF) * 17 + ", " + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+			case 7:
+				return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+			case 9:
+				return "Color.fromRGBA(" + ((hex >> 24) & 0xFF) + ", " + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+		}
+	}
+	if (color.startsWith("rgba")) {
+		const rgb = color.match(/[\d.]+/g);
+		return "Color.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
 	}
 	if (color.startsWith("rgb")) {
 		const rgb = color.match(/\d+/g);
 		return "Color.fromRGB(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
 	}
-	if (color.startsWith("rgba")) {
-		const rgb = color.match(/\d+/g);
-		return "Color.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
+	if (color.startsWith("hsla")) {
+		const hsl = color.match(/[\d.]+/g);
+		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
 	}
 	if (color.startsWith("hsl")) {
 		const hsl = color.match(/\d+/g);
 		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ")";
 	}
-	if (color.startsWith("hsla")) {
-		const hsl = color.match(/\d+/g);
-		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
-	}
 	throw new Error("Invalid color format: " + color);
+}
+
+const defaultTheme = {
+	territory: [],
+	border: [],
+	tiles: [],
+	tileOverwrite: {},
+	background: "#555",
+	font: "Arial",
+	shaders: []
 }
 
 const components = {
@@ -98,7 +141,6 @@ const functions = {
 	"scaleSaturation": {args: 2, func: "($1 + Math.floor(color.s * $2))"},
 	"scaleLightness": {args: 2, func: "($1 + Math.floor(color.l * $2))"},
 	"scaleAlpha": {args: 2, func: "($1 + Math.floor(color.a * $2))"},
-	"rand": {args: 2, func: "(Math.random() * ($2 - $1) + $1)"},
 	"step": {args: 2, func: "Math.floor($1 / $2) * $2"}
 }
 

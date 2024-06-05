@@ -1,6 +1,7 @@
 import {gameMap} from "./Game";
 import {playerManager} from "./player/PlayerManager";
-import {territoryRenderer} from "../renderer/layer/TerritoryRenderer";
+import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
+import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
@@ -64,6 +65,15 @@ class TerritoryManager {
 	}
 
 	/**
+	 * Checks if a tile is part of a player's territory excluding the player's border.
+	 * @param tile The tile to check.
+	 * @returns True if the tile is part of a player's territory, false otherwise.
+	 */
+	isTerritory(tile: number): boolean {
+		return playerNameRenderingManager.isConsidered(tile);
+	}
+
+	/**
 	 * Conquers a tile for a player.
 	 *
 	 * If the tile is already owned by a player, the player will lose the tile.
@@ -90,7 +100,7 @@ class TerritoryManager {
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile);
-			territoryRenderer.clear(tile);
+			territoryRenderingManager.clear(tile);
 		}
 	}
 }

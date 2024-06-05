@@ -5,6 +5,7 @@ import {gameMap} from "../Game";
 import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
+import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 
 export class AttackExecutor {
 	readonly player: Player;
@@ -74,6 +75,8 @@ export class AttackExecutor {
 			this.troops -= attackCost;
 			conquered++;
 		}
+
+		territoryRenderingManager.applyTransaction(this.player, this.target || this.player);
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);
 

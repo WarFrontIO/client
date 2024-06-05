@@ -34,6 +34,19 @@ export class Color {
 	}
 
 	/**
+	 * Blend the color with a buffer.
+	 * The alpha channel is used for blending and not modified.
+	 * @param buffer The buffer to blend with.
+	 * @param offset The offset to blend with.
+	 * @param strength The strength of the blend, 0 for no change, 1 for full change.
+	 */
+	blendWithBuffer(buffer: Uint8Array | Uint8ClampedArray, offset: number, strength: number = 1): void {
+		buffer[offset] = strength * this.a * this.toRGBComponent(0) + (1 - strength * this.a) * buffer[offset];
+		buffer[offset + 1] = strength * this.a * this.toRGBComponent(8) + (1 - strength * this.a) * buffer[offset + 1];
+		buffer[offset + 2] = strength * this.a * this.toRGBComponent(4) + (1 - strength * this.a) * buffer[offset + 2];
+	}
+
+	/**
 	 * @param h The hue value to set.
 	 * @returns A new color with the hue value set.
 	 */

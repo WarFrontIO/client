@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const {readdirSync, readFileSync} = require("fs");
+const {lookup} = require("mrmime");
 
 class WebpackUIModuleLoader {
 	// noinspection JSUnusedGlobalSymbols
@@ -33,7 +34,7 @@ class WebpackUIModuleLoader {
 				}
 
 				//Inject CSS files
-				const css = [];
+				const css = [readFileSync("resources/base.css", "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ")];
 				for (const file of readdirSync("resources/themes")) {
 					if (!file.endsWith(".css")) continue;
 					const content = readFileSync("resources/themes/" + file, "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ");
@@ -46,13 +47,116 @@ class WebpackUIModuleLoader {
 					attributes: {
 						type: "text/css"
 					},
-					innerHTML: css.join("\n")
+					innerHTML: processCssFiles(css)
 				});
 
 				cb(null, data);
 			});
 		});
 	}
+}
+
+function processCssFiles(files) {
+	const variables = {};
+	for (let i = 0; i < files.length; i++) {
+		let file = files[i];
+
+		file = file.replace(/@import [^;]+;/g, "");
+
+		const resources = file.match(/url\((.*?)\)/g);
+		if (resources) {
+			for (const resource of resources) {
+				let url = resource.slice(4, -1);
+				if (url.startsWith("'") || url.startsWith("\"")) {
+					url = url.slice(1, -1);
+				}
+				if (variables[url]) {
+					file = file.replace(resource, `var(--${variables[url]})`);
+				} else {
+					const name = `res-${Object.keys(variables).length}`;
+					variables[url] = name;
+					file = file.replace(resource, `var(--${name})`);
+				}
+			}
+		}
+
+		files[i] = file;
+	}
+
+	let vars = Object.entries(variables).map(([url, name]) => `--${name}: url(data:${lookup(url)};base64,${readFileSync("./" + url).toString("base64")});`).join(" ");
+	let variableCounter = 0;
+
+	for (let i = 0; i < files.length; i++) {
+		const root = findBlock(files[i], ":root");
+		for (let j = 0; j < root.length; j++) {
+			files[i] = files[i].replace(root[j], "");
+			const rootVars = root[j].match(/--[^:]+:[^;]+;/g);
+
+			if (rootVars) {
+				for (const rootVar of rootVars) {
+					const [name, value] = rootVar.split(":");
+					root[j] = root[j].replace(rootVar, `--${variableCounter}: ${value}`);
+					files[i] = files[i].replace(new RegExp(`var\\(\\s*${name}\\s*\\)`, "g"), `var(--${variableCounter++})`);
+				}
+			}
+			vars += extractInner(root[j]).replace(/\s+/g, " ");
+		}
+	}
+
+	let globalScope = [];
+	for (let i = 0; i < files.length; i++) {
+		const simpleAt = findBlock(files[i], "@media").concat(findBlock(files[i], "@supports"));
+		for (let j = 0; j < simpleAt.length; j++) {
+			files[i] = files[i].replace(simpleAt[j], "");
+			globalScope.push(simpleAt[j].replace(extractInner(simpleAt[j]), files[i].match(/\.theme-[^{}\s]+/) + " { " + extractInner(simpleAt[j]) + " }"));
+		}
+
+		let identifierRules = [["@keyframes", "animation-name"], ["@counter-style", "list-style"]];
+		for (const [identifier, property] of identifierRules) {
+			const identifiers = findBlock(files[i], identifier);
+			for (let j = 0; j < identifiers.length; j++) {
+				files[i] = files[i].replace(identifiers[j], "");
+				const name = identifiers[j].match(new RegExp(`${identifier}\\s+([^\\s{]+)`))[1];
+				globalScope.push(identifiers[j].replace(name, `a${variableCounter}`));
+				files[i] = files[i].replaceAll(`${property}: ${name}`, `${property}: a${variableCounter++}`);
+			}
+		}
+
+		const fontFace = findBlock(files[i], "@font-face");
+		for (let j = 0; j < fontFace.length; j++) {
+			const name = fontFace[j].match(/font-family:\s*([^;]+);/)[1];
+			files[i] = files[i].replace(fontFace[j], "");
+			globalScope.push(fontFace[j].replace(name, `"${variableCounter}"`));
+			files[i] = files[i].replaceAll("font-family: " + name, `font-family: "${variableCounter}"`);
+			files[i] = files[i].replace(new RegExp(`font:([^;]*)${name}([^;]*);`, "g"), `font:$1"${variableCounter++}"$2;`);
+		}
+	}
+
+	return `:root { ${vars} } ${globalScope.join(" ")} ${files.join("\n")}`;
+}
+
+function findBlock(content, block) {
+	let results = [];
+	let depth = 0;
+	let start = -1;
+	for (let i = 0; i < content.length; i++) {
+		if (content.slice(i, i + block.length) === block && depth === 1) {
+			start = i;
+		} else if (content[i] === "{") {
+			depth++;
+		} else if (content[i] === "}") {
+			depth--;
+			if (depth === 1 && start !== -1) {
+				results.push(content.slice(start, i + 1));
+				start = -1;
+			}
+		}
+	}
+	return results;
+}
+
+function extractInner(block) {
+	return block.slice(block.indexOf("{") + 1, block.lastIndexOf("}")).trim();
 }
 
 module.exports = WebpackUIModuleLoader;
