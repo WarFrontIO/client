@@ -13,9 +13,9 @@ Here is some code for a basic example element, with explanatory comments:
 // The HudElement class is used as a
 // base for all HUD elements.
 //
-// This relative path ("../Hud") assumes the current
+// This relative path ("../HudElement") assumes the current
 // file is located in ./src/hud/elements
-import {HudElement} from "../Hud";
+import {HudElement} from "../HudElement";
 
 export class ExampleElement extends HudElement {
 	// Note that the element is not spawned when
@@ -46,4 +46,6 @@ import {ExampleElement} from "/path/to/hud/elements/ExampleElement";
 
 The numbers provided to `spawn()` are the coordinates to draw the element at.
 
-You may also update the contents of the HUD element with `HudElement.setInnerHtml()` and `HudElement.setTextContent()`, respectively. Refer to the JSDocs for more information- however, these methods should be pretty self-explanatory :-)
+You may retrieve and modify the corresponding HTML element with `HudElement.getElement()`. This is a getter for `HudElement.element`, which is an [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement).
+
+For more information, refer to the JSDoc annotations in the source code :-)
