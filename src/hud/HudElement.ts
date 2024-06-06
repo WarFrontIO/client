@@ -21,22 +21,11 @@ export class HudElement {
 	}
 
 	/**
-	 * Set the inner HTMl of the HUD element.
-	 * 
-	 * @param innerHtml The innerHTML value to set
+	 * Getter for HudElement.element
+	 * @returns The underlying HTML element
 	 */
-	setInnerHtml(innerHtml: string) {
-		this.element.innerHTML = innerHtml;
-	}
-
-	/**
-	 * Set the textContent of the HUD element.
-	 * Not recommended- use setInnerHtml instead!
-	 * 
-	 * @param textContent The textContent to give the element
-	 */
-	setTextContent(textContent: string) {
-		this.element.textContent = textContent;
+	getElement() {
+		return this.element;
 	}
 
 	/**
