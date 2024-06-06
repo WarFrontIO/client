@@ -1,4 +1,4 @@
-import {HudElement} from "../Hud";
+import {HudElement} from "../HudElement";
 
 export class ExampleElement extends HudElement {
 	constructor() {
