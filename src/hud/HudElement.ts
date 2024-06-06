@@ -1,28 +1,4 @@
 /**
- * Generate an HTML ID for the HUD element,
- * with a random 6-digit number to prevent
- * collisions.
- * 
- * @param templateName Name of the HUD element template.
- * @returns ID for the HTML element
- */
-function genElementId(templateName: string): string {
-	let output = "";
-	let isUnique = false;
-
-	while (!isUnique) {
-		output = "";
-		[...Array(6)].forEach((_, i) => {
-			output += Math.floor(Math.random() * 10);
-		});
-		if (!(!!document.getElementById("HudElement-" + templateName + "-" + output))) {
-			isUnique = true;
-		}
-	}
-	return "HudElement-" + templateName + "-" + output;
-}
-
-/**
  * Extend off this class
  * when making HUD elements.
  * 
@@ -35,7 +11,7 @@ export class HudElement {
 
 	constructor(templateName: string) {
 		this.element = document.createElement("div") as HTMLDivElement;
-		this.element.id = genElementId(templateName);
+		this.element.id = "HudElement-" + templateName;
 		this.element.style.position = "fixed"; // Maybe change this later, I'm not a CSS wizard and there could be a better way :/
 		this.element.style.display = "block";
 		this.element.innerHTML = document.getElementById(templateName).innerHTML;
