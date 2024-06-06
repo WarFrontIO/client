@@ -23,7 +23,7 @@ export class HudElement {
 	/**
 	 * Set the inner HTMl of the HUD element.
 	 * 
-	 * @param innerHtml The innerHTML value to set.
+	 * @param innerHtml The innerHTML value to set
 	 */
 	setInnerHtml(innerHtml: string) {
 		this.element.innerHTML = innerHtml;
@@ -33,7 +33,7 @@ export class HudElement {
 	 * Set the textContent of the HUD element.
 	 * Not recommended- use setInnerHtml instead!
 	 * 
-	 * @param textContent The textContent to give the element.
+	 * @param textContent The textContent to give the element
 	 */
 	setTextContent(textContent: string) {
 		this.element.textContent = textContent;
@@ -86,16 +86,38 @@ export class HudElement {
 		this.setCoordinates(this.xCoord + xShift, this.yCoord + yShift);
 	}
 
+	/**
+	 * Getter for HudElement.xCoord
+	 * @returns X coordinate of the HUD element
+	 */
 	getXCoord() {
 		return this.xCoord;
 	}
 
+	/**
+	 * Getter for HudElement.yCoord
+	 * @returns Y coordinate of the HUD element
+	 */
 	getYCoord() {
 		return this.yCoord;
 	}
 
+	/**
+	 * Setter for HudElement.xCoord
+	 * @param xCoord New X coordinate for the HUD element
+	 */
 	setXCoord(xCoord: number) {
 		this.xCoord = xCoord;
+		this.updateCoordinates();
+	}
+
+	/**
+	 * Setter for HudElement.yCoord
+	 * @param yCoord New Y coordinate for the HUD element
+	 */
+	setYCoord(yCoord: number) {
+		this.yCoord = yCoord;
+		this.updateCoordinates();
 	}
 
 	/**
