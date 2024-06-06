@@ -71,8 +71,7 @@ export class HudElement {
 	 * @param y Y coordinate to spawn the element at
 	 */
 	spawn(x: number, y: number) {
-		this.element.style.top = y.toString() + "px";
-		this.element.style.left = x.toString() + "px";
+		this.setCoordinates(x, y);
 		document.body.appendChild(this.element);
 	}
 
