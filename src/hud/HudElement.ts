@@ -10,11 +10,8 @@ export class HudElement {
 	private yCoord: number;
 
 	constructor(templateName: string) {
-		this.element = document.createElement("div") as HTMLDivElement;
-		this.element.id = "HudElement-" + templateName;
-		this.element.style.position = "fixed"; // Maybe change this later, I'm not a CSS wizard and there could be a better way :/
-		this.element.style.display = "block";
-		this.element.innerHTML = document.getElementById(templateName).innerHTML;
+		this.element = document.getElementById(templateName);
+		this.element.style.position = "fixed";
 
 		this.xCoord = 0;
 		this.yCoord = 0;
