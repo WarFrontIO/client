@@ -99,15 +99,24 @@ class PlayerNameRenderingManager {
 		let changed = true;
 		let max = 0;
 		let maxPos = 0;
+
+		let currentMax = Infinity;
+		let otherMax = Infinity;
 		while (true) {
 			let current = currentOrigin;
 			if (isRemoval && currentOrigin === tile) {
 				current++;
 			}
-			while (true) {
-				if (!this.nameDepth[current]) break; // Border / unclaimed tile
+			for (let i = 0; i < currentMax; i++) {
+				if (!this.nameDepth[current]) { // Border / unclaimed tile
+					currentMax = i;
+					break;
+				}
 				const value = Math.min(this.nameDepth[current - 1], this.nameDepth[current - gameMap.width], this.nameDepth[current - gameMap.width - 1]) + 1;
-				if (value === this.nameDepth[current]) break;
+				if (value === this.nameDepth[current]) {
+					currentMax = i;
+					break;
+				}
 
 				if (isRemoval) {
 					if (playerData.stackMap[current]) {
@@ -133,6 +142,7 @@ class PlayerNameRenderingManager {
 				isColumn = true;
 				currentOrigin += gameMap.width;
 			}
+			[currentMax, otherMax] = [otherMax, currentMax];
 		}
 
 		if (isRemoval && playerData.stackMap[tile]) {
