@@ -26,7 +26,7 @@ export class HudElement {
 	}
 
 	/**
-	 * Show the element.
+	 * Show the element
 	 */
 	show() {
 		this.element.style.display = "block";
