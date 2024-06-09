@@ -10,7 +10,7 @@ export class HudElement {
 	private yCoord: number;
 
 	constructor(templateName: string) {
-		this.element = document.getElementById(templateName);
+		this.element = document.getElementById(templateName) as HTMLDivElement;
 		this.element.style.position = "fixed";
 
 		this.xCoord = 0;
