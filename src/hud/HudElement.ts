@@ -26,15 +26,17 @@ export class HudElement {
 	}
 
 	/**
-	 * Spawn the element at the given coordinates.
-	 * Coordinates begin in the top-left.
-	 * 
-	 * @param x X coordinate to spawn the element at
-	 * @param y Y coordinate to spawn the element at
+	 * Show the element.
 	 */
-	spawn(x: number, y: number) {
-		this.setCoordinates(x, y);
-		document.body.appendChild(this.element);
+	show() {
+		this.element.style.display = "block";
+	}
+
+	/**
+	 * Hide the element
+	 */
+	hide() {
+		this.element.style.display = "none";
 	}
 
 	/**
@@ -104,12 +106,5 @@ export class HudElement {
 	setYCoord(yCoord: number) {
 		this.yCoord = yCoord;
 		this.updateCoordinates();
-	}
-
-	/**
-	 * Destroy the element.
-	 */
-	destroy() {
-		this.element.remove();
 	}
 }
