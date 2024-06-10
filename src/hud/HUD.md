@@ -1,51 +1,59 @@
 # HUD documentation
 
-The HUD is comprised of "elements" which are basically individual pieces of the HUD which can be instantiated ("spawned") as many times as desired and at any location on the screen. Unlike UI modules, these can be instantiated as many times as you want
+The HUD is a system of elements that are each represented by a TypeScript class extending off of `HudElement` (located in `./src/hud/HudElement.ts`)
 
-Elements have the `fixed` CSS position, so they are rendered irrespective of other HTML content, which is something that is important to remember when working with them.
+Each element is unique and is created when the game is first loaded (when the `load` event is fired). Your element's class is instantiated here. You will only ever use the one instance.
 
-Each element should have two things: a TypeScript file and an HTML file, preferably with the same name. These files should be located in `./src/hud/elements` to allow the build script to locate and inject the templates.
+You will also need an HTML file containing the actual HTML for the element. This works similar to the UI module system, but HUD elements are given `fixed` CSS positions and are hidden by default until you call your element's `show()` method.
 
-Here is some code for a basic example element, with explanatory comments:
+## Example element setup
+
+Each HUD element consists of two files, a TypeScript file containing the element's class and an HTML file containing the HTML to display (this can be changed by accessing the HTML div via `HudElement.getElement()`)
 
 **ExampleElement.ts**
+
+This is the file containing your element's main class. It needs to extend off of `HudElement`, which implements the basic functionality you'll need. You can read its methods and corresponding JSDoc comments to get an overview of what you can do with it.
+
 ```typescript
-// The HudElement class is used as a
-// base for all HUD elements.
-//
-// This relative path ("../HudElement") assumes the current
-// file is located in ./src/hud/elements
 import {HudElement} from "../HudElement";
 
 export class ExampleElement extends HudElement {
-	// Note that the element is not spawned when
-	// the constructor is called.
+	// Note that this constructor is called as soon
+	// as the page is loaded. If you don't want your
+	// element showing up then, don't show it here.
 	constructor() {
-		// Calling super() is required.
+		// Calling super() is required, and the bare minimum for your element's
+		// constructor. This binds the class to the HTML div.
+		//
 		// The argument must match the name of
-		// the template HTML file (sans the file extension)
+		// the corresponding HTML file (sans the file extension)
 		super("ExampleElement");
 	}
 }
 ```
 
 **ExampleElement.html**
+
+This file contains the HTML to be used for your HUD element. It is injected into the document during the build process, and you can use the `<ignore>` tag (just like with UI modules) to exclude parts of the HTML.
+
 ```html
 <!-- Any valid HTML can be put here. -->
 <button>Here's an example button.</button>
 ```
 
-To use the element, it needs to be instantiated from someplace in your code- anywhere works!
+## Registering your HUD element
 
-A basic example that spawns the element upon instantiation looks like this:
+Registering your HUD element, so it actually shows up in the game, is very simple: just import it into `./src/hud/HudManager.ts` and call the constructor in `initHudElements()`.
+
+Here's what it should look like:
+
 ```typescript
-import {ExampleElement} from "/path/to/hud/elements/ExampleElement";
+import {ExampleElement} from "./elements/ExampleElement";
+import {SomeOtherElement} from "./elements/SomeOtherElement";
 
-(new ExampleElement()).spawn(50, 50);
+export function initHudElements() {
+	new ExampleElement();
+	new SomeOtherElement();
+	// ...add more here!
+}
 ```
-
-The numbers provided to `spawn()` are the coordinates to draw the element at.
-
-You may retrieve and modify the corresponding HTML element with `HudElement.getElement()`. This is a getter for `HudElement.element`, which is an [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement).
-
-For more information, refer to the JSDoc annotations in the source code :-)
