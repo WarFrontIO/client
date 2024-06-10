@@ -75,6 +75,24 @@ export class HudElement {
 	}
 
 	/**
+	 * Shift the element along the X axis
+	 * 
+	 * @param shift Units to shift the element along the X axis
+	 */
+	shiftXCoord(shift: number) {
+		this.setXCoord(this.getXCoord() + shift);
+	}
+
+	/**
+	 * Shift the element along the Y axis
+	 * 
+	 * @param shift Units to shift the element along the Y axis
+	 */
+	shiftYCoord(shift: number) {
+		this.setYCoord(this.getYCoord() + shift);
+	}
+
+	/**
 	 * Getter for HudElement.xCoord
 	 * @returns X coordinate of the HUD element
 	 */
