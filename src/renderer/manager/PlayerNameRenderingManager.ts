@@ -2,10 +2,21 @@ import {Player} from "../../game/player/Player";
 import {gameMap} from "../../game/Game";
 import {playerManager} from "../../game/player/PlayerManager";
 import {formatTroops} from "../../util/StringFormatter";
+import {PriorityQueue} from "../../util/PriorityQueue";
+import {territoryManager} from "../../game/TerritoryManager";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
 	private nameDepth: Uint16Array;
+
+	/**
+	 * Data for the current transaction.
+	 * TODO: Move this somewhere else, maybe a proper transaction implementation...
+	 */
+	private currentPlayerMax: number = 0;
+	private currentPlayerPos: number = 0;
+	private currentTargetMax: number = 0;
+	private currentTargetPos: number = 0;
 
 	reset() {
 		this.playerData = [];
@@ -21,7 +32,7 @@ class PlayerNameRenderingManager {
 		const context = canvas.getContext("2d");
 		const nameLength = context.measureText(player.name).width / 10;
 		const troopLength = context.measureText("123.").width / 10;
-		this.playerData[player.id] = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles);
+		this.playerData[player.id] = new PlayerNameRenderingData(nameLength, troopLength, player.borderTiles, player.id);
 	}
 
 	/**
@@ -71,23 +82,23 @@ class PlayerNameRenderingManager {
 	 * Update the player name rendering data.
 	 * @internal
 	 */
-	addTile(tile: number, player: number): void {
+	addTile(tile: number): void {
 		this.nameDepth[tile] = 65535; // force recalculation
-		this.recalculateFrom(tile, this.playerData[player]);
+		this.recalculateFrom(tile);
 	}
 
 	/**
 	 * Update the player name rendering data.
 	 * @internal
 	 */
-	removeTile(tile: number, player: number): void {
-		const playerData = this.playerData[player];
-
+	removeTile(tile: number): void {
 		let offset = 0;
 		let rowMax = Infinity;
 		let columnMax = Infinity;
-		let max = this.nameDepth[tile - gameMap.width - 1];
-		let maxPos = tile - gameMap.width - 1;
+		if (this.currentTargetMax < this.nameDepth[tile - gameMap.width - 1]) {
+			this.currentTargetMax = this.nameDepth[tile - gameMap.width - 1];
+			this.currentTargetPos = tile - gameMap.width - 1;
+		}
 		let changed: boolean;
 		do {
 			changed = false;
@@ -97,10 +108,6 @@ class PlayerNameRenderingManager {
 					break;
 				}
 				this.nameDepth[tile + i] = offset + i;
-				if (offset + i > max) {
-					max = offset + i;
-					maxPos = tile + i;
-				}
 				changed = true;
 			}
 			tile += gameMap.width;
@@ -110,26 +117,35 @@ class PlayerNameRenderingManager {
 					break;
 				}
 				this.nameDepth[tile + i * gameMap.width] = offset + i;
-				if (offset + i > max) {
-					max = offset + i;
-					maxPos = tile + i * gameMap.width;
-				}
 				changed = true;
 			}
 			tile++;
 			offset++;
 		} while (changed);
-		playerData.setPosAt(maxPos, max);
+	}
+
+	/**
+	 * Execute the transaction.
+	 * @param player the player to apply the transaction to
+	 * @param target the target player
+	 * @internal
+	 */
+	applyTransaction(player: Player, target: Player): void {
+		if (this.currentPlayerMax !== 0) this.playerData[player.id].handleAdd(this.currentPlayerMax, this.currentPlayerPos);
+		if (this.currentTargetMax !== 0) this.playerData[target.id].handleRemove(this.nameDepth, this.currentTargetMax, this.currentTargetPos);
+		this.currentPlayerMax = 0;
+		this.currentPlayerPos = 0;
+		this.currentTargetMax = 0;
+		this.currentTargetPos = 0;
 	}
 
 	/**
 	 * Recalculate the name depth map from a specific tile.
 	 * Name depth refers to the maximum size a square can be with the bottom-right corner at the tile.
 	 * @param tile The tile to recalculate from.
-	 * @param playerData The player's rendering data.
 	 * @private
 	 */
-	private recalculateFrom(tile: number, playerData: PlayerNameRenderingData): void {
+	private recalculateFrom(tile: number): void {
 		let currentOrigin = tile;
 		let isColumn = false;
 		let changed = true;
@@ -172,12 +188,19 @@ class PlayerNameRenderingManager {
 			}
 			[currentMax, otherMax] = [otherMax, currentMax];
 		}
-		playerData.insertStack(max, maxPos);
+
+		if (max > this.currentPlayerMax) {
+			this.currentPlayerMax = max;
+			this.currentPlayerPos = maxPos;
+		}
 	}
 }
 
+//TODO: Remove this
 export class PlayerNameRenderingData {
+	private readonly id: number;
 	size: number = 0;
+	index: number = 0;
 	nameX: number = 0;
 	nameY: number = 0;
 	private readonly nameLength: number;
@@ -185,28 +208,52 @@ export class PlayerNameRenderingData {
 	nameSize: number = 0;
 	troopSize: number = 0;
 	private readonly borderSet: Set<number>;
-	readonly stackMap: boolean[] = [];
+	readonly queue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] > b[0]);
 
-	//TODO: Add proper fallback system
-	constructor(nameLength: number, troopLength: number, borderSet: Set<number>) {
+	constructor(nameLength: number, troopLength: number, borderSet: Set<number>, id: number) {
 		this.nameLength = nameLength;
 		this.troopLength = troopLength;
 		this.borderSet = borderSet;
+		this.id = id;
 	}
 
 	/**
-	 * Insert a tile into the name rendering stack.
-	 * @param value Size of square top-left of the tile.
-	 * @param tile The tile to insert.
+	 * Add a tile to the queue or adjust the current position if applicable.
+	 * @param max the maximum size of the square
+	 * @param pos the position of the square
 	 */
-	insertStack(value: number, tile: number): void {
-		if (value > this.size) {
-			this.setPosAt(tile, value);
+	handleAdd(max: number, pos: number): void {
+		if (this.size < max) {
+			this.queue.push([this.size, this.index]);
+			this.setPosAt(pos, max);
+		} else {
+			this.queue.push([max, pos]);
 		}
+	}
+
+	/**
+	 * Remove a tile from the queue or adjust the current position if applicable.
+	 * @param nameDepth the name depth map
+	 * @param max the maximum size of the square
+	 * @param pos the position of the square
+	 */
+	handleRemove(nameDepth: Uint16Array, max: number, pos: number): void {
+		this.handleAdd(max, pos);
+		if (nameDepth[this.index] === this.size) return;
+		this.queue.push([nameDepth[this.index], this.index]);
+		while (!this.queue.isEmpty()) {
+			const [newMax, newPos] = this.queue.pop();
+			if (territoryManager.tileOwners[newPos] === this.id && nameDepth[newPos] === newMax) {
+				this.setPosAt(newPos, newMax);
+				return;
+			}
+		}
+		this.setPosAt(this.borderSet.values().next().value, 1);
 	}
 
 	setPosAt(tile: number, size: number): void {
 		this.size = size;
+		this.index = tile;
 		this.nameX = tile % gameMap.width - size / 2 + 1;
 		this.nameY = Math.floor(tile / gameMap.width) - size / 2 + 1;
 		this.nameSize = Math.floor(Math.min(1 / this.nameLength, 0.4) * size * 4);
