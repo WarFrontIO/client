@@ -35,7 +35,7 @@ export function startGame(map: GameMap) {
 	mapActionHandler.enable();
 	gameRenderer.initGameplayLayers();
 	territoryManager.reset();
-	playerNameRenderingManager.reset();
+	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
 	playerManager.init([new Player(0, "Player", Color.fromRGB(0, 200, 200))], 0, 500);

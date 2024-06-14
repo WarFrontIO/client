@@ -30,6 +30,8 @@ class PlayerManager implements GameTickListener {
 		for (let i = humans.length; i < maxPlayers; i++) {
 			this.registerPlayer(new BotPlayer(this.players.length), true);
 		}
+
+		playerNameRenderingManager.finishRegistration(this.players);
 	}
 
 	/**
