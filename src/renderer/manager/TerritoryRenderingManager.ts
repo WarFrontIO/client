@@ -1,7 +1,7 @@
 import {Player} from "../../game/player/Player";
 import {gameMap, isPlaying} from "../../game/Game";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
@@ -71,7 +71,7 @@ class TerritoryRenderingManager {
 	 * @param tiles the tiles to paint
 	 * @param color the color to paint the tiles
 	 */
-	private paintTiles(tiles: number[], color: Color): void {
+	private paintTiles(tiles: number[], color: HSLColor): void {
 		const context = territoryRenderer.context;
 		context.fillStyle = color.toString();
 		if (color.a < 1) {

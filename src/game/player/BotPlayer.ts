@@ -3,11 +3,11 @@ import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
 import {attackActionHandler} from "../action/AttackActionHandler";
 import {onNeighbors} from "../../util/MathUtil";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 
 export class BotPlayer extends Player {
 	constructor(id: number) {
-		super(id, "Bot", Color.fromRGB(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)));
+		super(id, "Bot", HSLColor.fromRGB(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)));
 	}
 
 	//TODO: Implement bot logic

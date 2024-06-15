@@ -2,20 +2,20 @@ import {territoryManager} from "../TerritoryManager";
 import {onNeighbors} from "../../util/MathUtil";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../action/AttackActionHandler";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {gameMode} from "../Game";
 
 export class Player {
 	readonly id: number;
 	readonly name: string;
-	readonly baseColor: Color;
+	readonly baseColor: HSLColor;
 	private troops: number = 1000;
 	readonly borderTiles: Set<number> = new Set();
 	private territorySize: number = 0;
 	private alive: boolean = true;
 
-	constructor(id: number, name: string, baseColor: Color) {
+	constructor(id: number, name: string, baseColor: HSLColor) {
 		this.id = id;
 		this.name = name;
 		this.baseColor = gameMode.processPlayerColor(id, baseColor);

@@ -1,16 +1,16 @@
 import {PostGenerationShader} from "./PostGenerationShader";
 import {getSetting} from "../../util/UserSettingManager";
 import {FixedDistanceShader} from "./FixedDistanceShader";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 import {DynamicDistanceShader} from "./DynamicDistanceShader";
 
 const shaderList = {
-	"territory-outline": {type: "post-generation", build: (args: { color: Color, thickness: number }) => new FixedDistanceShader(args.color, -args.thickness, 0)},
-	"territory-inline": {type: "post-generation", build: (args: { color: Color, thickness: number }) => new FixedDistanceShader(args.color, 0, args.thickness)},
-	"territory-outline-smooth": {type: "post-generation", build: (args: { color: Color, thickness: number }) => new DynamicDistanceShader(args.color, -args.thickness, 0, 1 / args.thickness)},
-	"territory-inline-smooth": {type: "post-generation", build: (args: { color: Color, thickness: number }) => new DynamicDistanceShader(args.color, 0, args.thickness, -1 / args.thickness)},
-	"fixed-distance": {type: "post-generation", build: (args: { color: Color, min: number, max: number }) => new FixedDistanceShader(args.color, args.min, args.max)},
-	"dynamic-distance": {type: "post-generation", build: (args: { color: Color, min: number, max: number, gradient: number }) => new DynamicDistanceShader(args.color, args.min, args.max, args.gradient)}
+	"territory-outline": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new FixedDistanceShader(args.color, -args.thickness, 0)},
+	"territory-inline": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new FixedDistanceShader(args.color, 0, args.thickness)},
+	"territory-outline-smooth": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new DynamicDistanceShader(args.color, -args.thickness, 0, 1 / args.thickness)},
+	"territory-inline-smooth": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new DynamicDistanceShader(args.color, 0, args.thickness, -1 / args.thickness)},
+	"fixed-distance": {type: "post-generation", build: (args: { color: HSLColor, min: number, max: number }) => new FixedDistanceShader(args.color, args.min, args.max)},
+	"dynamic-distance": {type: "post-generation", build: (args: { color: HSLColor, min: number, max: number, gradient: number }) => new DynamicDistanceShader(args.color, args.min, args.max, args.gradient)}
 };
 const activePostGeneration: PostGenerationShader[] = [];
 

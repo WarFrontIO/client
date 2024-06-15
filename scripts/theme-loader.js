@@ -41,17 +41,17 @@ module.exports = async function (theme) {
 			}
 
 			const stringified = `{
-				getTerritoryColor(color: Color): Color {
+				getTerritoryColor(color: HSLColor): HSLColor {
 					return ${obj.territory};
 				},
-				getBorderColor(color: Color): Color {
+				getBorderColor(color: HSLColor): HSLColor {
 					return ${obj.border};
 				},
-				getTileColor(tile: TileType): Color {
+				getTileColor(tile: TileType): HSLColor {
 					const color = tile.baseColor;
 					return ${obj.tiles};
 				},
-				getBackgroundColor(): Color {
+				getBackgroundColor(): HSLColor {
 					return ${parseColor(data.background)};
 				},
 				getFont(): string {
@@ -79,30 +79,30 @@ function parseColor(color) {
 		const hex = parseInt(color.slice(1), 16);
 		switch (color.length) {
 			case 4:
-				return "Color.fromRGB(" + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+				return "HSLColor.fromRGB(" + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
 			case 5:
-				return "Color.fromRGBA(" + ((hex >> 12) & 0xF) * 17 + ", " + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
+				return "HSLColor.fromRGBA(" + ((hex >> 12) & 0xF) * 17 + ", " + ((hex >> 8) & 0xF) * 17 + ", " + ((hex >> 4) & 0xF) * 17 + ", " + (hex & 0xF) * 17 + ")";
 			case 7:
-				return "Color.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+				return "HSLColor.fromRGB(" + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
 			case 9:
-				return "Color.fromRGBA(" + ((hex >> 24) & 0xFF) + ", " + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
+				return "HSLColor.fromRGBA(" + ((hex >> 24) & 0xFF) + ", " + ((hex >> 16) & 0xFF) + ", " + ((hex >> 8) & 0xFF) + ", " + (hex & 0xFF) + ")";
 		}
 	}
 	if (color.startsWith("rgba")) {
 		const rgb = color.match(/[\d.]+/g);
-		return "Color.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
+		return "HSLColor.fromRGBA(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ", " + rgb[3] + ")";
 	}
 	if (color.startsWith("rgb")) {
 		const rgb = color.match(/\d+/g);
-		return "Color.fromRGB(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
+		return "HSLColor.fromRGB(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
 	}
 	if (color.startsWith("hsla")) {
 		const hsl = color.match(/[\d.]+/g);
-		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
+		return "new HSLColor(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ", " + hsl[3] + ")";
 	}
 	if (color.startsWith("hsl")) {
 		const hsl = color.match(/\d+/g);
-		return "new Color(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ")";
+		return "new HSLColor(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ")";
 	}
 	throw new Error("Invalid color format: " + color);
 }

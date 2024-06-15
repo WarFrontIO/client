@@ -10,7 +10,7 @@ import {random} from "./Random";
 import {gameTicker} from "./GameTicker";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "./action/AttackActionHandler";
-import {Color} from "../util/Color";
+import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
 
 /**
@@ -45,7 +45,7 @@ export function startGame(map: GameMap, mode: GameMode) {
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init([new Player(0, "Player", Color.fromRGB(0, 200, 200))], 0, 500);
+	playerManager.init([new Player(0, "Player", HSLColor.fromRGB(0, 200, 200))], 0, 500);
 
 	isPlaying = true;
 	isLocalGame = true;
