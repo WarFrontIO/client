@@ -3,7 +3,7 @@ import {gameTicker, GameTickListener} from "../GameTicker";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
-import {gameMap} from "../Game";
+import {gameMap, gameMode} from "../Game";
 
 class AttackActionHandler implements GameTickListener {
 	private attacks: AttackExecutor[] = [];
@@ -29,7 +29,7 @@ class AttackActionHandler implements GameTickListener {
 
 	//TODO: Move this out of here
 	preprocessAttack(player: number, target: number, percentage: number): void {
-		if (player === target || target === territoryManager.OWNER_NONE - 1) {
+		if (!gameMode.canAttack(player, target)) {
 			return;
 		}
 

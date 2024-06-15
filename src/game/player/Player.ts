@@ -4,6 +4,7 @@ import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRende
 import {attackActionHandler} from "../action/AttackActionHandler";
 import {Color} from "../../util/Color";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
+import {gameMode} from "../Game";
 
 export class Player {
 	readonly id: number;
@@ -17,7 +18,7 @@ export class Player {
 	constructor(id: number, name: string, baseColor: Color) {
 		this.id = id;
 		this.name = name;
-		this.baseColor = baseColor;
+		this.baseColor = gameMode.processPlayerColor(id, baseColor);
 	}
 
 	/**
