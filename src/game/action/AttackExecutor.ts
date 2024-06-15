@@ -64,7 +64,7 @@ export class AttackExecutor {
 	 */
 	tick(): boolean {
 		const attackCost = this.calculateAttackCost();
-		const defenseCost = Math.ceil(attackCost / 2);
+		const defenseCost = Math.ceil((1 + attackCost) / 2);
 
 		let conquered = 0;
 		while (this.troops >= attackCost && !this.tileQueue.isEmpty() && this.tileQueue.peek()[0] < this.basePriority) {
@@ -73,7 +73,7 @@ export class AttackExecutor {
 			if (!bordersTile(tile, this.player.id)) continue;
 			territoryManager.conquer(tile, this.player.id);
 
-			this.troops -= attackCost;
+			this.troops -= attackCost + gameMap.tileExpansionCosts[tile] / 50;
 			conquered++;
 		}
 
@@ -96,7 +96,7 @@ export class AttackExecutor {
 	handlePlayerTileAdd(tile: number) {
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, neighbor]);
+				this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), neighbor]);
 			}
 		});
 	}
@@ -108,7 +108,7 @@ export class AttackExecutor {
 	 */
 	handleTargetTileAdd(tile: number) {
 		if (bordersTile(tile, this.player.id)) {
-			this.tileQueue.push([this.basePriority + 1.25 + random.next() * 3, tile]);
+			this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), tile]);
 		}
 	}
 
@@ -146,7 +146,7 @@ export class AttackExecutor {
 		for (const tile of result) {
 			const priority = 4 - amountCache[tile] + random.next() * 3;
 			amountCache[tile] = 0;
-			this.tileQueue.push([priority, tile]);
+			this.tileQueue.push([gameMap.tileExpansionTimes[tile] * priority / 50, tile]);
 		}
 	}
 
@@ -164,11 +164,12 @@ export class AttackExecutor {
 	/**
 	 * Calculate the cost of attacking the target.
 	 * The cost is the amount of troops that are required to conquer a single pixel of the target's territory.
+	 * This does not include the base cost of conquering a tile.
 	 * @returns The cost of attacking the target.
 	 * @private
 	 */
 	private calculateAttackCost() {
-		if (!this.target) return 1;
-		return 1 + Math.min(20, Math.floor(this.target.getTroops() / Math.max(1, this.player.getTroops()) * 3));
+		if (!this.target) return 0;
+		return Math.min(20, Math.floor(this.target.getTroops() / Math.max(1, this.player.getTroops()) * 3));
 	}
 }
