@@ -63,7 +63,7 @@ export class GameRenderer implements WindowResizeListener {
 	}
 
 	resize(width: number, height: number): void {
-		this.canvas.width = width;
-		this.canvas.height = height;
+		this.canvas.width = Math.ceil(width / window.devicePixelRatio);
+		this.canvas.height = Math.ceil(height / window.devicePixelRatio);
 	}
 }

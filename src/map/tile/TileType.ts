@@ -12,6 +12,10 @@ export abstract class TileType {
 	abstract readonly internalName: string;
 	abstract readonly baseColor: Color;
 	abstract readonly isSolid: boolean;
+	/** The relative time it takes to expand the tile, 0-255 higher meaning slower, 50 being the default */
+	readonly expansionTime: number = 50;
+	/** The relative cost to expand the tile, 0-255 higher meaning more expensive, 50 being the default */
+	readonly expansionCost: number = 50;
 
 	//TODO: This is a placeholder for now
 	// tile types should be able to render sprites or other graphics when zoomed in enough

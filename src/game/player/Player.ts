@@ -4,6 +4,7 @@ import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRende
 import {attackActionHandler} from "../action/AttackActionHandler";
 import {Color} from "../../util/Color";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
+import {gameMode} from "../Game";
 
 export class Player {
 	readonly id: number;
@@ -17,7 +18,7 @@ export class Player {
 	constructor(id: number, name: string, baseColor: Color) {
 		this.id = id;
 		this.name = name;
-		this.baseColor = baseColor;
+		this.baseColor = gameMode.processPlayerColor(id, baseColor);
 	}
 
 	/**
@@ -32,13 +33,13 @@ export class Player {
 			this.borderTiles.add(tile);
 			territoryRenderingManager.setPlayerBorder(tile);
 		} else {
-			playerNameRenderingManager.addTile(tile, this.id);
+			playerNameRenderingManager.addTile(tile);
 			territoryRenderingManager.setTerritory(tile);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				territoryRenderingManager.setTerritory(neighbor);
-				playerNameRenderingManager.addTile(neighbor, this.id);
+				playerNameRenderingManager.addTile(neighbor);
 			}
 		});
 
@@ -54,13 +55,13 @@ export class Player {
 	removeTile(tile: number): void {
 		this.territorySize--;
 		if (!this.borderTiles.delete(tile)) {
-			playerNameRenderingManager.removeTile(tile, this.id);
+			playerNameRenderingManager.removeTile(tile);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				territoryRenderingManager.setTargetBorder(neighbor);
-				playerNameRenderingManager.removeTile(neighbor, this.id);
+				playerNameRenderingManager.removeTile(neighbor);
 			}
 		});
 

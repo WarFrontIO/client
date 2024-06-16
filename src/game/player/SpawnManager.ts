@@ -3,6 +3,7 @@ import {gameMap, isLocalGame, startGameCycle} from "../Game";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "./Player";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -124,6 +125,7 @@ class SpawnManager {
 		target.splice(index, 1);
 		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id));
 		territoryRenderingManager.applyTransaction(player, player);
+		playerNameRenderingManager.applyTransaction(player, player);
 		return result;
 	}
 
@@ -150,6 +152,7 @@ class SpawnManager {
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player.id] = data;
 		territoryRenderingManager.applyTransaction(player, player);
+		playerNameRenderingManager.applyTransaction(player, player);
 
 		if (isLocalGame) {
 			this.isSelecting = false;

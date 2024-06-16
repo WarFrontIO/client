@@ -11,11 +11,16 @@ import {gameTicker} from "./GameTicker";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "./action/AttackActionHandler";
 import {Color} from "../util/Color";
+import {GameMode} from "./mode/GameMode";
 
 /**
  * The map of the current game.
  */
 export let gameMap: GameMap;
+/**
+ * The current game mode.
+ */
+export let gameMode: GameMode;
 /**
  * Whether the game is currently running.
  */
@@ -28,14 +33,16 @@ export let isLocalGame: boolean;
 /**
  * Start a new game with the given map.
  * @param map The map to start the game with.
+ * @param mode The game mode to use.
  */
-export function startGame(map: GameMap) {
+export function startGame(map: GameMap, mode: GameMode) {
 	gameMap = map;
+	gameMode = mode;
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	gameRenderer.initGameplayLayers();
 	territoryManager.reset();
-	playerNameRenderingManager.reset();
+	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
 	playerManager.init([new Player(0, "Player", Color.fromRGB(0, 200, 200))], 0, 500);
