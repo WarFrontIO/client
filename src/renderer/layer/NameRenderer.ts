@@ -15,7 +15,7 @@ class NameRenderer implements RendererLayer {
 			const player = playerManager.getPlayer(i);
 			if (player && player.isAlive()) {
 				const data = playerNameRenderingManager.playerData[i];
-				if (data.size * mapNavigationHandler.zoom < 1 || data.nameX + data.size < xMin || data.nameX > xMax || data.nameY + data.size < yMin || data.nameY > yMax) {
+				if (data.size * mapNavigationHandler.zoom < 1 || data.nameX + 1 < xMin || data.nameX - data.size + 1 > xMax || data.nameY + 1 < yMin || data.nameY - data.size + 1 > yMax) {
 					continue;
 				}
 				data.renderPlayer(context, player);
