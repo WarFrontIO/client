@@ -17,7 +17,6 @@ export class GameRenderer implements WindowResizeListener {
 
 	constructor() {
 		this.canvas = document.createElement("canvas");
-		this.canvas.style.touchAction = "none";
 		this.canvas.style.position = "absolute";
 		this.canvas.style.left = "0";
 		this.canvas.style.top = "0";
