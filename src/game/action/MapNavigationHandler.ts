@@ -45,7 +45,11 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 	}
 
 	onScroll(x: number, y: number, delta: number): void {
-		this.processZoom(x, y, this.zoom - Math.max(-1, Math.min(1, delta)) * 0.3 * this.zoom);
+		if (delta > 0) {
+			this.processZoom(x, y, this.zoom / (1 + delta / 600));
+		} else {
+			this.processZoom(x, y, this.zoom * (1 - delta / 600));
+		}
 	}
 
 	onPinch(x: number, y: number, delta: number) {
@@ -53,6 +57,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 	}
 
 	private processZoom(x: number, y: number, newZoom: number) {
+		if (newZoom < 0.1 || newZoom > 200) return;
 		let mapX = this.getMapX(x), mapY = this.getMapY(y);
 		this.zoom = newZoom;
 		this.x = Math.max(Math.min(-mapX * this.zoom + x, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
