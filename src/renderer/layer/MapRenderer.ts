@@ -33,7 +33,6 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 			if (!tileColors[tile.id]) {
 				tileColors[tile.id] = theme.getTileColor(tile).toRGB();
 			}
-			//TODO: This does a lot of unnecessary work, consider caching the rgba values of the colors
 			tileColors[tile.id].writeToBuffer(imageData.data, i * 4);
 		}
 		applyPostGenerationShaders(imageData.data);

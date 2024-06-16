@@ -11,7 +11,6 @@ class NameRenderer implements RendererLayer {
 		const xMax = mapNavigationHandler.getMapX(context.canvas.width);
 		const yMin = mapNavigationHandler.getMapY(0);
 		const yMax = mapNavigationHandler.getMapY(context.canvas.height);
-		console.log(xMin, xMax, yMin, yMax);
 		for (let i = 0; i < playerNameRenderingManager.playerData.length; i++) {
 			const player = playerManager.getPlayer(i);
 			if (player && player.isAlive()) {
