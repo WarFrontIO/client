@@ -35,7 +35,7 @@ class InteractionManager {
 		document.addEventListener("pointerleave", this.onPointerUp);
 		document.addEventListener("pointercancel", this.onPointerUp);
 		document.addEventListener("pointermove", this.onHover);
-		document.addEventListener("wheel", this.onScroll);
+		document.addEventListener("wheel", this.onScroll, {passive: false});
 	}
 
 	private onPointerDown(event: PointerEvent) {
@@ -86,8 +86,13 @@ class InteractionManager {
 	}
 
 	private onScroll(event: WheelEvent) {
+		let delta = event.deltaY;
+		if (event.ctrlKey) {
+			event.preventDefault();
+			delta *= 7;
+		}
 		interactionManager.scroll.choose(event.x, event.y);
-		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, event.deltaY));
+		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, delta));
 	}
 
 	private checkMobileGesture(event: PointerEvent) {
