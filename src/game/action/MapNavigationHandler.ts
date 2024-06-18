@@ -16,8 +16,6 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 	x: number = 0;
 	y: number = 0;
 	zoom: number = 1;
-	dragX: number = 0;
-	dragY: number = 0;
 
 	/**
 	 * Enables the map navigation handler.
@@ -66,23 +64,23 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 		mapTransformHandler.move.broadcast();
 	}
 
-	test(x: number, y: number): boolean {
+	test(_x: number, _y: number): boolean {
 		return true;
 	}
 
-	onDragStart(x: number, y: number): void {
-		this.dragX = x;
-		this.dragY = y;
+	onDragStart(_x: number, _y: number): void {
 	}
 
-	onDragEnd(x: number, y: number): void {
+	onDragEnd(_x: number, _y: number): void {
 	}
 
-	onDragMove(x: number, y: number): void {
-		this.x = Math.max(Math.min(this.x + x - this.dragX, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
-		this.y = Math.max(Math.min(this.y + y - this.dragY, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
-		this.dragX = x;
-		this.dragY = y;
+	onDragMove(_x: number, _y: number, dx: number, dy: number): void {
+		this.onDragTouch(dx, dy);
+	}
+
+	onDragTouch(dx: number, dy: number) {
+		this.x = Math.max(Math.min(this.x + dx, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
+		this.y = Math.max(Math.min(this.y + dy, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
 		mapTransformHandler.move.broadcast();
 	}
 
