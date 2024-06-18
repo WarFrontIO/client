@@ -4,6 +4,8 @@ import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../even
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {GameTheme} from "../GameTheme";
 import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
+import {HSLColor} from "../../util/HSLColor";
+import {RGBColor} from "../../util/RGBColor";
 
 /**
  * Map background renderer.
@@ -25,13 +27,12 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 
 	forceRepaint(theme: GameTheme): void {
 		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
-		const tileColors = [];
+		const tileColors: RGBColor[] = [];
 		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
 			const tile = gameMap.getTile(i);
 			if (!tileColors[tile.id]) {
-				tileColors[tile.id] = theme.getTileColor(tile);
+				tileColors[tile.id] = theme.getTileColor(tile).toRGB();
 			}
-			//TODO: This does a lot of unnecessary work, consider caching the rgba values of the colors
 			tileColors[tile.id].writeToBuffer(imageData.data, i * 4);
 		}
 		applyPostGenerationShaders(imageData.data);

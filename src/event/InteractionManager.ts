@@ -35,16 +35,12 @@ class InteractionManager {
 		document.addEventListener("pointerleave", this.onPointerUp);
 		document.addEventListener("pointercancel", this.onPointerUp);
 		document.addEventListener("pointermove", this.onHover);
-		document.addEventListener("wheel", this.onScroll);
+		document.addEventListener("wheel", this.onScroll, {passive: false});
 	}
 
 	private onPointerDown(event: PointerEvent) {
 		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
-		if (interactionManager.touchPoints.size > 1) {
-			clearTimeout(interactionManager.dragTimeout);
-			interactionManager.dragTimeout = null;
-			return;
-		}
+		if (interactionManager.touchPoints.size > 1) return;
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
 		interactionManager.dragTimeout = setTimeout(() => {
@@ -56,7 +52,14 @@ class InteractionManager {
 
 	private onPointerUp(event: PointerEvent) {
 		interactionManager.touchPoints.delete(event.pointerId);
-		if (interactionManager.touchPoints.size > 0) return;
+		if (interactionManager.touchPoints.size > 0) {
+			if (interactionManager.touchPoints.size === 1) {
+				const point = interactionManager.touchPoints.values().next().value;
+				interactionManager.pressX = point.x;
+				interactionManager.pressY = point.y;
+			}
+			return;
+		}
 		if (interactionManager.dragTimeout) {
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
@@ -69,10 +72,6 @@ class InteractionManager {
 	}
 
 	private onHover(event: PointerEvent) {
-		if (interactionManager.touchPoints.size > 1) {
-			interactionManager.checkMobileGesture(event);
-			return;
-		}
 		if (interactionManager.dragTimeout) {
 			if (Math.abs(event.x - interactionManager.pressX) + Math.abs(event.y - interactionManager.pressY) < 10) return;
 			clearTimeout(interactionManager.dragTimeout);
@@ -80,14 +79,25 @@ class InteractionManager {
 			interactionManager.drag.choose(interactionManager.pressX, interactionManager.pressY);
 			interactionManager.drag.call(l => l.onDragStart(interactionManager.pressX, interactionManager.pressY));
 		}
-		interactionManager.drag.call(l => l.onDragMove(event.x, event.y));
+		if (interactionManager.touchPoints.size > 1) {
+			interactionManager.checkMobileGesture(event);
+			return;
+		}
+		interactionManager.drag.call(l => l.onDragMove(event.x, event.y, event.x - interactionManager.pressX, event.y - interactionManager.pressY));
+		interactionManager.pressX = event.x;
+		interactionManager.pressY = event.y;
 		interactionManager.hover.choose(event.x, event.y);
 		interactionManager.hover.call(l => l.onHover(event.x, event.y));
 	}
 
 	private onScroll(event: WheelEvent) {
+		let delta = event.deltaY;
+		if (event.ctrlKey) {
+			event.preventDefault();
+			delta *= 7;
+		}
 		interactionManager.scroll.choose(event.x, event.y);
-		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, event.deltaY));
+		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, delta));
 	}
 
 	private checkMobileGesture(event: PointerEvent) {
@@ -106,6 +116,12 @@ class InteractionManager {
 		let centerX = (xDiff1 * newPoint2.x + xDiff2 * newPoint1.x) / (xDiff1 + xDiff2) || (oldPoint1.x + oldPoint2.x) / 2;
 		interactionManager.pinch.choose(centerX, centerY);
 		interactionManager.pinch.call(l => l.onPinch(centerX, centerY, zoomFactor));
+
+		const angle = Math.atan2(Math.abs(newPoint1.y - newPoint2.y), Math.abs(newPoint1.x - newPoint2.x));
+		const orthogonal = Math.PI / 2 - angle;
+		const xDiff = zoomFactor * Math.cos(orthogonal) * (newPoint1.x + newPoint2.x - oldPoint1.x - oldPoint2.x) / 2;
+		const yDiff = zoomFactor * Math.sin(orthogonal) * (newPoint1.y + newPoint2.y - oldPoint1.y - oldPoint2.y) / 2;
+		interactionManager.drag.call(l => l.onDragTouch(xDiff, yDiff));
 	}
 }
 
@@ -159,8 +175,18 @@ export interface DragEventListener extends BasicInteractionListener {
 	 * Called when the user drags to the given position.
 	 * @param x The screen x-coordinate of the drag move.
 	 * @param y The screen y-coordinate of the drag move.
+	 * @param dx The x-delta of the drag.
+	 * @param dy The y-delta of the drag.
 	 */
-	onDragMove(x: number, y: number): void;
+	onDragMove(x: number, y: number, dx: number, dy: number): void;
+
+	/**
+	 * Called when the user drags using two fingers.
+	 * Warning: This method does not provide the x and y coordinates of the drag as they are non-deterministic.
+	 * @param dx The x-delta of the drag.
+	 * @param dy The y-delta of the drag.
+	 */
+	onDragTouch(dx: number, dy: number): void;
 
 	/**
 	 * Called when the user stops dragging at the given position.

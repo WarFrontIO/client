@@ -1,4 +1,4 @@
-import {Color} from "../util/Color";
+import {HSLColor} from "../util/HSLColor";
 import {TileType} from "../map/tile/TileType";
 
 /**
@@ -14,27 +14,27 @@ export type GameTheme = {
 	 * @param color base player color
 	 * @returns the color of the territory
 	 */
-	getTerritoryColor(color: Color): Color;
+	getTerritoryColor(color: HSLColor): HSLColor;
 
 	/**
 	 * Get the border color of a territory.
 	 * @param color base player color
 	 * @returns the border color of the territory
 	 */
-	getBorderColor(color: Color): Color;
+	getBorderColor(color: HSLColor): HSLColor;
 
 	/**
 	 * Get the color of a tile.
 	 * @param tile the type of the tile
 	 * @returns the color of the tile
 	 */
-	getTileColor(tile: TileType): Color;
+	getTileColor(tile: TileType): HSLColor;
 
 	/**
 	 * Get the color of the background.
 	 * @returns the color of the background
 	 */
-	getBackgroundColor(): Color;
+	getBackgroundColor(): HSLColor;
 
 	/**
 	 * Get the font of the game.
@@ -58,7 +58,7 @@ const registry: Record<string, GameTheme> = {};
  * @param theme the theme
  * @param tileOverrides overrides for tile colors
  */
-export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOverrides: Record<string, Color>) {
+export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOverrides: Record<string, HSLColor>) {
 	const originalGetTileColor = theme.getTileColor;
 	theme.getTileColor = (tile: TileType) => {
 		if (tile.internalName in tileOverrides) {

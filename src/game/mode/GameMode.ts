@@ -1,5 +1,5 @@
 import {territoryManager} from "../TerritoryManager";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 
 /**
  * All game mode-specific logic should be implemented in a subclass of this class.
@@ -23,7 +23,7 @@ export abstract class GameMode {
 	 * @param color The player color.
 	 * @returns The processed player color.
 	 */
-	processPlayerColor(_player: number, color: Color): Color {
+	processPlayerColor(_player: number, color: HSLColor): HSLColor {
 		return color;
 	}
 }

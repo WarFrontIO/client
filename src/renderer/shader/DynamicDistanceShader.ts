@@ -1,13 +1,14 @@
 import {PostGenerationShader} from "./PostGenerationShader";
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 import {gameMap} from "../../game/Game";
+import {RGBColor} from "../../util/RGBColor";
 
 /**
  * Shader affecting all tiles withing a fixed distance range.
  * Other than {@link FixedDistanceShader}, this shader decreases color intensity with distance.
  */
 export class DynamicDistanceShader implements PostGenerationShader {
-	private readonly color: Color;
+	private readonly color: RGBColor;
 	private readonly min: number;
 	private readonly max: number;
 	private readonly gradient: number;
@@ -19,8 +20,8 @@ export class DynamicDistanceShader implements PostGenerationShader {
 	 * @param max the maximum distance (exclusive).
 	 * @param gradient the gradient of the color decrease (higher values decrease color intensity faster, sign determines direction).
 	 */
-	constructor(color: Color, min: number, max: number, gradient: number) {
-		this.color = color;
+	constructor(color: HSLColor, min: number, max: number, gradient: number) {
+		this.color = color.toRGB();
 		this.min = min;
 		this.max = max;
 		this.gradient = gradient;

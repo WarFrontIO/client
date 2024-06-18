@@ -11,12 +11,11 @@ class NameRenderer implements RendererLayer {
 		const xMax = mapNavigationHandler.getMapX(context.canvas.width);
 		const yMin = mapNavigationHandler.getMapY(0);
 		const yMax = mapNavigationHandler.getMapY(context.canvas.height);
-		console.log(xMin, xMax, yMin, yMax);
 		for (let i = 0; i < playerNameRenderingManager.playerData.length; i++) {
 			const player = playerManager.getPlayer(i);
 			if (player && player.isAlive()) {
 				const data = playerNameRenderingManager.playerData[i];
-				if (data.size * mapNavigationHandler.zoom < 1 || data.nameX + data.size < xMin || data.nameX > xMax || data.nameY + data.size < yMin || data.nameY > yMax) {
+				if (data.size * mapNavigationHandler.zoom < 1 || data.nameX + 1 < xMin || data.nameX - data.size + 1 > xMax || data.nameY + 1 < yMin || data.nameY - data.size + 1 > yMax) {
 					continue;
 				}
 				data.renderPlayer(context, player);

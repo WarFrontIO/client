@@ -1,7 +1,9 @@
+import {RGBColor} from "./RGBColor";
+
 /**
  * Color in the HSLA format.
  */
-export class Color {
+export class HSLColor {
 	readonly h: number;
 	readonly s: number;
 	readonly l: number;
@@ -22,60 +24,43 @@ export class Color {
 	}
 
 	/**
-	 * Write the color as a rgba value to a buffer.
-	 * @param buffer The buffer to write to.
-	 * @param offset The offset to write to.
+	 * Convert the color to an RGB color.
+	 * @returns The color in the RGB format.
 	 */
-	writeToBuffer(buffer: Uint8Array | Uint8ClampedArray, offset: number): void {
-		buffer[offset] = this.toRGBComponent(0);
-		buffer[offset + 1] = this.toRGBComponent(8);
-		buffer[offset + 2] = this.toRGBComponent(4);
-		buffer[offset + 3] = Math.round(this.a * 255);
-	}
-
-	/**
-	 * Blend the color with a buffer.
-	 * The alpha channel is used for blending and not modified.
-	 * @param buffer The buffer to blend with.
-	 * @param offset The offset to blend with.
-	 * @param strength The strength of the blend, 0 for no change, 1 for full change.
-	 */
-	blendWithBuffer(buffer: Uint8Array | Uint8ClampedArray, offset: number, strength: number = 1): void {
-		buffer[offset] = strength * this.a * this.toRGBComponent(0) + (1 - strength * this.a) * buffer[offset];
-		buffer[offset + 1] = strength * this.a * this.toRGBComponent(8) + (1 - strength * this.a) * buffer[offset + 1];
-		buffer[offset + 2] = strength * this.a * this.toRGBComponent(4) + (1 - strength * this.a) * buffer[offset + 2];
+	toRGB(): RGBColor {
+		return new RGBColor(this.toRGBComponent(0), this.toRGBComponent(8), this.toRGBComponent(4), this.a);
 	}
 
 	/**
 	 * @param h The hue value to set.
 	 * @returns A new color with the hue value set.
 	 */
-	withHue(h: number): Color {
-		return new Color((h % 360 + 360) % 360, this.s, this.l, this.a);
+	withHue(h: number): HSLColor {
+		return new HSLColor((h % 360 + 360) % 360, this.s, this.l, this.a);
 	}
 
 	/**
 	 * @param s The saturation value to set.
 	 * @returns A new color with the saturation value set.
 	 */
-	withSaturation(s: number): Color {
-		return new Color(this.h, Math.min(Math.max(s, 0), 1), this.l, this.a);
+	withSaturation(s: number): HSLColor {
+		return new HSLColor(this.h, Math.min(Math.max(s, 0), 1), this.l, this.a);
 	}
 
 	/**
 	 * @param l The lightness value to set.
 	 * @returns A new color with the lightness value set.
 	 */
-	withLightness(l: number): Color {
-		return new Color(this.h, this.s, Math.min(Math.max(l, 0), 1), this.a);
+	withLightness(l: number): HSLColor {
+		return new HSLColor(this.h, this.s, Math.min(Math.max(l, 0), 1), this.a);
 	}
 
 	/**
 	 * @param a The alpha value to set.
 	 * @returns A new color with the alpha value set.
 	 */
-	withAlpha(a: number): Color {
-		return new Color(this.h, this.s, this.l, Math.min(Math.max(a, 0), 1));
+	withAlpha(a: number): HSLColor {
+		return new HSLColor(this.h, this.s, this.l, Math.min(Math.max(a, 0), 1));
 	}
 
 	/**
@@ -84,7 +69,7 @@ export class Color {
 	 * @param g The green value.
 	 * @param b The blue value.
 	 */
-	static fromRGB(r: number, g: number, b: number): Color {
+	static fromRGB(r: number, g: number, b: number): HSLColor {
 		r /= 255;
 		g /= 255;
 		b /= 255;
@@ -107,7 +92,7 @@ export class Color {
 			}
 			hue = 60 * (hue < 0 ? hue + 6 : hue);
 		}
-		return new Color(hue, divisor === 0 ? 0 : diff / divisor, (max + min) / 2);
+		return new HSLColor(hue, divisor === 0 ? 0 : diff / divisor, (max + min) / 2);
 	}
 
 	/**
@@ -128,7 +113,15 @@ export class Color {
 	 * @param b The blue value.
 	 * @param a The alpha value.
 	 */
-	static fromRGBA(r: number, g: number, b: number, a: number): Color {
-		return Color.fromRGB(r, g, b).withAlpha(a);
+	static fromRGBA(r: number, g: number, b: number, a: number): HSLColor {
+		return HSLColor.fromRGB(r, g, b).withAlpha(a);
+	}
+
+	/**
+	 * Create a color from an RGB color.
+	 * @param color The color to convert.
+	 */
+	static fromRGBColor(color: RGBColor): HSLColor {
+		return HSLColor.fromRGB(color.r, color.g, color.b).withAlpha(color.a);
 	}
 }

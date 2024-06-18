@@ -1,4 +1,4 @@
-import {Color} from "../../util/Color";
+import {HSLColor} from "../../util/HSLColor";
 
 /**
  * Tile types are used to define the properties of a tile.
@@ -10,7 +10,7 @@ import {Color} from "../../util/Color";
 export abstract class TileType {
 	abstract readonly id: number;
 	abstract readonly internalName: string;
-	abstract readonly baseColor: Color;
+	abstract readonly baseColor: HSLColor;
 	abstract readonly isSolid: boolean;
 	/** The relative time it takes to expand the tile, 0-255 higher meaning slower, 50 being the default */
 	readonly expansionTime: number = 50;

@@ -28,8 +28,8 @@ class PlayerNameRenderingManager {
 		this.playerData = [];
 		this.nameDepth = new Uint16Array(gameMap.width * gameMap.height);
 		this.atlasRowLength = Math.sqrt(maxPlayers) | 0;
-		this.partialElementAtlas.width = this.atlasRowLength * 80;
-		this.partialElementAtlas.height = Math.ceil(maxPlayers / this.atlasRowLength) * 80;
+		this.partialElementAtlas.width = this.atlasRowLength * 20;
+		this.partialElementAtlas.height = Math.ceil(maxPlayers / this.atlasRowLength) * 20;
 		this.partialAtlasContext = this.partialElementAtlas.getContext("2d");
 		this.partialAtlasContext.textRendering = "optimizeSpeed";
 		this.partialAtlasContext.textAlign = "center";
@@ -216,8 +216,8 @@ export class PlayerNameRenderingData {
 	 */
 	private renderName(name: string): void {
 		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(800 / (this.nameLength = playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 32) + "px " + getSetting("theme").getFont();
-		playerNameRenderingManager.partialAtlasContext.fillText(name, this.id % playerNameRenderingManager.atlasRowLength * 80 + 40, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 80 + 40);
+		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(200 / (this.nameLength = playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 8) + "px " + getSetting("theme").getFont();
+		playerNameRenderingManager.partialAtlasContext.fillText(name, this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 
 	/**
@@ -272,7 +272,7 @@ export class PlayerNameRenderingData {
 	 */
 	renderPlayer(context: CanvasRenderingContext2D, player: Player): void {
 		if (gameTicker.getTickCount() % 10 === this.updateTick) this.updatePartial(player);
-		if (this.size * mapNavigationHandler.zoom >= 80) {
+		if (this.size * mapNavigationHandler.zoom >= 20) {
 			context.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
 			context.textBaseline = "bottom";
 			context.font = "bold " + Math.floor(Math.min(10 / this.nameLength, 0.4) * this.size * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
@@ -281,7 +281,7 @@ export class PlayerNameRenderingData {
 			context.font = "bold " + Math.floor(1 / Math.max(3, player.getTroops().toString().length) * 3 * this.size / this.troopLength * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
 			context.fillText(formatTroops(player.getTroops()), Math.floor((this.nameX - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y));
 		} else {
-			context.drawImage(playerNameRenderingManager.partialElementAtlas, (this.id % playerNameRenderingManager.atlasRowLength) * 80, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 80, 80, 80, Math.floor((this.nameX - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y), this.size * mapNavigationHandler.zoom, this.size * mapNavigationHandler.zoom);
+			context.drawImage(playerNameRenderingManager.partialElementAtlas, (this.id % playerNameRenderingManager.atlasRowLength) * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20, 20, 20, Math.floor((this.nameX - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y), Math.floor(this.size * mapNavigationHandler.zoom), Math.floor(this.size * mapNavigationHandler.zoom));
 		}
 	}
 
@@ -290,10 +290,10 @@ export class PlayerNameRenderingData {
 	 * @param player The player to update the partial for.
 	 */
 	updatePartial(player: Player): void {
-		playerNameRenderingManager.partialAtlasContext.clearRect(this.id % playerNameRenderingManager.atlasRowLength * 80, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 80 + 40, 80, 40);
+		playerNameRenderingManager.partialAtlasContext.clearRect(this.id % playerNameRenderingManager.atlasRowLength * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10, 20, 10);
 		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(240 / Math.max(3, player.getTroops().toString().length) / this.troopLength) + "px " + getSetting("theme").getFont();
-		playerNameRenderingManager.partialAtlasContext.fillText(formatTroops(player.getTroops()), this.id % playerNameRenderingManager.atlasRowLength * 80 + 40, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 80 + 40);
+		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(60 / Math.max(3, player.getTroops().toString().length) / this.troopLength) + "px " + getSetting("theme").getFont();
+		playerNameRenderingManager.partialAtlasContext.fillText(formatTroops(player.getTroops()), this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 }
 
