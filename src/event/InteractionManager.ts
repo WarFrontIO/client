@@ -1,4 +1,6 @@
 import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
+import {mapTransformHandler} from "./MapTransformHandler";
+import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
 
 /**
  * Manages interactions with the user.
@@ -19,8 +21,8 @@ class InteractionManager {
 	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for scroll event listeners. */
 	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry();
-	/** Registry for pinch event listeners. */
-	pinch: PrioritizedEventHandlerRegistry<PinchEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for multi-touch event listeners. */
+	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for hover event listeners. */
 	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
 	dragTimeout: NodeJS.Timeout | null = null;
@@ -109,19 +111,11 @@ class InteractionManager {
 		const oldDistance = Math.hypot(oldPoint1.x - oldPoint2.x, oldPoint1.y - oldPoint2.y);
 		const newDistance = Math.hypot(newPoint1.x - newPoint2.x, newPoint1.y - newPoint2.y);
 		const zoomFactor = newDistance / oldDistance;
+		const oldCenterX = (oldPoint1.x + oldPoint2.x) / 2, oldCenterY = (oldPoint1.y + oldPoint2.y) / 2;
+		const newCenterX = (newPoint1.x + newPoint2.x) / 2, newCenterY = (newPoint1.y + newPoint2.y) / 2;
 
-		const xDiff2 = Math.abs(oldPoint2.x - newPoint2.x), yDiff2 = Math.abs(oldPoint2.y - newPoint2.y);
-		const xDiff1 = Math.abs(oldPoint1.x - newPoint1.x), yDiff1 = Math.abs(oldPoint1.y - newPoint1.y);
-		let centerY = (yDiff1 * newPoint2.y + yDiff2 * newPoint1.y) / (yDiff1 + yDiff2) || (oldPoint1.y + oldPoint2.y) / 2;
-		let centerX = (xDiff1 * newPoint2.x + xDiff2 * newPoint1.x) / (xDiff1 + xDiff2) || (oldPoint1.x + oldPoint2.x) / 2;
-		interactionManager.pinch.choose(centerX, centerY);
-		interactionManager.pinch.call(l => l.onPinch(centerX, centerY, zoomFactor));
-
-		const angle = Math.atan2(Math.abs(newPoint1.y - newPoint2.y), Math.abs(newPoint1.x - newPoint2.x));
-		const orthogonal = Math.PI / 2 - angle;
-		const xDiff = zoomFactor * Math.cos(orthogonal) * (newPoint1.x + newPoint2.x - oldPoint1.x - oldPoint2.x) / 2;
-		const yDiff = zoomFactor * Math.sin(orthogonal) * (newPoint1.y + newPoint2.y - oldPoint1.y - oldPoint2.y) / 2;
-		interactionManager.drag.call(l => l.onDragTouch(xDiff, yDiff));
+		interactionManager.multitouch.choose(newCenterX, newCenterY);
+		interactionManager.multitouch.call(l => l.onMultiTouch(oldCenterX, oldCenterY, newCenterX, newCenterY, zoomFactor));
 	}
 }
 
@@ -181,14 +175,6 @@ export interface DragEventListener extends BasicInteractionListener {
 	onDragMove(x: number, y: number, dx: number, dy: number): void;
 
 	/**
-	 * Called when the user drags using two fingers.
-	 * Warning: This method does not provide the x and y coordinates of the drag as they are non-deterministic.
-	 * @param dx The x-delta of the drag.
-	 * @param dy The y-delta of the drag.
-	 */
-	onDragTouch(dx: number, dy: number): void;
-
-	/**
 	 * Called when the user stops dragging at the given position.
 	 * @param x The screen x-coordinate of the drag end.
 	 * @param y The screen y-coordinate of the drag end.
@@ -214,20 +200,22 @@ export interface ScrollEventListener extends BasicInteractionListener {
 }
 
 /**
- * Listener for pinch events.
+ * Listener for multi-touch events.
  *
  * Register a listener with the pinch registry to receive pinch events.
  * @see InteractionManager.pinch
  * @see PrioritizedEventHandlerRegistry.register
  */
-export interface PinchEventListener extends BasicInteractionListener {
+export interface MultiTouchEventListener extends BasicInteractionListener {
 	/**
-	 * Called when the user pinches at the given position.
-	 * @param x The screen x-coordinate of the pinch.
-	 * @param y The screen y-coordinate of the pinch.
-	 * @param delta The pinch delta.
+	 * Called when the user interacts with multiple touch points.
+	 * @param oldX The centered screen x-coordinate of the old touch points.
+	 * @param oldY The centered screen y-coordinate of the old touch points.
+	 * @param newX The centered screen x-coordinate of the new touch points.
+	 * @param newY The centered screen y-coordinate of the new touch points.
+	 * @param factor The zoom factor.
 	 */
-	onPinch(x: number, y: number, delta: number): void;
+	onMultiTouch(oldX: number, oldY: number, newX: number, newY: number, factor: number): void;
 }
 
 /**

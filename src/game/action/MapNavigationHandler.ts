@@ -1,7 +1,7 @@
 import {
 	DragEventListener,
 	interactionManager,
-	PinchEventListener,
+	MultiTouchEventListener,
 	ScrollEventListener
 } from "../../event/InteractionManager";
 import {gameMap} from "../Game";
@@ -12,7 +12,7 @@ import {mapTransformHandler} from "../../event/MapTransformHandler";
  * Controls the map position and zoom level.
  * @see MapTransformHandler
  */
-class MapNavigationHandler implements ScrollEventListener, DragEventListener, PinchEventListener {
+class MapNavigationHandler implements ScrollEventListener, DragEventListener, MultiTouchEventListener {
 	x: number = 0;
 	y: number = 0;
 	zoom: number = 1;
@@ -30,7 +30,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 		mapTransformHandler.move.broadcast();
 		interactionManager.drag.register(this);
 		interactionManager.scroll.register(this);
-		interactionManager.pinch.register(this);
+		interactionManager.multitouch.register(this);
 	}
 
 	/**
@@ -39,7 +39,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 	disable() {
 		interactionManager.drag.unregister(this);
 		interactionManager.scroll.unregister(this);
-		interactionManager.pinch.unregister(this);
+		interactionManager.multitouch.unregister(this);
 	}
 
 	onScroll(x: number, y: number, delta: number): void {
@@ -50,16 +50,21 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 		}
 	}
 
-	onPinch(x: number, y: number, delta: number) {
-		this.processZoom(x, y, this.zoom * delta);
-	}
-
 	private processZoom(x: number, y: number, newZoom: number) {
 		if (newZoom < 0.1 || newZoom > 200) return;
 		let mapX = this.getMapX(x), mapY = this.getMapY(y);
 		this.zoom = newZoom;
 		this.x = Math.max(Math.min(-mapX * this.zoom + x, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(-mapY * this.zoom + y, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
+		mapTransformHandler.scale.broadcast();
+		mapTransformHandler.move.broadcast();
+	}
+
+	onMultiTouch(oldX: number, oldY: number, newX: number, newY: number, factor: number) {
+		factor = Math.max(0.1, Math.min(200, factor * this.zoom)) / this.zoom;
+		this.x = Math.max(Math.min(newX - (oldX - this.x) * factor, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
+		this.y = Math.max(Math.min(newY - (oldY - this.y) * factor, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
+		this.zoom *= factor;
 		mapTransformHandler.scale.broadcast();
 		mapTransformHandler.move.broadcast();
 	}
@@ -75,10 +80,6 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Pi
 	}
 
 	onDragMove(_x: number, _y: number, dx: number, dy: number): void {
-		this.onDragTouch(dx, dy);
-	}
-
-	onDragTouch(dx: number, dy: number) {
 		this.x = Math.max(Math.min(this.x + dx, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(this.y + dy, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
 		mapTransformHandler.move.broadcast();
