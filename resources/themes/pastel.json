@@ -1,34 +1,36 @@
 {
   "territory": [
-    "saturation * 0.7",
-    "lightness = 0.6"
+    "saturation * 0.5",
+    "lightness = 0.75"
   ],
   "border": [
-    "saturation * 0.7",
-    "lightness = 0.75"
+    "saturation * 0.5",
+    "lightness = 0.65"
   ],
   "tiles": [
     "lightness = 0.8"
   ],
   "tileOverwrite": {
-    "grass": "rgb(240, 210, 160)",
-    "water": "rgb(160, 200, 200)"
+    "grass": "rgb(244, 243, 198)",
+    "water": "rgb(160, 203, 231)"
   },
   "shaders": [
     {
       "type": "territory-outline",
-      "color": "rgba(0, 0, 0, 0.01)",
-      "thickness": 10
+      "color": "rgba(152, 185, 223, 1)",
+      "thickness": 1
     },
     {
       "type": "territory-outline-smooth",
-      "color": "rgba(0, 0, 0, 0.1)",
-      "thickness": 4
+      "color": "rgba(255, 255, 255, 0.1)",
+      "thickness": 15
     },
     {
       "type": "territory-inline",
-      "color": "rgba(0, 0, 0, 0.1)",
+      "color": "rgba(201, 187, 139, 1)",
       "thickness": 1
     }
-  ]
+  ],
+  "background": "#7ba6c2",
+  "font": "Overpass"
 }
