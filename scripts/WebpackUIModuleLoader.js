@@ -20,6 +20,19 @@ class WebpackUIModuleLoader {
 					});
 				}
 
+				console.log("Injecting HUD elements...");
+				for (const file of readdirSync("src/hud/elements")) {
+					if (!file.endsWith(".html")) continue;
+					data.bodyTags.push({
+						tagName: "div",
+						attributes: {
+							id: file.replace(".html", ""),
+							style: "display: none;"
+						},
+						innerHTML: readFileSync("src/hud/elements/" + file, "utf8").replace(/<ignore>.*?<\/ignore>/gs, "")
+					});
+				}
+
 				//Inject CSS files
 				const css = [readFileSync("resources/base.css", "utf8").replace(/\/\*.*?\*\//gs, "").replace(/\s+/g, " ")];
 				for (const file of readdirSync("resources/themes")) {
