@@ -50,7 +50,8 @@ function processCssFiles(files) {
 
 		file = file.replace(/@import [^;]+;/g, "");
 
-		const resources = file.match(/url\((.*?)\)/g);
+		//const resources = file.match(/url\((.*?)\)/g);
+		const resources = file.match(/(?<!@font-face\s*{[^{]*src:\s*)url\((.*?)\)/g);
 		if (resources) {
 			for (const resource of resources) {
 				let url = resource.slice(4, -1);
@@ -111,11 +112,17 @@ function processCssFiles(files) {
 
 		const fontFace = findBlock(files[i], "@font-face");
 		for (let j = 0; j < fontFace.length; j++) {
-			const name = fontFace[j].match(/font-family:\s*([^;]+);/)[1];
+			const fontFiles = fontFace[j].match(/url\((.*?)\)/g);
+			for (let k = 0; k < fontFiles.length; k++)
+			{
+				let url = fontFiles[k].slice(4, -1);
+				if (url.startsWith("'") || url.startsWith("\"")) {
+					url = url.slice(1, -1);
+				}
+				fontFace[j] = fontFace[j].replace(fontFiles[k], `url(data:${lookup(url)};base64,${readFileSync("./" + url).toString("base64")});`);
+			}
 			files[i] = files[i].replace(fontFace[j], "");
-			globalScope.push(fontFace[j].replace(name, `"${variableCounter}"`));
-			files[i] = files[i].replaceAll("font-family: " + name, `font-family: "${variableCounter}"`);
-			files[i] = files[i].replace(new RegExp(`font:([^;]*)${name}([^;]*);`, "g"), `font:$1"${variableCounter++}"$2;`);
+			globalScope.push(fontFace[j]);
 		}
 	}
 
