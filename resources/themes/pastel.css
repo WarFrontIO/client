@@ -31,6 +31,8 @@
 
     --color-background: #ddecf5;
 
+    --color-light: #FFFFFF;
+
     --color-primary-dark: #13415c;
     --color-primary: #457493;
     --color-primary-medium: #77aac9;
@@ -153,13 +155,14 @@ p {
     }
 }
 
-/* General Windows */
+/* Layout Windows */
 
 .wf-window {
     position: absolute;
     height: 100vh;
     width: 100%;
     display: flex;
+    padding: 1em;
 }
 
 .wf-window-centered {
@@ -168,6 +171,13 @@ p {
     align-items: center;
     align-content: center;
     flex-flow: column;
+}
+
+@media screen and (max-height: 511px) {
+    .wf-window-centered {
+        flex-flow: row !important;
+    }
+    
 }
 
 .wf-window-spaced {
@@ -179,6 +189,30 @@ p {
     pointer-events: none;
 }
 
+/* General elements */
+
+.wf-footer {
+    position: absolute; 
+    height: 2em; width: 100%;  
+    top: calc(100% - 2em); 
+    background-color: rgba(0,0,0,0.2);
+    color: #CCCCCC;
+    padding: 0.25em;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.wf-footer a {
+    color: #CCCCCC;
+}
+
+.wf-footer a:hover {
+    color: #EEEEEE;
+}
+
+.wf-footer a:active {
+    color: #AAAAAA;
+}
 
 /* Ingame HUD */
 
@@ -268,15 +302,15 @@ p {
     padding-left: 0;
     padding-right: 0;
     border-radius: 100%;
-    width: 42px;
-    height: 42px;
+    width: 2.625em;
+    height: 2.625em;
     padding-top: 0.45em !important;
 }
 
 .wf-btn-circle > svg {
     width: 1.5em;
     height: 1.5em;
-    fill: #FFFFFF;
+    fill: var(--color-light);
     display: block;
     margin: 0 auto;
 }
@@ -288,6 +322,8 @@ p {
     text-transform: uppercase;
     font-weight: 500;
 }
+
+/* Button colors */
 
 /* Button colors */
 
@@ -307,6 +343,13 @@ p {
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-medium);
     outline-color: var(--color-primary);
+}
+
+.wf-btn-primary:disabled {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-medium);
+    outline-color: var(--color-primary);
+    color: #999999;
 }
 
 .wf-btn-secondary {
@@ -368,7 +411,6 @@ p {
 .wf-panel {
     background-color: #eeeeeebb;
     flex-grow: 0;
-    width: calc(100% - 20px);
 }
 
 .wf-panel-header {
@@ -440,4 +482,40 @@ a.wf-modal-header-button:active {
 
 .wf-panel-header+.wf-panel-body {
     border-top: none;
+}
+
+/* Labels */
+
+.wf-lbl {
+    display: block;
+    background-color: #CCC;
+    border-left: 2px solid #999;
+    padding: 0.375em;
+}
+
+.wf-lbl-danger {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger-dark);
+    border-left: 2px solid var(--color-danger-dark);
+}
+
+/* Form elements */
+
+input.wf-form-control {
+    display: block;
+    background-color: var(color-form-element-bg);
+    border: none;
+    border-bottom: 2px solid var(--color-primary);
+    padding: 0.375em;
+    line-height: 1em;
+}
+
+.wf-form-control-error {
+    border-bottom: 2px solid var(--color-danger) !important;
+}
+
+input.wf-form-control:focus {
+    border: none;
+    outline: none;
+    border-bottom: 2px solid var(--color-secondary);
 }
