@@ -12,6 +12,7 @@ import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderin
 import {attackActionHandler} from "./action/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
+import {getSetting} from "../util/UserSettingManager";
 
 /**
  * The map of the current game.
@@ -45,7 +46,7 @@ export function startGame(map: GameMap, mode: GameMode) {
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init([new Player(0, "Player", HSLColor.fromRGB(0, 200, 200))], 0, 500);
+	playerManager.init([new Player(0, getSetting("playerName") ?? "UnknownPlayer", HSLColor.fromRGB(0, 200, 200))], 0, 500);
 
 	isPlaying = true;
 	isLocalGame = true;
