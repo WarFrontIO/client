@@ -1,10 +1,12 @@
-import {territoryManager} from "../TerritoryManager";
-import {onNeighbors} from "../../util/MathUtil";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
-import {attackActionHandler} from "../action/AttackActionHandler";
-import {HSLColor} from "../../util/HSLColor";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {gameMode} from "../Game";
+import { TerritoryManager } from "../TerritoryManager";
+import { onNeighbors } from "../../util/MathUtil";
+import { PlayerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
+import { AttackActionHandler } from "../action/AttackActionHandler";
+import { HSLColor } from "../../util/HSLColor";
+import { TerritoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
+import { Game } from "../Game";
+import { GameMap } from "../../map/GameMap";
+import { GameRenderer } from "../../renderer/GameRenderer";
 
 export class Player {
 	readonly id: number;
@@ -15,10 +17,19 @@ export class Player {
 	private territorySize: number = 0;
 	private alive: boolean = true;
 
-	constructor(id: number, name: string, baseColor: HSLColor) {
+	protected game: Game
+	protected gameRenderer: GameRenderer
+	protected territoryManager: TerritoryManager
+	protected attackActionHandler: AttackActionHandler
+
+	constructor(attackActionHandler: AttackActionHandler, game: Game, territoryManager: TerritoryManager, gameRenderer: GameRenderer, id: number, name: string, baseColor: HSLColor) {
+		this.attackActionHandler = attackActionHandler
+		this.game = game
 		this.id = id;
 		this.name = name;
-		this.baseColor = gameMode.processPlayerColor(id, baseColor);
+		this.gameRenderer = gameRenderer
+		this.territoryManager = territoryManager
+		this.baseColor = game.mode.processPlayerColor(id, baseColor);
 	}
 
 	/**
@@ -29,21 +40,21 @@ export class Player {
 	 */
 	addTile(tile: number): void {
 		this.territorySize++;
-		if (territoryManager.isBorder(tile)) {
+		if (this.territoryManager.isBorder(tile)) {
 			this.borderTiles.add(tile);
-			territoryRenderingManager.setPlayerBorder(tile);
+			this.gameRenderer.territoryRenderingManager.setPlayerBorder(tile);
 		} else {
-			playerNameRenderingManager.addTile(tile);
-			territoryRenderingManager.setTerritory(tile);
+			this.gameRenderer.playerNameRenderingManager.addTile(tile);
+			this.gameRenderer.territoryRenderingManager.setTerritory(tile);
 		}
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
-				territoryRenderingManager.setTerritory(neighbor);
-				playerNameRenderingManager.addTile(neighbor);
+			if (this.territoryManager.isOwner(neighbor, this.id) && !this.territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
+				this.gameRenderer.territoryRenderingManager.setTerritory(neighbor);
+				this.gameRenderer.playerNameRenderingManager.addTile(neighbor);
 			}
-		});
+		}, this.game.map.width, this.game.map.height);
 
-		attackActionHandler.handleTerritoryAdd(tile, this.id);
+		this.attackActionHandler.handleTerritoryAdd(tile, this.id);
 	}
 
 	/**
@@ -55,15 +66,15 @@ export class Player {
 	removeTile(tile: number): void {
 		this.territorySize--;
 		if (!this.borderTiles.delete(tile)) {
-			playerNameRenderingManager.removeTile(tile);
+			this.gameRenderer.playerNameRenderingManager.removeTile(tile);
 		}
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
+			if (this.territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
-				territoryRenderingManager.setTargetBorder(neighbor);
-				playerNameRenderingManager.removeTile(neighbor);
+				this.gameRenderer.territoryRenderingManager.setTargetBorder(neighbor);
+				this.gameRenderer.playerNameRenderingManager.removeTile(neighbor);
 			}
-		});
+		}, this.game.map.width, this.game.map.height);
 
 		if (this.territorySize === 0) {
 			this.alive = false;

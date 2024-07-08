@@ -1,9 +1,11 @@
-import {RendererLayer} from "./layer/RendererLayer";
-import {mapRenderer} from "./layer/MapRenderer";
-import {windowResizeHandler, WindowResizeListener} from "../event/WindowResizeHandler";
-import {backgroundLayer} from "./layer/BackgroundLayer";
-import {territoryRenderer} from "./layer/TerritoryRenderer";
-import {nameRenderer} from "./layer/NameRenderer";
+import { RendererLayer } from "./layer/RendererLayer";
+import { MapRenderer } from "./layer/MapRenderer";
+import { windowResizeHandler, WindowResizeListener } from "../event/WindowResizeHandler";
+import { backgroundLayer } from "./layer/BackgroundLayer";
+import { TerritoryRenderer } from "./layer/TerritoryRenderer";
+import { NameRenderer } from "./layer/NameRenderer";
+import { TerritoryRenderingManager } from "./manager/TerritoryRenderingManager";
+import { PlayerNameRenderingManager } from "./manager/PlayerNameRenderingManager";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -15,7 +17,19 @@ export class GameRenderer implements WindowResizeListener {
 	private readonly context: CanvasRenderingContext2D;
 	private layers: RendererLayer[] = [];
 
-	constructor() {
+	public readonly territoryRenderer: TerritoryRenderer;
+	public readonly territoryRenderingManager: TerritoryRenderingManager;
+	public readonly mapRenderer: MapRenderer;
+	public readonly nameRenderer: NameRenderer;
+	public readonly playerNameRenderingManager: PlayerNameRenderingManager
+
+	constructor(territoryRenderer: TerritoryRenderer, territoryRenderingManager: TerritoryRenderingManager, mapRenderer: MapRenderer, nameRenderer: NameRenderer, playerNameRenderingManager: PlayerNameRenderingManager) {
+		this.territoryRenderer = territoryRenderer;
+		this.territoryRenderingManager = territoryRenderingManager
+		this.mapRenderer = mapRenderer
+		this.nameRenderer = nameRenderer
+		this.playerNameRenderingManager = playerNameRenderingManager
+
 		this.canvas = document.createElement("canvas");
 		this.canvas.style.position = "absolute";
 		this.canvas.style.left = "0";
@@ -36,9 +50,9 @@ export class GameRenderer implements WindowResizeListener {
 	initGameplayLayers(): void {
 		this.layers = [];
 		this.registerLayer(backgroundLayer);
-		this.registerLayer(mapRenderer);
-		this.registerLayer(territoryRenderer);
-		this.registerLayer(nameRenderer);
+		this.registerLayer(this.mapRenderer);
+		this.registerLayer(this.territoryRenderer);
+		this.registerLayer(this.nameRenderer);
 	}
 
 	/**

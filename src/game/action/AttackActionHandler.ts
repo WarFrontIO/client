@@ -1,11 +1,14 @@
-import {playerManager} from "../player/PlayerManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
-import {territoryManager} from "../TerritoryManager";
-import {Player} from "../player/Player";
-import {AttackExecutor} from "./AttackExecutor";
-import {gameMap, gameMode} from "../Game";
+import { gameTicker, GameTickListener } from "../GameTicker";
+import { TerritoryManager } from "../TerritoryManager";
+import { Player } from "../player/Player";
+import { AttackExecutor } from "./AttackExecutor";
+import { GameRenderer } from "../../renderer/GameRenderer";
+import { Game } from "../Game";
 
-class AttackActionHandler implements GameTickListener {
+export class AttackActionHandler implements GameTickListener {
+	private game: Game
+	private territoryManager: TerritoryManager
+	private gameRenderer: GameRenderer
 	private attacks: AttackExecutor[] = [];
 	private playerIndex: AttackExecutor[][] = [];
 	private unclaimedIndex: AttackExecutor[] = [];
@@ -14,7 +17,10 @@ class AttackActionHandler implements GameTickListener {
 	private unclaimedAttackList: AttackExecutor[] = [];
 	amountCache: Uint8Array;
 
-	constructor() {
+	constructor(game: Game, territoryManager: TerritoryManager, gameRenderer: GameRenderer) {
+		this.game = game
+		this.territoryManager = territoryManager
+		this.gameRenderer = gameRenderer
 		gameTicker.registry.register(this);
 	}
 
@@ -24,23 +30,23 @@ class AttackActionHandler implements GameTickListener {
 		this.playerAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.unclaimedIndex = [];
-		this.amountCache = new Uint8Array(gameMap.width * gameMap.height);
+		this.amountCache = new Uint8Array(this.game.map.width * this.game.map.height);
 	}
 
 	//TODO: Move this out of here
 	preprocessAttack(player: number, target: number, percentage: number): void {
-		if (!gameMode.canAttack(player, target)) {
+		if (!this.game.mode.canAttack(player, target)) {
 			return;
 		}
 
-		let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
-		playerManager.getPlayer(player).removeTroops(troopCount);
+		let troopCount = Math.floor(this.game.players.getPlayer(player).getTroops() * percentage);
+		this.game.players.getPlayer(player).removeTroops(troopCount);
 
-		if (target === territoryManager.OWNER_NONE) {
-			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
+		if (target === TerritoryManager.OWNER_NONE) {
+			this.attackUnclaimed(this.game.players.getPlayer(player), troopCount);
 			return;
 		}
-		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
+		this.attackPlayer(this.game.players.getPlayer(player), this.game.players.getPlayer(target), troopCount);
 	}
 
 	/**
@@ -99,7 +105,7 @@ class AttackActionHandler implements GameTickListener {
 	 * @private
 	 */
 	private addUnclaimed(player: Player, troops: number): void {
-		const attack = new AttackExecutor(player, null, troops);
+		const attack = new AttackExecutor(this, this.game.map, this.gameRenderer, this.territoryManager, player, null, troops);
 		this.attacks.push(attack);
 		this.unclaimedIndex[player.id] = attack;
 		this.playerAttackList[player.id].push(attack);
@@ -114,7 +120,7 @@ class AttackActionHandler implements GameTickListener {
 	 * @private
 	 */
 	private addAttack(player: Player, target: Player, troops: number): void {
-		const attack = new AttackExecutor(player, target, troops);
+		const attack = new AttackExecutor(this, this.game.map, this.gameRenderer, this.territoryManager, player, target, troops);
 		this.attacks.push(attack);
 		this.playerIndex[player.id][target.id] = attack;
 		this.playerAttackList[player.id].push(attack);
@@ -143,7 +149,7 @@ class AttackActionHandler implements GameTickListener {
 			if (attack.tick()) {
 				continue;
 			}
-			playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
+			this.game.players.getPlayer(attack.player.id).addTroops(attack.getTroops());
 			this.removeAttack(attack);
 		}
 	}
@@ -168,5 +174,3 @@ class AttackActionHandler implements GameTickListener {
 		this.playerIndex = [];
 	}
 }
-
-export const attackActionHandler = new AttackActionHandler();

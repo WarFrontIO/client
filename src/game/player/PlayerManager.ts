@@ -1,14 +1,29 @@
-import {Player} from "./Player";
-import {BotPlayer} from "./BotPlayer";
-import {spawnManager} from "./SpawnManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { Player } from "./Player";
+import { BotPlayer } from "./BotPlayer";
+import { SpawnManager } from "./SpawnManager";
+import { gameTicker, GameTickListener } from "../GameTicker";
+import { GameRenderer } from "../../renderer/GameRenderer";
+import { TerritoryManager } from "../TerritoryManager";
+import { Game } from "../Game";
+import { AttackActionHandler } from "../action/AttackActionHandler";
 
-class PlayerManager implements GameTickListener {
+export class PlayerManager implements GameTickListener {
 	private players: Player[];
 	private bots: BotPlayer[];
+	public clientPlayer: Player;
 
-	constructor() {
+	public spawnManager: SpawnManager
+	public attackActionHandler: AttackActionHandler
+	public game: Game
+	public territoryManager: TerritoryManager
+	public gameRenderer: GameRenderer
+
+	constructor(spawnManager: SpawnManager, attackActionHandler: AttackActionHandler, game: Game, territoryManager: TerritoryManager, gameRenderer: GameRenderer) {
+		this.spawnManager = spawnManager
+		this.attackActionHandler = attackActionHandler
+		this.game = game
+		this.territoryManager = territoryManager
+		this.gameRenderer = gameRenderer
 		gameTicker.registry.register(this);
 	}
 
@@ -22,16 +37,16 @@ class PlayerManager implements GameTickListener {
 		this.players = [];
 		this.bots = [];
 
-		clientPlayer = humans[clientId];
+		this.clientPlayer = humans[clientId];
 		for (const player of humans) {
 			this.registerPlayer(player, false);
 		}
 
 		for (let i = humans.length; i < maxPlayers; i++) {
-			this.registerPlayer(new BotPlayer(this.players.length), true);
+			this.registerPlayer(new BotPlayer(this.attackActionHandler, this.game, this.territoryManager, this.gameRenderer, this.players.length), true);
 		}
 
-		playerNameRenderingManager.finishRegistration(this.players);
+		this.gameRenderer.playerNameRenderingManager.finishRegistration(this.players);
 	}
 
 	/**
@@ -40,11 +55,11 @@ class PlayerManager implements GameTickListener {
 	 * @param isBot Whether the player is a bot.
 	 */
 	registerPlayer(player: Player, isBot: boolean): void {
-		playerNameRenderingManager.registerPlayer(player);
+		this.gameRenderer.playerNameRenderingManager.registerPlayer(player);
 		this.players.push(player);
 		if (isBot) {
 			this.bots.push(player as BotPlayer);
-			spawnManager.randomSpawnPoint(player);
+			this.spawnManager.randomSpawnPoint(player);
 		}
 	}
 
@@ -64,6 +79,3 @@ class PlayerManager implements GameTickListener {
 		}
 	}
 }
-
-export const playerManager = new PlayerManager();
-export let clientPlayer: Player;

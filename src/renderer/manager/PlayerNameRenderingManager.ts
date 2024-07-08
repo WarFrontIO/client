@@ -1,14 +1,14 @@
-import {Player} from "../../game/player/Player";
-import {gameMap} from "../../game/Game";
-import {formatTroops} from "../../util/StringFormatter";
-import {PriorityQueue} from "../../util/PriorityQueue";
-import {territoryManager} from "../../game/TerritoryManager";
-import {getSetting} from "../../util/UserSettingManager";
-import {random} from "../../game/Random";
-import {gameTicker} from "../../game/GameTicker";
-import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
+import { Player } from "../../game/player/Player";
+import { Game } from "../../game/Game";
+import { formatTroops } from "../../util/StringFormatter";
+import { PriorityQueue } from "../../util/PriorityQueue";
+import { TerritoryManager } from "../../game/TerritoryManager";
+import { getSetting } from "../../util/UserSettingManager";
+import { random } from "../../game/Random";
+import { gameTicker } from "../../game/GameTicker";
+import { MapNavigationHandler } from "../../game/action/MapNavigationHandler";
 
-class PlayerNameRenderingManager {
+export class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
 	private nameDepth: Uint16Array;
 	atlasRowLength: number = 0;
@@ -24,9 +24,20 @@ class PlayerNameRenderingManager {
 	private currentTargetMax: number = 0;
 	private currentTargetPos: number = 0;
 
+	private game: Game
+	private territoryManager: TerritoryManager
+	private mapNavigationHandler: MapNavigationHandler
+
+
+	constructor(game: Game, territoryManager: TerritoryManager, mapNavigationHandler: MapNavigationHandler) {
+		this.game = game
+		this.territoryManager = territoryManager;
+		this.mapNavigationHandler = mapNavigationHandler
+	}
+
 	reset(maxPlayers: number) {
 		this.playerData = [];
-		this.nameDepth = new Uint16Array(gameMap.width * gameMap.height);
+		this.nameDepth = new Uint16Array(this.game.map.width * this.game.map.height);
 		this.atlasRowLength = Math.sqrt(maxPlayers) | 0;
 		this.partialElementAtlas.width = this.atlasRowLength * 20;
 		this.partialElementAtlas.height = Math.ceil(maxPlayers / this.atlasRowLength) * 20;
@@ -44,7 +55,7 @@ class PlayerNameRenderingManager {
 		const canvas = document.createElement("canvas");
 		const context = canvas.getContext("2d");
 		const troopLength = context.measureText("123.").width / 10;
-		this.playerData[player.id] = new PlayerNameRenderingData(player.name, troopLength, player.borderTiles, player.id);
+		this.playerData[player.id] = new PlayerNameRenderingData(this.mapNavigationHandler, player.name, troopLength, player.borderTiles, player.id, this, this.territoryManager, this.game);
 	}
 
 	//TODO: Remove this hacky solution, just pass the player instance to the rendering manager
@@ -53,7 +64,7 @@ class PlayerNameRenderingManager {
 	 * @param players The players to finish the registration for.
 	 */
 	finishRegistration(players: Player[]): void {
-		playerNameRenderingManager.partialAtlasContext.textBaseline = "top";
+		this.partialAtlasContext.textBaseline = "top";
 		for (const player of players) {
 			this.playerData[player.id].updatePartial(player);
 		}
@@ -86,9 +97,9 @@ class PlayerNameRenderingManager {
 		let offset = 0;
 		let rowMax = Infinity;
 		let columnMax = Infinity;
-		if (this.currentTargetMax < this.nameDepth[tile - gameMap.width - 1]) {
-			this.currentTargetMax = this.nameDepth[tile - gameMap.width - 1];
-			this.currentTargetPos = tile - gameMap.width - 1;
+		if (this.currentTargetMax < this.nameDepth[tile - this.game.map.width - 1]) {
+			this.currentTargetMax = this.nameDepth[tile - this.game.map.width - 1];
+			this.currentTargetPos = tile - this.game.map.width - 1;
 		}
 		let changed: boolean;
 		do {
@@ -101,13 +112,13 @@ class PlayerNameRenderingManager {
 				this.nameDepth[tile + i] = offset + i;
 				changed = true;
 			}
-			tile += gameMap.width;
+			tile += this.game.map.width;
 			for (let i = 0; i < columnMax; i++) {
-				if (this.nameDepth[tile + i * gameMap.width] <= offset + i) {
+				if (this.nameDepth[tile + i * this.game.map.width] <= offset + i) {
 					columnMax = i;
 					break;
 				}
-				this.nameDepth[tile + i * gameMap.width] = offset + i;
+				this.nameDepth[tile + i * this.game.map.width] = offset + i;
 				changed = true;
 			}
 			tile++;
@@ -152,7 +163,7 @@ class PlayerNameRenderingManager {
 					currentMax = i;
 					break;
 				}
-				const value = Math.min(this.nameDepth[current - 1], this.nameDepth[current - gameMap.width], this.nameDepth[current - gameMap.width - 1]) + 1;
+				const value = Math.min(this.nameDepth[current - 1], this.nameDepth[current - this.game.map.width], this.nameDepth[current - this.game.map.width - 1]) + 1;
 				if (value === this.nameDepth[current]) {
 					currentMax = i;
 					break;
@@ -166,7 +177,7 @@ class PlayerNameRenderingManager {
 				changed = true;
 				this.nameDepth[current] = value;
 
-				current += isColumn ? gameMap.width : 1;
+				current += isColumn ? this.game.map.width : 1;
 			}
 			if (isColumn) {
 				if (!changed) break;
@@ -175,7 +186,7 @@ class PlayerNameRenderingManager {
 				isColumn = false;
 			} else {
 				isColumn = true;
-				currentOrigin += gameMap.width;
+				currentOrigin += this.game.map.width;
 			}
 			[currentMax, otherMax] = [otherMax, currentMax];
 		}
@@ -200,11 +211,20 @@ export class PlayerNameRenderingData {
 	troopSize: number = 0;
 	private readonly borderSet: Set<number>;
 	readonly queue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] > b[0]);
+	private playerNameRenderingManager: PlayerNameRenderingManager
+	private territoryManager: TerritoryManager
+	private game: Game;
+	private mapNavigationHandler: MapNavigationHandler
 
-	constructor(name: string, troopLength: number, borderSet: Set<number>, id: number) {
+
+	constructor(mapNavigationHandler: MapNavigationHandler, name: string, troopLength: number, borderSet: Set<number>, id: number, playerNameRenderingManager: PlayerNameRenderingManager, territoryManager: TerritoryManager, game: Game) {
 		this.troopLength = troopLength;
 		this.borderSet = borderSet;
 		this.id = id;
+		this.playerNameRenderingManager = playerNameRenderingManager
+		this.territoryManager = territoryManager
+		this.game = game;
+		this.mapNavigationHandler = mapNavigationHandler
 		this.updateTick = random.nextInt(10);
 		this.renderName(name);
 	}
@@ -215,9 +235,9 @@ export class PlayerNameRenderingData {
 	 * @private
 	 */
 	private renderName(name: string): void {
-		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(200 / (this.nameLength = playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 8) + "px " + getSetting("theme").getFont();
-		playerNameRenderingManager.partialAtlasContext.fillText(name, this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
+		this.playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
+		this.playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(200 / (this.nameLength = this.playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 8) + "px " + getSetting("theme").getFont();
+		this.playerNameRenderingManager.partialAtlasContext.fillText(name, this.id % this.playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / this.playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 
 	/**
@@ -246,7 +266,7 @@ export class PlayerNameRenderingData {
 		this.queue.push([nameDepth[this.index], this.index]);
 		while (!this.queue.isEmpty()) {
 			const [newMax, newPos] = this.queue.pop();
-			if (territoryManager.tileOwners[newPos] === this.id) {
+			if (this.territoryManager.tileOwners[newPos] === this.id) {
 				const size = nameDepth[newPos];
 				if (size >= newMax) {
 					this.setPosAt(newPos, size);
@@ -260,8 +280,8 @@ export class PlayerNameRenderingData {
 	setPosAt(tile: number, size: number): void {
 		this.size = size;
 		this.index = tile;
-		this.nameX = tile % gameMap.width;
-		this.nameY = Math.floor(tile / gameMap.width);
+		this.nameX = tile % this.game.map.width;
+		this.nameY = Math.floor(tile / this.game.map.width);
 	}
 
 	/**
@@ -272,16 +292,16 @@ export class PlayerNameRenderingData {
 	 */
 	renderPlayer(context: CanvasRenderingContext2D, player: Player): void {
 		if (gameTicker.getTickCount() % 10 === this.updateTick) this.updatePartial(player);
-		if (this.size * mapNavigationHandler.zoom >= 20) {
+		if (this.size * this.mapNavigationHandler.zoom >= 20) {
 			context.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
 			context.textBaseline = "bottom";
-			context.font = "bold " + Math.floor(Math.min(10 / this.nameLength, 0.4) * this.size * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
-			context.fillText(player.name, Math.floor((this.nameX - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y));
+			context.font = "bold " + Math.floor(Math.min(10 / this.nameLength, 0.4) * this.size * this.mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
+			context.fillText(player.name, Math.floor((this.nameX - this.size / 2 + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.y));
 			context.textBaseline = "top";
-			context.font = "bold " + Math.floor(1 / Math.max(3, player.getTroops().toString().length) * 3 * this.size / this.troopLength * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
-			context.fillText(formatTroops(player.getTroops()), Math.floor((this.nameX - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y));
+			context.font = "bold " + Math.floor(1 / Math.max(3, player.getTroops().toString().length) * 3 * this.size / this.troopLength * this.mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
+			context.fillText(formatTroops(player.getTroops()), Math.floor((this.nameX - this.size / 2 + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.y));
 		} else {
-			context.drawImage(playerNameRenderingManager.partialElementAtlas, (this.id % playerNameRenderingManager.atlasRowLength) * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20, 20, 20, Math.floor((this.nameX - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y), Math.floor(this.size * mapNavigationHandler.zoom), Math.floor(this.size * mapNavigationHandler.zoom));
+			context.drawImage(this.playerNameRenderingManager.partialElementAtlas, (this.id % this.playerNameRenderingManager.atlasRowLength) * 20, Math.floor(this.id / this.playerNameRenderingManager.atlasRowLength) * 20, 20, 20, Math.floor((this.nameX - this.size + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.x), Math.floor((this.nameY - this.size + 1) * this.mapNavigationHandler.zoom + this.mapNavigationHandler.y), Math.floor(this.size * this.mapNavigationHandler.zoom), Math.floor(this.size * this.mapNavigationHandler.zoom));
 		}
 	}
 
@@ -290,11 +310,9 @@ export class PlayerNameRenderingData {
 	 * @param player The player to update the partial for.
 	 */
 	updatePartial(player: Player): void {
-		playerNameRenderingManager.partialAtlasContext.clearRect(this.id % playerNameRenderingManager.atlasRowLength * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10, 20, 10);
-		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(60 / Math.max(3, player.getTroops().toString().length) / this.troopLength) + "px " + getSetting("theme").getFont();
-		playerNameRenderingManager.partialAtlasContext.fillText(formatTroops(player.getTroops()), this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
+		this.playerNameRenderingManager.partialAtlasContext.clearRect(this.id % this.playerNameRenderingManager.atlasRowLength * 20, Math.floor(this.id / this.playerNameRenderingManager.atlasRowLength) * 20 + 10, 20, 10);
+		this.playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
+		this.playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(60 / Math.max(3, player.getTroops().toString().length) / this.troopLength) + "px " + getSetting("theme").getFont();
+		this.playerNameRenderingManager.partialAtlasContext.fillText(formatTroops(player.getTroops()), this.id % this.playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / this.playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 }
-
-export const playerNameRenderingManager = new PlayerNameRenderingManager();

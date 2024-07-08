@@ -1,16 +1,24 @@
-import {EventHandlerRegistry} from "./EventHandlerRegistry";
-import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
+import { EventHandlerRegistry } from "./EventHandlerRegistry";
+import { MapNavigationHandler } from "../game/action/MapNavigationHandler";
 
 /**
  * Registry for map transform listeners.
  * @see MapScaleListener
  * @see MapMoveListener
  */
-class MapTransformHandler {
+export class MapTransformHandler {
+	private mapNavigationHandler: MapNavigationHandler
+
 	/** Registry for map scale listeners.*/
-	scale: EventHandlerRegistry<MapScaleListener> = new EventHandlerRegistry(true, listener => listener.onMapScale(mapNavigationHandler.zoom));
+	scale: EventHandlerRegistry<MapScaleListener>
 	/** Registry for map move listeners.*/
-	move: EventHandlerRegistry<MapMoveListener> = new EventHandlerRegistry(true, listener => listener.onMapMove(mapNavigationHandler.x, mapNavigationHandler.y));
+	move: EventHandlerRegistry<MapMoveListener>
+
+	constructor(mapNavigationHandler: MapNavigationHandler) {
+		this.mapNavigationHandler = mapNavigationHandler
+		this.scale = new EventHandlerRegistry(true, listener => listener.onMapScale(this.mapNavigationHandler.zoom));
+		this.move = new EventHandlerRegistry(true, listener => listener.onMapMove(this.mapNavigationHandler.x, this.mapNavigationHandler.y));
+	}
 }
 
 /**
@@ -45,5 +53,3 @@ export interface MapMoveListener {
 	 */
 	onMapMove(x: number, y: number): void;
 }
-
-export const mapTransformHandler = new MapTransformHandler();

@@ -1,11 +1,17 @@
-import {random} from "../Random";
-import {gameMap, isLocalGame, startGameCycle} from "../Game";
-import {territoryManager} from "../TerritoryManager";
-import {Player} from "./Player";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { random } from "../Random";
+import { Game } from "../Game";
+import { GameMap } from "../../map/GameMap";
+import { TerritoryManager } from "../TerritoryManager";
+import { Player } from "./Player";
+import { TerritoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
+import { PlayerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
+import { GameRenderer } from "../../renderer/GameRenderer";
 
-class SpawnManager {
+export class SpawnManager {
+	game: Game;
+	territoryManager: TerritoryManager
+	gameRenderer: GameRenderer
+
 	spawnPoints: number[];
 	spawnData: SpawnData[];
 	backupPoints: number[];
@@ -19,8 +25,15 @@ class SpawnManager {
 	 * If this is the case, spawn points will be regenerated with a smaller radius until enough spawn points are available.
 	 * @param maxPlayers The maximum number of players.
 	 */
-	init(maxPlayers: number): void {
-		let radius = Math.max(5, Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2)));
+	init(game: Game, maxPlayers: number, territoryManager: TerritoryManager, gameRenderer: GameRenderer): void {
+		this.game = game;
+		this.territoryManager = territoryManager
+		this.gameRenderer = gameRenderer
+		this.spawnData = [];
+		this.backupPoints = [];
+		this.isSelecting = true;
+
+		let radius = Math.max(5, Math.sqrt(this.game.map.width * this.game.map.height / maxPlayers / 1.1 / Math.sqrt(2)));
 		while (radius >= 5) {
 			this.spawnPoints = this.buildSpawns(radius);
 			if (this.spawnPoints.length >= maxPlayers) {
@@ -29,9 +42,6 @@ class SpawnManager {
 			radius *= 0.9;
 		}
 
-		this.spawnData = [];
-		this.backupPoints = [];
-		this.isSelecting = true;
 	}
 
 	/**
@@ -44,22 +54,23 @@ class SpawnManager {
 	 * @private
 	 */
 	private buildSpawns(radius: number): number[] {
+		console.log('building spawns')
 		const minDistance = radius * radius;
 		const cellSize = radius / Math.sqrt(2);
-		const rows = Math.ceil(gameMap.height / cellSize);
-		const cols = Math.ceil(gameMap.width / cellSize);
+		const rows = Math.ceil(this.game.map.height / cellSize);
+		const cols = Math.ceil(this.game.map.width / cellSize);
 		const grid = new Array(rows * cols).fill(-1);
 		const active = [], points = [];
-		const initialX = random.nextInt(gameMap.width), initialY = random.nextInt(gameMap.height);
-		const initial = initialX + initialY * gameMap.width;
+		const initialX = random.nextInt(this.game.map.width), initialY = random.nextInt(this.game.map.height);
+		const initial = initialX + initialY * this.game.map.width;
 		active.push(initial);
 		points.push(initial);
 		grid[Math.floor(initialX / cellSize) + Math.floor(initialY / cellSize) * cols] = initial;
 		while (active.length > 0) {
 			const index = random.nextInt(active.length);
 			const point = active[index];
-			const px = point % gameMap.width;
-			const py = Math.floor(point / gameMap.width);
+			const px = point % this.game.map.width;
+			const py = Math.floor(point / this.game.map.width);
 			let found = false;
 			for (let tries = 0; tries < 30; tries++) {
 				const angle = random.next() * 2 * Math.PI;
@@ -68,7 +79,7 @@ class SpawnManager {
 				const y = Math.floor(py + Math.sin(angle) * distance);
 				const cellX = Math.floor(x / cellSize);
 				const cellY = Math.floor(y / cellSize);
-				if (x < 0 || x >= gameMap.width || y < 0 || y >= gameMap.height || grid[cellX + cellY * cols] !== -1) {
+				if (x < 0 || x >= this.game.map.width || y < 0 || y >= this.game.map.height || grid[cellX + cellY * cols] !== -1) {
 					continue;
 				}
 				let valid = true;
@@ -79,8 +90,8 @@ class SpawnManager {
 						}
 						if (grid[cellX + i + (cellY + j) * cols] !== -1) {
 							const other = grid[cellX + i + (cellY + j) * cols];
-							const ox = other % gameMap.width - x;
-							const oy = Math.floor(other / gameMap.width) - y;
+							const ox = other % this.game.map.width - x;
+							const oy = Math.floor(other / this.game.map.width) - y;
 							if (ox * ox + oy * oy < minDistance) {
 								valid = false;
 								break;
@@ -93,9 +104,9 @@ class SpawnManager {
 				}
 				if (valid) {
 					found = true;
-					const index = x + y * gameMap.width;
+					const index = x + y * this.game.map.width;
 					active.push(index);
-					if (gameMap.getTile(index).isSolid) {
+					if (this.game.map.getTile(index).isSolid) {
 						points.push(index);
 					}
 					grid[Math.floor(x / cellSize) + Math.floor(y / cellSize) * cols] = index;
@@ -123,9 +134,9 @@ class SpawnManager {
 		const index = random.nextInt(target.length);
 		const result = target[index];
 		target.splice(index, 1);
-		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id));
-		territoryRenderingManager.applyTransaction(player, player);
-		playerNameRenderingManager.applyTransaction(player, player);
+		this.getSpawnPixels(result).forEach(pixel => this.territoryManager.conquer(pixel, player.id));
+		this.gameRenderer.territoryRenderingManager.applyTransaction(player, player);
+		this.gameRenderer.playerNameRenderingManager.applyTransaction(player, player);
 		return result;
 	}
 
@@ -138,25 +149,25 @@ class SpawnManager {
 	 */
 	selectSpawnPoint(player: Player, tile: number): void {
 		if (this.spawnData[player.id]) {
-			this.spawnData[player.id].pixels.forEach(pixel => territoryManager.clear(pixel));
+			this.spawnData[player.id].pixels.forEach(pixel => this.territoryManager.clear(pixel));
 			this.spawnPoints.push(...this.spawnData[player.id].blockedPoints);
 			this.spawnData[player.id].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
 		}
 
 		//TODO: Check if the selected tile is a valid spawn point
 		const data = new SpawnData();
-		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);
+		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % this.game.map.width - tile % this.game.map.width) <= 4 && Math.abs(Math.floor(point / this.game.map.width) - Math.floor(tile / this.game.map.width)) <= 4);
 		data.pixels = this.getSpawnPixels(tile);
 		data.blockedPoints.forEach(point => this.spawnPoints.splice(this.spawnPoints.indexOf(point), 1));
-		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player.id));
+		data.pixels.forEach(pixel => this.territoryManager.conquer(pixel, player.id));
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player.id] = data;
-		territoryRenderingManager.applyTransaction(player, player);
-		playerNameRenderingManager.applyTransaction(player, player);
+		this.gameRenderer.territoryRenderingManager.applyTransaction(player, player);
+		this.gameRenderer.playerNameRenderingManager.applyTransaction(player, player);
 
-		if (isLocalGame) {
+		if (this.game.isLocalGame) {
 			this.isSelecting = false;
-			startGameCycle();
+			this.game.startGameCycle();
 		}
 	}
 
@@ -173,11 +184,11 @@ class SpawnManager {
 				if (Math.abs(dx) === 2 && Math.abs(dy) === 2) {
 					continue;
 				}
-				const index = tile + dx + dy * gameMap.width;
-				if (index < 0 || index >= gameMap.width * gameMap.height) {
+				const index = tile + dx + dy * this.game.map.width;
+				if (index < 0 || index >= this.game.map.width * this.game.map.height) {
 					continue;
 				}
-				if (gameMap.getTile(index).isSolid && !territoryManager.hasOwner(index)) {
+				if (this.game.map.getTile(index).isSolid && !this.territoryManager.hasOwner(index)) {
 					result.push(index);
 				}
 			}
@@ -190,5 +201,3 @@ class SpawnData {
 	blockedPoints: number[];
 	pixels: number[];
 }
-
-export const spawnManager = new SpawnManager();

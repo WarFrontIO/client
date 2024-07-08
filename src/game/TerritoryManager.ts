@@ -1,11 +1,20 @@
-import {gameMap} from "./Game";
-import {playerManager} from "./player/PlayerManager";
-import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
+import { TerritoryRenderingManager } from "../renderer/manager/TerritoryRenderingManager";
+import { PlayerNameRenderingManager } from "../renderer/manager/PlayerNameRenderingManager";
+import { Game } from "./Game";
 
-class TerritoryManager {
+export class TerritoryManager {
 	tileOwners: Uint16Array;
-	readonly OWNER_NONE = 65535;
+	static readonly OWNER_NONE = 65535;
+
+	public game: Game;
+	public territoryRenderingManager: TerritoryRenderingManager;
+	public playerNameRenderingManager: PlayerNameRenderingManager;
+
+	constructor(game: Game, territoryRenderingManager: TerritoryRenderingManager, playerNameRenderingManager: PlayerNameRenderingManager) {
+		this.game = game;
+		this.territoryRenderingManager = territoryRenderingManager;
+		this.playerNameRenderingManager = playerNameRenderingManager;
+	}
 
 	/**
 	 * Resets the territory manager.
@@ -13,9 +22,9 @@ class TerritoryManager {
 	 * @internal
 	 */
 	reset(): void {
-		this.tileOwners = new Uint16Array(gameMap.width * gameMap.height);
+		this.tileOwners = new Uint16Array(this.game.map.width * this.game.map.height);
 		for (let i = 0; i < this.tileOwners.length; i++) {
-			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
+			this.tileOwners[i] = this.game.map.getTile(i).isSolid ? TerritoryManager.OWNER_NONE : TerritoryManager.OWNER_NONE - 1;
 		}
 	}
 
@@ -28,12 +37,12 @@ class TerritoryManager {
 	 * @returns True if the tile is a border tile, false otherwise.
 	 */
 	isBorder(tile: number): boolean {
-		let x = tile % gameMap.width;
-		let y = Math.floor(tile / gameMap.width);
+		let x = tile % this.game.map.width;
+		let y = Math.floor(tile / this.game.map.width);
 		let owner = this.tileOwners[tile];
-		return x === 0 || x === gameMap.width - 1 || y === 0 || y === gameMap.height - 1 ||
+		return x === 0 || x === this.game.map.width - 1 || y === 0 || y === this.game.map.height - 1 ||
 			this.tileOwners[tile - 1] !== owner || this.tileOwners[tile + 1] !== owner ||
-			this.tileOwners[tile - gameMap.width] !== owner || this.tileOwners[tile + gameMap.width] !== owner;
+			this.tileOwners[tile - this.game.map.width] !== owner || this.tileOwners[tile + this.game.map.width] !== owner;
 	}
 
 	/**
@@ -42,7 +51,7 @@ class TerritoryManager {
 	 * @returns True if the tile has an owner, false otherwise.
 	 */
 	hasOwner(tile: number): boolean {
-		return this.tileOwners[tile] !== this.OWNER_NONE;
+		return this.tileOwners[tile] !== TerritoryManager.OWNER_NONE;
 	}
 
 	/**
@@ -70,7 +79,7 @@ class TerritoryManager {
 	 * @returns True if the tile is part of a player's territory, false otherwise.
 	 */
 	isTerritory(tile: number): boolean {
-		return playerNameRenderingManager.isConsidered(tile);
+		return this.playerNameRenderingManager.isConsidered(tile);
 	}
 
 	/**
@@ -84,10 +93,10 @@ class TerritoryManager {
 	conquer(tile: number, owner: number): void {
 		const previousOwner = this.tileOwners[tile];
 		this.tileOwners[tile] = owner;
-		if (previousOwner !== this.OWNER_NONE) {
-			playerManager.getPlayer(previousOwner).removeTile(tile);
+		if (previousOwner !== TerritoryManager.OWNER_NONE) {
+			this.game.players.getPlayer(previousOwner).removeTile(tile);
 		}
-		playerManager.getPlayer(owner).addTile(tile);
+		this.game.players.getPlayer(owner).addTile(tile);
 	}
 
 	/**
@@ -97,12 +106,10 @@ class TerritoryManager {
 	 */
 	clear(tile: number): void {
 		const owner = this.tileOwners[tile];
-		if (owner !== this.OWNER_NONE) {
-			this.tileOwners[tile] = this.OWNER_NONE;
-			playerManager.getPlayer(owner).removeTile(tile);
-			territoryRenderingManager.clear(tile);
+		if (owner !== TerritoryManager.OWNER_NONE) {
+			this.tileOwners[tile] = TerritoryManager.OWNER_NONE;
+			this.game.players.getPlayer(owner).removeTile(tile);
+			this.territoryRenderingManager.clear(tile);
 		}
 	}
 }
-
-export const territoryManager = new TerritoryManager();

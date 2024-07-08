@@ -1,19 +1,21 @@
 import {TileType} from "./tile/TileType";
-import {tileManager} from "../Loader";
+import { TileManager } from "./TileManager";
 
 export class GameMap {
 	private readonly name: string;
 	readonly width: number;
 	readonly height: number;
+	private readonly tileManager: TileManager;
 	private readonly tiles: Uint16Array;
 	readonly tileExpansionCosts: Uint8Array;
 	readonly tileExpansionTimes: Uint8Array;
 	readonly distanceMap: Int16Array;
 
-	constructor(name: string, width: number, height: number) {
+	constructor(name: string, width: number, height: number, tileManager: TileManager) {
 		this.name = name;
 		this.width = width;
 		this.height = height;
+		this.tileManager = tileManager;
 		this.tiles = new Uint16Array(width * height);
 		this.tileExpansionCosts = new Uint8Array(width * height);
 		this.tileExpansionTimes = new Uint8Array(width * height);
@@ -28,7 +30,7 @@ export class GameMap {
 	 * @returns The tile.
 	 */
 	getTile(index: number): TileType {
-		return tileManager.fromID(this.tiles[index]);
+		return this.tileManager.fromID(this.tiles[index]);
 	}
 
 	/**
@@ -40,8 +42,8 @@ export class GameMap {
 	 */
 	setTileId(index: number, tile: number): void {
 		this.tiles[index] = tile;
-		this.tileExpansionCosts[index] = tileManager.fromID(tile).expansionCost;
-		this.tileExpansionTimes[index] = tileManager.fromID(tile).expansionTime;
+		this.tileExpansionCosts[index] = this.tileManager.fromID(tile).expansionCost;
+		this.tileExpansionTimes[index] = this.tileManager.fromID(tile).expansionTime;
 	}
 
 	/**

@@ -1,7 +1,7 @@
-import {PostGenerationShader} from "./PostGenerationShader";
-import {HSLColor} from "../../util/HSLColor";
-import {gameMap} from "../../game/Game";
-import {RGBColor} from "../../util/RGBColor";
+import { PostGenerationShader } from "./PostGenerationShader";
+import { HSLColor } from "../../util/HSLColor";
+import { Game } from "../../game/Game";
+import { RGBColor } from "../../util/RGBColor";
 
 /**
  * Shader affecting all tiles withing a fixed distance range.
@@ -12,6 +12,7 @@ export class DynamicDistanceShader implements PostGenerationShader {
 	private readonly min: number;
 	private readonly max: number;
 	private readonly gradient: number;
+	private readonly game: Game;
 
 	/**
 	 * Create a new territory outline shader.
@@ -20,7 +21,8 @@ export class DynamicDistanceShader implements PostGenerationShader {
 	 * @param max the maximum distance (exclusive).
 	 * @param gradient the gradient of the color decrease (higher values decrease color intensity faster, sign determines direction).
 	 */
-	constructor(color: HSLColor, min: number, max: number, gradient: number) {
+	constructor(game: Game, color: HSLColor, min: number, max: number, gradient: number) {
+		this.game = game;
 		this.color = color.toRGB();
 		this.min = min;
 		this.max = max;
@@ -28,7 +30,7 @@ export class DynamicDistanceShader implements PostGenerationShader {
 	}
 
 	apply(pixels: Uint8ClampedArray): void {
-		const map = gameMap.distanceMap;
+		const map = this.game.map.distanceMap;
 		for (let i = 0; i < map.length; i++) {
 			if (map[i] < this.max && map[i] >= this.min) {
 				this.color.blendWithBuffer(pixels, i * 4, this.gradient > 0 ? this.gradient * (map[i] - this.min) : 1 + this.gradient * (map[i] - this.min));

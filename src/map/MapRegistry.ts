@@ -1,6 +1,7 @@
 import {decodeMap} from "./codec/MapCodec";
 import {GameMap} from "./GameMap";
 import {InvalidArgumentException} from "../util/exception/InvalidArgumentException";
+import { TileManager } from "./TileManager";
 
 const mapRegistry: EncodedMapData[] = [];
 
@@ -23,13 +24,13 @@ function registerMap(name: string, base64Data: string) {
  * @returns the map
  * @throws InvalidArgumentException if the map is not found
  */
-export function mapFromId(id: number): GameMap {
+export function mapFromId(id: number, tileManager: TileManager): GameMap {
 	const data = mapRegistry[id];
 	if (!data) {
 		throw new InvalidArgumentException(`Map with id ${id} not found`);
 	}
 	const decoded = decodeMap(data.data);
-	const map = new GameMap(data.name, decoded.width, decoded.height);
+	const map = new GameMap(data.name, decoded.width, decoded.height, tileManager);
 	for (let i = 0; i < decoded.tiles.length; i++) {
 		map.setTileId(i, decoded.tiles[i]);
 	}

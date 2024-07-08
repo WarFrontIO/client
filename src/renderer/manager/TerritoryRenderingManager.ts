@@ -1,11 +1,10 @@
-import {Player} from "../../game/player/Player";
-import {gameMap, isPlaying} from "../../game/Game";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
-import {HSLColor} from "../../util/HSLColor";
-import {territoryRenderer} from "../layer/TerritoryRenderer";
-import {playerManager} from "../../game/player/PlayerManager";
-import {territoryManager} from "../../game/TerritoryManager";
-import {GameTheme} from "../GameTheme";
+import { Player } from "../../game/player/Player";
+import { Game } from "../../game/Game";
+import { getSetting, registerSettingListener } from "../../util/UserSettingManager";
+import { HSLColor } from "../../util/HSLColor";
+import { TerritoryRenderer } from "../layer/TerritoryRenderer";
+import { TerritoryManager } from "../../game/TerritoryManager";
+import { GameTheme } from "../GameTheme";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -13,10 +12,20 @@ import {GameTheme} from "../GameTheme";
  * 2. The tile can become an inner tile of the player's territory.
  * 3. A neighboring tile can become a border tile of the player's territory.
  */
-class TerritoryRenderingManager {
+export class TerritoryRenderingManager {
 	private readonly territoryQueue: Array<number> = [];
 	private readonly playerBorderQueue: Array<number> = [];
 	private readonly targetBorderQueue: Array<number> = [];
+
+	private readonly game: Game;
+	private readonly territoryRenderer: TerritoryRenderer;
+	private territoryManager: TerritoryManager
+
+	constructor(game: Game, territoryRenderer: TerritoryRenderer, territoryManager: TerritoryManager) {
+		this.game = game;
+		this.territoryRenderer = territoryRenderer;
+		this.territoryManager = territoryManager;
+	}
 
 	/**
 	 * Add a tile to the territory update queue.
@@ -47,7 +56,7 @@ class TerritoryRenderingManager {
 	 * @param tile index of the tile
 	 */
 	clear(tile: number): void {
-		territoryRenderer.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+		this.territoryRenderer.context.clearRect(tile % this.game.map.width, Math.floor(tile / this.game.map.width), 1, 1);
 	}
 
 	/**
@@ -72,16 +81,16 @@ class TerritoryRenderingManager {
 	 * @param color the color to paint the tiles
 	 */
 	private paintTiles(tiles: number[], color: HSLColor): void {
-		const context = territoryRenderer.context;
+		const context = this.territoryRenderer.context;
 		context.fillStyle = color.toString();
 		if (color.a < 1) {
 			for (const tile of tiles) {
-				context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
-				context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+				context.clearRect(tile % this.game.map.width, Math.floor(tile / this.game.map.width), 1, 1);
+				context.fillRect(tile % this.game.map.width, Math.floor(tile / this.game.map.width), 1, 1);
 			}
 		} else {
 			for (const tile of tiles) {
-				context.fillRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+				context.fillRect(tile % this.game.map.width, Math.floor(tile / this.game.map.width), 1, 1);
 			}
 		}
 	}
@@ -90,25 +99,21 @@ class TerritoryRenderingManager {
 	 * Force a repaint of the territory layer.
 	 */
 	forceRepaint(theme: GameTheme): void {
-		if (!isPlaying) return;
-		territoryRenderer.context.clearRect(0, 0, gameMap.width, gameMap.height);
+		if (!this.game.isPlaying) return;
+		this.territoryRenderer.context.clearRect(0, 0, this.game.map.width, this.game.map.height);
 		const colorCache: string[] = [];
-		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
-			const owner = territoryManager.getOwner(i);
-			if (owner !== territoryManager.OWNER_NONE && owner !== territoryManager.OWNER_NONE - 1) {
-				const player = playerManager.getPlayer(owner);
-				const isTerritory = territoryManager.isTerritory(i);
+		for (let i = 0; i < this.game.map.width * this.game.map.height; i++) {
+			const owner = this.territoryManager.getOwner(i);
+			if (owner !== TerritoryManager.OWNER_NONE && owner !== TerritoryManager.OWNER_NONE - 1) {
+				const player = this.game.players.getPlayer(owner);
+				const isTerritory = this.territoryManager.isTerritory(i);
 				const index = (owner << 1) + (isTerritory ? 1 : 0);
 				if (!colorCache[index]) {
 					colorCache[index] = isTerritory ? theme.getTerritoryColor(player.baseColor).toString() : theme.getBorderColor(player.baseColor).toString();
 				}
-				territoryRenderer.context.fillStyle = colorCache[index];
-				territoryRenderer.context.fillRect(i % gameMap.width, Math.floor(i / gameMap.width), 1, 1);
+				this.territoryRenderer.context.fillStyle = colorCache[index];
+				this.territoryRenderer.context.fillRect(i % this.game.map.width, Math.floor(i / this.game.map.width), 1, 1);
 			}
 		}
 	}
 }
-
-export const territoryRenderingManager = new TerritoryRenderingManager();
-
-registerSettingListener("theme", territoryRenderingManager.forceRepaint);

@@ -1,14 +1,17 @@
-import {Player} from "../player/Player";
-import {PriorityQueue} from "../../util/PriorityQueue";
-import {territoryManager} from "../TerritoryManager";
-import {gameMap} from "../Game";
-import {bordersTile, onNeighbors} from "../../util/MathUtil";
-import {random} from "../Random";
-import {attackActionHandler} from "./AttackActionHandler";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { Player } from "../player/Player";
+import { PriorityQueue } from "../../util/PriorityQueue";
+import { TerritoryManager } from "../TerritoryManager";
+import { GameMap } from "../../map/GameMap";
+import { bordersTile, onNeighbors } from "../../util/MathUtil";
+import { random } from "../Random";
+import { AttackActionHandler } from "./AttackActionHandler";
+import { GameRenderer } from "../../renderer/GameRenderer";
 
 export class AttackExecutor {
+	private attackActionHandler: AttackActionHandler
+	private readonly gameMap: GameMap
+	private readonly gameRenderer: GameRenderer
+	private readonly territoryManager: TerritoryManager
 	readonly player: Player;
 	readonly target: Player | null;
 	private troops: number;
@@ -21,7 +24,11 @@ export class AttackExecutor {
 	 * @param target The player that is being attacked, or null if the target is unclaimed territory.
 	 * @param troops The amount of troops that are attacking.
 	 */
-	constructor(player: Player, target: Player | null, troops: number) {
+	constructor(attackActionHandler: AttackActionHandler, gameMap: GameMap, gameRenderer: GameRenderer, territoryManager: TerritoryManager, player: Player, target: Player | null, troops: number) {
+		this.attackActionHandler = attackActionHandler
+		this.gameMap = gameMap;
+		this.gameRenderer = gameRenderer;
+		this.territoryManager = territoryManager;
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
@@ -69,16 +76,16 @@ export class AttackExecutor {
 		let conquered = 0;
 		while (this.troops >= attackCost && !this.tileQueue.isEmpty() && this.tileQueue.peek()[0] < this.basePriority) {
 			const [_, tile] = this.tileQueue.pop();
-			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
-			if (!bordersTile(tile, this.player.id)) continue;
-			territoryManager.conquer(tile, this.player.id);
+			if (!this.territoryManager.isOwner(tile, this.target ? this.target.id : TerritoryManager.OWNER_NONE)) continue;
+			if (!bordersTile(this.territoryManager, tile, this.player.id, this.gameMap.width, this.gameMap.height)) continue;
+			this.territoryManager.conquer(tile, this.player.id);
 
-			this.troops -= attackCost + gameMap.tileExpansionCosts[tile] / 50;
+			this.troops -= attackCost + this.gameMap.tileExpansionCosts[tile] / 50;
 			conquered++;
 		}
 
-		territoryRenderingManager.applyTransaction(this.player, this.target || this.player);
-		playerNameRenderingManager.applyTransaction(this.player, this.target || this.player);
+		this.gameRenderer.territoryRenderingManager.applyTransaction(this.player, this.target || this.player);
+		this.gameRenderer.playerNameRenderingManager.applyTransaction(this.player, this.target || this.player);
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);
 
@@ -95,10 +102,10 @@ export class AttackExecutor {
 	 */
 	handlePlayerTileAdd(tile: number) {
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), neighbor]);
+			if (this.territoryManager.isOwner(neighbor, this.target ? this.target.id : TerritoryManager.OWNER_NONE)) {
+				this.tileQueue.push([this.basePriority + this.gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), neighbor]);
 			}
-		});
+		}, this.gameMap.width, this.gameMap.height);
 	}
 
 	/**
@@ -107,8 +114,8 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handleTargetTileAdd(tile: number) {
-		if (bordersTile(tile, this.player.id)) {
-			this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), tile]);
+		if (bordersTile(this.territoryManager, tile, this.player.id, this.gameMap.width, this.gameMap.height)) {
+			this.tileQueue.push([this.basePriority + this.gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), tile]);
 		}
 	}
 
@@ -117,36 +124,36 @@ export class AttackExecutor {
 	 * @private
 	 */
 	private orderTiles(): void {
-		const tileOwners = territoryManager.tileOwners;
-		const target = this.target ? this.target.id : territoryManager.OWNER_NONE;
+		const tileOwners = this.territoryManager.tileOwners;
+		const target = this.target ? this.target.id : TerritoryManager.OWNER_NONE;
 
 		const result = [];
-		const amountCache = attackActionHandler.amountCache;
+		const amountCache = this.attackActionHandler.amountCache;
 		for (const tile of this.player.borderTiles) {
-			const x = tile % gameMap.width;
-			const y = Math.floor(tile / gameMap.width);
+			const x = tile % this.gameMap.width;
+			const y = Math.floor(tile / this.gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {
 				!amountCache[tile - 1] && result.push(tile - 1);
 				amountCache[tile - 1]++;
 			}
-			if (x < gameMap.width - 1 && tileOwners[tile + 1] === target) {
+			if (x < this.gameMap.width - 1 && tileOwners[tile + 1] === target) {
 				!amountCache[tile + 1] && result.push(tile + 1);
 				amountCache[tile + 1]++;
 			}
-			if (y > 0 && tileOwners[tile - gameMap.width] === target) {
-				!amountCache[tile - gameMap.width] && result.push(tile - gameMap.width);
-				amountCache[tile - gameMap.width]++;
+			if (y > 0 && tileOwners[tile - this.gameMap.width] === target) {
+				!amountCache[tile - this.gameMap.width] && result.push(tile - this.gameMap.width);
+				amountCache[tile - this.gameMap.width]++;
 			}
-			if (y < gameMap.height - 1 && tileOwners[tile + gameMap.width] === target) {
-				!amountCache[tile + gameMap.width] && result.push(tile + gameMap.width);
-				amountCache[tile + gameMap.width]++;
+			if (y < this.gameMap.height - 1 && tileOwners[tile + this.gameMap.width] === target) {
+				!amountCache[tile + this.gameMap.width] && result.push(tile + this.gameMap.width);
+				amountCache[tile + this.gameMap.width]++;
 			}
 		}
 
 		for (const tile of result) {
 			const priority = 4 - amountCache[tile] + random.next() * 3;
 			amountCache[tile] = 0;
-			this.tileQueue.push([gameMap.tileExpansionTimes[tile] * priority / 50, tile]);
+			this.tileQueue.push([this.gameMap.tileExpansionTimes[tile] * priority / 50, tile]);
 		}
 	}
 

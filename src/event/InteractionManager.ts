@@ -1,6 +1,4 @@
-import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
-import {mapTransformHandler} from "./MapTransformHandler";
-import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
+import { PrioritizedEventHandlerRegistry } from "./PrioritizedEventHandlerRegistry";
 
 /**
  * Manages interactions with the user.
@@ -30,6 +28,8 @@ class InteractionManager {
 	pressY: number = 0;
 	touchPoints: Map<number, { x: number, y: number }> = new Map();
 
+
+
 	constructor() {
 		document.addEventListener("pointerdown", this.onPointerDown);
 		document.addEventListener("pointerup", this.onPointerUp);
@@ -37,11 +37,11 @@ class InteractionManager {
 		document.addEventListener("pointerleave", this.onPointerUp);
 		document.addEventListener("pointercancel", this.onPointerUp);
 		document.addEventListener("pointermove", this.onHover);
-		document.addEventListener("wheel", this.onScroll, {passive: false});
+		document.addEventListener("wheel", this.onScroll, { passive: false });
 	}
 
 	private onPointerDown(event: PointerEvent) {
-		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
+		interactionManager.touchPoints.set(event.pointerId, { x: event.x, y: event.y });
 		if (interactionManager.touchPoints.size > 1) return;
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
@@ -105,7 +105,7 @@ class InteractionManager {
 	private checkMobileGesture(event: PointerEvent) {
 		if (interactionManager.touchPoints.size !== 2) return;
 		const [oldPoint1, oldPoint2] = Array.from(this.touchPoints.values());
-		this.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
+		this.touchPoints.set(event.pointerId, { x: event.x, y: event.y });
 		const [newPoint1, newPoint2] = Array.from(this.touchPoints.values());
 
 		const oldDistance = Math.hypot(oldPoint1.x - oldPoint2.x, oldPoint1.y - oldPoint2.y);

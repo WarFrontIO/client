@@ -1,35 +1,38 @@
-import {CachedLayer} from "./CachedLayer";
-import {gameMap, isPlaying} from "../../game/Game";
-import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
-import {GameTheme} from "../GameTheme";
-import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
-import {HSLColor} from "../../util/HSLColor";
-import {RGBColor} from "../../util/RGBColor";
+import { CachedLayer } from "./CachedLayer";
+import { Game } from "../../game/Game";
+import { MapMoveListener, MapScaleListener, MapTransformHandler } from "../../event/MapTransformHandler";
+import { getSetting, registerSettingListener } from "../../util/UserSettingManager";
+import { GameTheme } from "../GameTheme";
+import { applyPostGenerationShaders, loadShaders } from "../shader/ShaderManager";
+import { HSLColor } from "../../util/HSLColor";
+import { RGBColor } from "../../util/RGBColor";
 
 /**
  * Map background renderer.
  * All static map tiles (and possibly other static objects) should be rendered here.
  * @internal
  */
-class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
-	constructor() {
+export class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
+	private game: Game
+
+	constructor(game: Game, mapTransformHandler: MapTransformHandler) {
 		super();
+		this.game = game
 		mapTransformHandler.move.register(this);
 		mapTransformHandler.scale.register(this);
 	}
 
 	invalidateCaches(): void {
-		this.resizeCanvas(gameMap.width, gameMap.height);
-		loadShaders();
+		this.resizeCanvas(this.game.map.width, this.game.map.height);
+		loadShaders(this.game);
 		this.forceRepaint(getSetting("theme"));
 	}
 
 	forceRepaint(theme: GameTheme): void {
-		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
+		const imageData = this.context.getImageData(0, 0, this.game.map.width, this.game.map.height);
 		const tileColors: RGBColor[] = [];
-		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
-			const tile = gameMap.getTile(i);
+		for (let i = 0; i < this.game.map.width * this.game.map.height; i++) {
+			const tile = this.game.map.getTile(i);
 			if (!tileColors[tile.id]) {
 				tileColors[tile.id] = theme.getTileColor(tile).toRGB();
 			}
@@ -49,6 +52,6 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 	}
 }
 
-export const mapRenderer = new MapRenderer();
+// export const mapRenderer = new MapRenderer();
 
-registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));
+// registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

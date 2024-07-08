@@ -1,22 +1,36 @@
-import {ClickEventListener, interactionManager} from "../../event/InteractionManager";
-import {mapNavigationHandler} from "./MapNavigationHandler";
-import {clientPlayer} from "../player/PlayerManager";
-import {spawnManager} from "../player/SpawnManager";
-import {attackActionHandler} from "./AttackActionHandler";
-import {territoryManager} from "../TerritoryManager";
+import { ClickEventListener, interactionManager } from "../../event/InteractionManager";
+import { MapNavigationHandler } from "./MapNavigationHandler";
+import { PlayerManager } from "../player/PlayerManager";
+import { SpawnManager } from "../player/SpawnManager";
+import { AttackActionHandler } from "./AttackActionHandler";
+import { TerritoryManager } from "../TerritoryManager";
 
 /**
  * Default map click action handler.
  * Executes the selected action on the clicked tile.
  */
-class MapActionHandler implements ClickEventListener {
+export class MapActionHandler implements ClickEventListener {
 	private action: (tile: number) => void;
+
+	private spawnManager: SpawnManager
+	private attackActionHandler: AttackActionHandler
+	private playerManager: PlayerManager
+	private territoryManager: TerritoryManager
+	private mapNavigationHandler: MapNavigationHandler
+
+	constructor(spawnManager: SpawnManager, actionAttackHandler: AttackActionHandler, playerManager: PlayerManager, territoryManager: TerritoryManager, mapNavigationHandler: MapNavigationHandler) {
+		this.spawnManager = spawnManager
+		this.attackActionHandler = actionAttackHandler
+		this.playerManager = playerManager
+		this.territoryManager = territoryManager
+		this.mapNavigationHandler = mapNavigationHandler
+	}
 
 	/**
 	 * Enables the map action handler.
 	 */
 	enable() {
-		this.setAction(tile => spawnManager.isSelecting ? spawnManager.selectSpawnPoint(clientPlayer, tile) : attackActionHandler.preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 0.2));
+		this.setAction(tile => this.spawnManager.isSelecting ? this.spawnManager.selectSpawnPoint(this.playerManager.clientPlayer, tile) : this.attackActionHandler.preprocessAttack(this.playerManager.clientPlayer.id, this.territoryManager.getOwner(tile), 0.2));
 		interactionManager.click.register(this);
 	}
 
@@ -36,12 +50,10 @@ class MapActionHandler implements ClickEventListener {
 	}
 
 	onClick(x: number, y: number): void {
-		this.action(mapNavigationHandler.getIndex(x, y));
+		this.action(this.mapNavigationHandler.getIndex(x, y));
 	}
 
 	test(x: number, y: number): boolean {
-		return mapNavigationHandler.isOnMap(x, y);
+		return this.mapNavigationHandler.isOnMap(x, y);
 	}
 }
-
-export const mapActionHandler = new MapActionHandler();
