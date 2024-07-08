@@ -3,12 +3,15 @@ const {readdirSync, readFileSync, writeFileSync,  mkdirSync, unlinkSync} = requi
 const {createHash} = require("crypto");
 
 const sharp = require("sharp");
+const child_process = require("node:child_process");
 
 module.exports = async function (map) {
 	if (map.includes("// BUILD_MAPS_REGISTER")) {
 		console.log("Registering build maps...");
 
 		mkdirSync("build/cache", {recursive: true});
+
+		const version = child_process.execSync("git rev-parse HEAD", {cwd: "src/map/codec"}).toString().trim();
 
 		let maps = [], usedCaches = [];
 		for (const file of readdirSync("resources/maps")) {
@@ -32,11 +35,12 @@ module.exports = async function (map) {
 			hash.update(image.data);
 			hash.update(JSON.stringify(config));
 			const hashHex = hash.digest("hex");
+			const cacheName = `${name}-${version}-${hashHex}.mapcache`;
 
 			let encoded, cached = false;
 			try {
-				encoded = Uint8Array.from(readFileSync(`build/cache/${name}-${hashHex}.mapcache`));
-				usedCaches.push(`${name}-${hashHex}.mapcache`);
+				encoded = Uint8Array.from(readFileSync(`build/cache/${cacheName}`));
+				usedCaches.push(cacheName);
 				cached = true;
 			} catch (e) {
 				const tiles = new Uint16Array(image.info.width * image.info.height);
@@ -57,10 +61,10 @@ module.exports = async function (map) {
 				const raw = {width: image.info.width, height: image.info.height, tiles: tiles};
 				encoded = encodeMap(raw);
 
-				writeFileSync(`build/cache/${name}-${hashHex}.mapcache`, encoded);
-				usedCaches.push(`${name}-${hashHex}.mapcache`);
+				writeFileSync(`build/cache/${cacheName}`, encoded);
 			}
 
+			usedCaches.push(cacheName);
 			maps.push({
 				name: name,
 				data: encoded
