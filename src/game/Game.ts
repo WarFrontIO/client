@@ -56,6 +56,7 @@ export function startGame(map: GameMap, mode: GameMode) {
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	gameRenderer.initGameplayLayers();
+	territoryManager.init();
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
@@ -73,4 +74,3 @@ export function startGame(map: GameMap, mode: GameMode) {
 export function startGameCycle() {
 	gameTicker.start();
 }
-

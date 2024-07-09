@@ -9,6 +9,9 @@ class TerritoryManager {
 
 	constructor(dispatcher: EventDispatcher) {
 		this.dispatcher = dispatcher
+	}
+
+	init() {
 		this.tileOwners = new Uint16Array(gameMap.width * gameMap.height);
 		for (let i = 0; i < this.tileOwners.length; i++) {
 			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
@@ -89,6 +92,38 @@ class TerritoryManager {
 			playerManager.getPlayer(owner).removeTile(tile);
 			this.dispatcher.fireClearTileEvent(new ClearTileEvent(tile))
 		}
+	}
+
+	onNeighbors(tile: number, closure: (tile: number) => void): void {
+		let x = tile % gameMap.width;
+		let y = Math.floor(tile / gameMap.width);
+		if (x > 0) {
+			closure(tile - 1);
+		}
+		if (x < gameMap.width - 1) {
+			closure(tile + 1);
+		}
+		if (y > 0) {
+			closure(tile - gameMap.width);
+		}
+		if (y < gameMap.height - 1) {
+			closure(tile + gameMap.width);
+		}
+	}
+
+	/**
+	 * Check if a tile borders a tile owned by a player.
+	 * @param tile The tile to check.
+	 * @param player The player to check for.
+	 * @returns True if the tile borders a tile owned by the player, false otherwise.
+	 */
+	bordersTile(tile: number, player: number): boolean {
+		let x = tile % gameMap.width;
+		let y = Math.floor(tile / gameMap.width);
+		return (x > 0 && territoryManager.isOwner(tile - 1, player)) ||
+			(x < gameMap.width - 1 && territoryManager.isOwner(tile + 1, player)) ||
+			(y > 0 && territoryManager.isOwner(tile - gameMap.width, player)) ||
+			(y < gameMap.height - 1 && territoryManager.isOwner(tile + gameMap.width, player));
 	}
 }
 

@@ -18,13 +18,6 @@ export class GameState {
         this.players = players
     }
 
-    reset(): void {
-        this.tileOwners = new Uint16Array(this.map.width * this.map.height);
-        for (let i = 0; i < this.tileOwners.length; i++) {
-            this.tileOwners[i] = this.map.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
-        }
-    }
-
     /**
      * Checks if a tile is a border tile of the territory of its owner.
      *
@@ -101,4 +94,3 @@ export class GameState {
         }
     }
 }
-

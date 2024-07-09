@@ -1,10 +1,9 @@
-import { territoryManager } from "../../map/TerritoryManager";
-import { onNeighbors } from "../../util/MathUtil";
-import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
-import { attackActionHandler } from "../action/AttackActionHandler";
-import { HSLColor } from "../../util/HSLColor";
-import { territoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
-import { gameMode } from "../Game";
+import {territoryManager} from "../../map/TerritoryManager";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {attackActionHandler} from "../action/AttackActionHandler";
+import {HSLColor} from "../../util/HSLColor";
+import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
+import {gameMode} from "../Game";
 
 export class Player {
 	readonly id: number;
@@ -36,7 +35,7 @@ export class Player {
 			playerNameRenderingManager.addTile(tile);
 			territoryRenderingManager.setTerritory(tile);
 		}
-		onNeighbors(tile, neighbor => {
+		territoryManager.onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				territoryRenderingManager.setTerritory(neighbor);
 				playerNameRenderingManager.addTile(neighbor);
@@ -57,7 +56,7 @@ export class Player {
 		if (!this.borderTiles.delete(tile)) {
 			playerNameRenderingManager.removeTile(tile);
 		}
-		onNeighbors(tile, neighbor => {
+		territoryManager.onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				territoryRenderingManager.setTargetBorder(neighbor);

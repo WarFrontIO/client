@@ -1,12 +1,11 @@
-import { Player } from "../player/Player";
-import { PriorityQueue } from "../../util/PriorityQueue";
-import { territoryManager } from "../../map/TerritoryManager";
-import { gameMap } from "../Game";
-import { bordersTile, onNeighbors } from "../../util/MathUtil";
-import { random } from "../Random";
-import { attackActionHandler } from "./AttackActionHandler";
-import { territoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
-import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
+import {Player} from "../player/Player";
+import {PriorityQueue} from "../../util/PriorityQueue";
+import {territoryManager} from "../../map/TerritoryManager";
+import {gameMap} from "../Game";
+import {random} from "../Random";
+import {attackActionHandler} from "./AttackActionHandler";
+import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 export class AttackExecutor {
 	readonly player: Player;
@@ -70,7 +69,7 @@ export class AttackExecutor {
 		while (this.troops >= attackCost && !this.tileQueue.isEmpty() && this.tileQueue.peek()[0] < this.basePriority) {
 			const [_, tile] = this.tileQueue.pop();
 			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
-			if (!bordersTile(tile, this.player.id)) continue;
+			if (!territoryManager.bordersTile(tile, this.player.id)) continue;
 			territoryManager.conquer(tile, this.player.id);
 
 			this.troops -= attackCost + gameMap.tileExpansionCosts[tile] / 50;
@@ -94,7 +93,7 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handlePlayerTileAdd(tile: number) {
-		onNeighbors(tile, neighbor => {
+		territoryManager.onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
 				this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), neighbor]);
 			}
@@ -107,7 +106,7 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handleTargetTileAdd(tile: number) {
-		if (bordersTile(tile, this.player.id)) {
+		if (territoryManager.bordersTile(tile, this.player.id)) {
 			this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), tile]);
 		}
 	}

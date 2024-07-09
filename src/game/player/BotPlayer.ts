@@ -1,9 +1,8 @@
-import { Player } from "./Player";
-import { territoryManager } from "../../map/TerritoryManager";
-import { random } from "../Random";
-import { attackActionHandler } from "../action/AttackActionHandler";
-import { onNeighbors } from "../../util/MathUtil";
-import { HSLColor } from "../../util/HSLColor";
+import {Player} from "./Player";
+import {territoryManager} from "../../map/TerritoryManager";
+import {random} from "../Random";
+import {attackActionHandler} from "../action/AttackActionHandler";
+import {HSLColor} from "../../util/HSLColor";
 
 export class BotPlayer extends Player {
 	constructor(id: number) {
@@ -15,7 +14,7 @@ export class BotPlayer extends Player {
 		if (random.nextInt(20) < 19) return;
 		let targets: number[] = [];
 		for (const border of this.borderTiles) {
-			onNeighbors(border, neighbor => {
+			territoryManager.onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner !== this.id && !targets.includes(owner)) {
 					targets.push(owner);
