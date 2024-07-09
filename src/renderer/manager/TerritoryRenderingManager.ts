@@ -1,11 +1,12 @@
-import {Player} from "../../game/player/Player";
-import {gameMap, isPlaying} from "../../game/Game";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
-import {HSLColor} from "../../util/HSLColor";
-import {territoryRenderer} from "../layer/TerritoryRenderer";
-import {playerManager} from "../../game/player/PlayerManager";
-import {territoryManager} from "../../game/TerritoryManager";
-import {GameTheme} from "../GameTheme";
+import { Player } from "../../game/player/Player";
+import { gameMap, isPlaying } from "../../game/Game";
+import { getSetting, registerSettingListener } from "../../util/UserSettingManager";
+import { HSLColor } from "../../util/HSLColor";
+import { territoryRenderer } from "../layer/TerritoryRenderer";
+import { playerManager } from "../../game/player/PlayerManager";
+import { territoryManager } from "../../map/TerritoryManager";
+import { GameTheme } from "../GameTheme";
+import { ClearTileEvent, eventDispatcher } from "../../game/GameEvent";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -111,4 +112,5 @@ class TerritoryRenderingManager {
 
 export const territoryRenderingManager = new TerritoryRenderingManager();
 
+eventDispatcher.addClearTileEventListener((event) => territoryRenderingManager.clear(event.tilePos))
 registerSettingListener("theme", territoryRenderingManager.forceRepaint);

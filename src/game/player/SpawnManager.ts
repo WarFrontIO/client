@@ -1,9 +1,9 @@
-import {random} from "../Random";
-import {gameMap, isLocalGame, startGameCycle} from "../Game";
-import {territoryManager} from "../TerritoryManager";
-import {Player} from "./Player";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { random } from "../Random";
+import { gameMap, isLocalGame, startGameCycle } from "../Game";
+import { territoryManager } from "../../map/TerritoryManager";
+import { Player } from "./Player";
+import { territoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
+import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
 
 class SpawnManager {
 	spawnPoints: number[];

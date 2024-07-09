@@ -1,10 +1,10 @@
-import {Player} from "./Player";
-import {BotPlayer} from "./BotPlayer";
-import {spawnManager} from "./SpawnManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { Player } from "./Player";
+import { BotPlayer } from "./BotPlayer";
+import { spawnManager } from "./SpawnManager";
+import { gameTicker, GameTickListener } from "../GameTicker";
+import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
 
-class PlayerManager implements GameTickListener {
+export class PlayerManager implements GameTickListener {
 	private players: Player[];
 	private bots: BotPlayer[];
 

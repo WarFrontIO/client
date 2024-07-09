@@ -1,9 +1,9 @@
-import {ClickEventListener, interactionManager} from "../../event/InteractionManager";
-import {mapNavigationHandler} from "./MapNavigationHandler";
-import {clientPlayer} from "../player/PlayerManager";
-import {spawnManager} from "../player/SpawnManager";
-import {attackActionHandler} from "./AttackActionHandler";
-import {territoryManager} from "../TerritoryManager";
+import { ClickEventListener, interactionManager } from "../../event/InteractionManager";
+import { mapNavigationHandler } from "./MapNavigationHandler";
+import { clientPlayer } from "../player/PlayerManager";
+import { spawnManager } from "../player/SpawnManager";
+import { attackActionHandler } from "./AttackActionHandler";
+import { territoryManager } from "../../map/TerritoryManager";
 
 /**
  * Default map click action handler.

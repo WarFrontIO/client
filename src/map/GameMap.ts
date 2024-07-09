@@ -1,5 +1,5 @@
-import {TileType} from "./tile/TileType";
-import {tileManager} from "../Loader";
+import { TileType } from "./tile/TileType";
+import { tileManager } from "../Loader";
 
 export class GameMap {
 	private readonly name: string;

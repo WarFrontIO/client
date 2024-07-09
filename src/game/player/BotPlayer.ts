@@ -1,9 +1,9 @@
-import {Player} from "./Player";
-import {territoryManager} from "../TerritoryManager";
-import {random} from "../Random";
-import {attackActionHandler} from "../action/AttackActionHandler";
-import {onNeighbors} from "../../util/MathUtil";
-import {HSLColor} from "../../util/HSLColor";
+import { Player } from "./Player";
+import { territoryManager } from "../../map/TerritoryManager";
+import { random } from "../Random";
+import { attackActionHandler } from "../action/AttackActionHandler";
+import { onNeighbors } from "../../util/MathUtil";
+import { HSLColor } from "../../util/HSLColor";
 
 export class BotPlayer extends Player {
 	constructor(id: number) {

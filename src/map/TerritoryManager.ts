@@ -1,11 +1,17 @@
-import {gameMap} from "./Game";
-import {playerManager} from "./player/PlayerManager";
-import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
+import { gameMap } from "../game/Game";
+import { playerManager } from "../game/player/PlayerManager";
+import { territoryRenderingManager } from "../renderer/manager/TerritoryRenderingManager";
+import { playerNameRenderingManager } from "../renderer/manager/PlayerNameRenderingManager";
+import { ClearTileEvent, eventDispatcher, EventDispatcher } from "../game/GameEvent";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
 	readonly OWNER_NONE = 65535;
+	private dispatcher: EventDispatcher
+
+	constructor(dispatcher: EventDispatcher) {
+		this.dispatcher = dispatcher
+	}
 
 	/**
 	 * Resets the territory manager.
@@ -100,9 +106,9 @@ class TerritoryManager {
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile);
-			territoryRenderingManager.clear(tile);
+			this.dispatcher.fireClearTileEvent(new ClearTileEvent(tile))
 		}
 	}
 }
 
-export const territoryManager = new TerritoryManager();
+export const territoryManager = new TerritoryManager(eventDispatcher);

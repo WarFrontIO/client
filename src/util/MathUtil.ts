@@ -1,5 +1,5 @@
-import {gameMap} from "../game/Game";
-import {territoryManager} from "../game/TerritoryManager";
+import { gameMap } from "../game/Game";
+import { territoryManager } from "../map/TerritoryManager";
 
 /**
  * Call a closure on all neighbors of a tile.

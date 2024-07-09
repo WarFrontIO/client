@@ -1,18 +1,18 @@
-import {GameMap} from "../map/GameMap";
-import {gameRenderer} from "../Loader";
-import {mapNavigationHandler} from "./action/MapNavigationHandler";
-import {territoryManager} from "./TerritoryManager";
-import {playerManager} from "./player/PlayerManager";
-import {Player} from "./player/Player";
-import {mapActionHandler} from "./action/MapActionHandler";
-import {spawnManager} from "./player/SpawnManager";
-import {random} from "./Random";
-import {gameTicker} from "./GameTicker";
-import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
-import {attackActionHandler} from "./action/AttackActionHandler";
-import {HSLColor} from "../util/HSLColor";
-import {GameMode} from "./mode/GameMode";
-import {getSetting} from "../util/UserSettingManager";
+import { GameMap } from "../map/GameMap";
+import { gameRenderer } from "../Loader";
+import { mapNavigationHandler } from "./action/MapNavigationHandler";
+import { territoryManager } from "../map/TerritoryManager";
+import { PlayerManager, playerManager } from "./player/PlayerManager";
+import { Player } from "./player/Player";
+import { mapActionHandler } from "./action/MapActionHandler";
+import { spawnManager } from "./player/SpawnManager";
+import { random } from "./Random";
+import { gameTicker } from "./GameTicker";
+import { playerNameRenderingManager } from "../renderer/manager/PlayerNameRenderingManager";
+import { attackActionHandler } from "./action/AttackActionHandler";
+import { HSLColor } from "../util/HSLColor";
+import { GameMode } from "./mode/GameMode";
+import { getSetting } from "../util/UserSettingManager";
 
 /**
  * The map of the current game.
@@ -31,6 +31,19 @@ export let isPlaying: boolean;
  */
 export let isLocalGame: boolean;
 
+class GameState {
+	public map: GameMap
+	public mode: GameMode
+	public players: PlayerManager
+
+	constructor(map: GameMap, mode: GameMode, players: PlayerManager) {
+		this.map = map
+		this.mode = mode
+		this.players = players
+	}
+
+}
+
 /**
  * Start a new game with the given map.
  * @param map The map to start the game with.
@@ -39,6 +52,7 @@ export let isLocalGame: boolean;
 export function startGame(map: GameMap, mode: GameMode) {
 	gameMap = map;
 	gameMode = mode;
+	var gs = new GameState(map, mode, playerManager)
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	gameRenderer.initGameplayLayers();
@@ -60,3 +74,4 @@ export function startGame(map: GameMap, mode: GameMode) {
 export function startGameCycle() {
 	gameTicker.start();
 }
+

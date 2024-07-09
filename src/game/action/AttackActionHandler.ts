@@ -1,9 +1,9 @@
-import {playerManager} from "../player/PlayerManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
-import {territoryManager} from "../TerritoryManager";
-import {Player} from "../player/Player";
-import {AttackExecutor} from "./AttackExecutor";
-import {gameMap, gameMode} from "../Game";
+import { playerManager } from "../player/PlayerManager";
+import { gameTicker, GameTickListener } from "../GameTicker";
+import { territoryManager } from "../../map/TerritoryManager";
+import { Player } from "../player/Player";
+import { AttackExecutor } from "./AttackExecutor";
+import { gameMap, gameMode } from "../Game";
 
 class AttackActionHandler implements GameTickListener {
 	private attacks: AttackExecutor[] = [];

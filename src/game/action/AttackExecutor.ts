@@ -1,12 +1,12 @@
-import {Player} from "../player/Player";
-import {PriorityQueue} from "../../util/PriorityQueue";
-import {territoryManager} from "../TerritoryManager";
-import {gameMap} from "../Game";
-import {bordersTile, onNeighbors} from "../../util/MathUtil";
-import {random} from "../Random";
-import {attackActionHandler} from "./AttackActionHandler";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import { Player } from "../player/Player";
+import { PriorityQueue } from "../../util/PriorityQueue";
+import { territoryManager } from "../../map/TerritoryManager";
+import { gameMap } from "../Game";
+import { bordersTile, onNeighbors } from "../../util/MathUtil";
+import { random } from "../Random";
+import { attackActionHandler } from "./AttackActionHandler";
+import { territoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
+import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
 
 export class AttackExecutor {
 	readonly player: Player;

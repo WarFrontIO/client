@@ -1,10 +1,10 @@
-import {territoryManager} from "../TerritoryManager";
-import {onNeighbors} from "../../util/MathUtil";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
-import {attackActionHandler} from "../action/AttackActionHandler";
-import {HSLColor} from "../../util/HSLColor";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {gameMode} from "../Game";
+import { territoryManager } from "../../map/TerritoryManager";
+import { onNeighbors } from "../../util/MathUtil";
+import { playerNameRenderingManager } from "../../renderer/manager/PlayerNameRenderingManager";
+import { attackActionHandler } from "../action/AttackActionHandler";
+import { HSLColor } from "../../util/HSLColor";
+import { territoryRenderingManager } from "../../renderer/manager/TerritoryRenderingManager";
+import { gameMode } from "../Game";
 
 export class Player {
 	readonly id: number;
