@@ -1,5 +1,5 @@
-import { territoryManager } from "../../map/TerritoryManager";
-import { HSLColor } from "../../util/HSLColor";
+import {territoryManager} from "../../map/TerritoryManager";
+import {HSLColor} from "../../util/HSLColor";
 
 /**
  * All game mode-specific logic should be implemented in a subclass of this class.

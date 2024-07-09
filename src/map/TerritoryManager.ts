@@ -1,8 +1,6 @@
-import { gameMap } from "../game/Game";
-import { playerManager } from "../game/player/PlayerManager";
-import { territoryRenderingManager } from "../renderer/manager/TerritoryRenderingManager";
-import { playerNameRenderingManager } from "../renderer/manager/PlayerNameRenderingManager";
-import { ClearTileEvent, eventDispatcher, EventDispatcher } from "../game/GameEvent";
+import {gameMap} from "../game/Game";
+import {playerManager} from "../game/player/PlayerManager";
+import {ClearTileEvent, eventDispatcher, EventDispatcher} from "../game/GameEvent";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
@@ -11,14 +9,6 @@ class TerritoryManager {
 
 	constructor(dispatcher: EventDispatcher) {
 		this.dispatcher = dispatcher
-	}
-
-	/**
-	 * Resets the territory manager.
-	 * Should only be called when a new game is started.
-	 * @internal
-	 */
-	reset(): void {
 		this.tileOwners = new Uint16Array(gameMap.width * gameMap.height);
 		for (let i = 0; i < this.tileOwners.length; i++) {
 			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
@@ -68,15 +58,6 @@ class TerritoryManager {
 	 */
 	getOwner(tile: number): number {
 		return this.tileOwners[tile];
-	}
-
-	/**
-	 * Checks if a tile is part of a player's territory excluding the player's border.
-	 * @param tile The tile to check.
-	 * @returns True if the tile is part of a player's territory, false otherwise.
-	 */
-	isTerritory(tile: number): boolean {
-		return playerNameRenderingManager.isConsidered(tile);
 	}
 
 	/**

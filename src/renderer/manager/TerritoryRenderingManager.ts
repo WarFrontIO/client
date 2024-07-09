@@ -1,12 +1,13 @@
-import { Player } from "../../game/player/Player";
-import { gameMap, isPlaying } from "../../game/Game";
-import { getSetting, registerSettingListener } from "../../util/UserSettingManager";
-import { HSLColor } from "../../util/HSLColor";
-import { territoryRenderer } from "../layer/TerritoryRenderer";
-import { playerManager } from "../../game/player/PlayerManager";
-import { territoryManager } from "../../map/TerritoryManager";
-import { GameTheme } from "../GameTheme";
-import { ClearTileEvent, eventDispatcher } from "../../game/GameEvent";
+import {Player} from "../../game/player/Player";
+import {gameMap, isPlaying} from "../../game/Game";
+import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {HSLColor} from "../../util/HSLColor";
+import {territoryRenderer} from "../layer/TerritoryRenderer";
+import {playerManager} from "../../game/player/PlayerManager";
+import {territoryManager} from "../../map/TerritoryManager";
+import {GameTheme} from "../GameTheme";
+import {ClearTileEvent, eventDispatcher} from "../../game/GameEvent";
+import {playerNameRenderingManager} from "./PlayerNameRenderingManager";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -98,7 +99,7 @@ class TerritoryRenderingManager {
 			const owner = territoryManager.getOwner(i);
 			if (owner !== territoryManager.OWNER_NONE && owner !== territoryManager.OWNER_NONE - 1) {
 				const player = playerManager.getPlayer(owner);
-				const isTerritory = territoryManager.isTerritory(i);
+				const isTerritory = playerNameRenderingManager.isConsidered(i);
 				const index = (owner << 1) + (isTerritory ? 1 : 0);
 				if (!colorCache[index]) {
 					colorCache[index] = isTerritory ? theme.getTerritoryColor(player.baseColor).toString() : theme.getBorderColor(player.baseColor).toString();
