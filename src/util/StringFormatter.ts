@@ -7,3 +7,14 @@ export function formatTroops(troops: number): string {
 	}
 	return troops.toString() + result;
 }
+
+export function formatTime(time: number): string {
+    const pad = (n: number, z: number = 2) => ('00' + n).slice(-z);
+    
+    const minutes = Math.floor(time / 60000);
+    time %= 60000;
+    const seconds = Math.floor(time / 1000);
+    const milliseconds = (time % 1000) / 10;
+    
+    return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds, 2)}`;
+}

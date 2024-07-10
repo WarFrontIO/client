@@ -1,9 +1,8 @@
 import {startGame} from "../../game/Game";
 import {mapFromId} from "../../map/MapRegistry";
-import {closeMenu} from "../ModuleLoader";
-import {openMenu} from "../ModuleLoader";
+import {closeModule} from "../ModuleLoader";
+import {openModule} from "../ModuleLoader";
 
-(window as any).commandClosePanel = function () {
-	closeMenu();
-	openMenu("MainMenu");
+(window as any).commandCloseImprintPanel = function () {
+	closeModule("ImprintPanel");
 };

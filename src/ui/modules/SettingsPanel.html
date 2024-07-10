@@ -1,6 +1,6 @@
 <div class="wf-window wf-window-centered background-blur" style="z-index: 80">
 	<div class="wf-panel w-100" style="max-width: 960px;">
-		<a class="wf-panel-header-button" onclick="window.commandClosePrivacyPanel()">
+		<a class="wf-panel-header-button" onclick="window.commandCloseSettingsPanel()">
 			<svg xmlns="http://www.w3.org/2000/svg" height="2.5em" viewBox="0 -960 960 960" width="2.5em"
 				fill="#EEEEEE">
 				<path
@@ -8,10 +8,24 @@
 			</svg>
 		</a>
 		<h2 class="wf-panel-header">
-			Privacy Policy
+			Settings
 		</h2>
 		<div class="wf-panel-body">
-			
+			<div class="wf-grid wf-grid-2col">
+				<div>
+					<h3 class="mb-1_2">Game Interface</h3>
+					<div class="wf-form-group">
+						<label class="wf-switch">
+							<input type="checkbox" id="switchGameClock" onchange="window.commandToggleClockSetting(this)">
+							<span class="wf-slider wf-slider-round"></span>
+						</label>
+						Display Game Clock
+					</div>
+				</div>
+				<div>
+					
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

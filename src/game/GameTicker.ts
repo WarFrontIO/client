@@ -45,6 +45,10 @@ class GameTicker {
 	getTickCount(): number {
 		return this.tickCount;
 	}
+
+	getElapsedTime(): number {
+		return this.tickCount * this.TICK_INTERVAL;
+	}
 }
 
 /**

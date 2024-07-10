@@ -24,6 +24,19 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Overpass Mono';
+    src: url(/resources/themes/overpass-mono-regular.woff) format("woff");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Overpass Mono';
+    src: url(/resources/themes/overpass-mono-bold.woff) format("woff");
+    font-weight: 700;
+    font-style: normal;
+}
 
 /* Global variables */
 
@@ -216,7 +229,17 @@ p {
 
 /* Ingame HUD */
 
-.wf-hud-menubar {
+#GameHud-TopBar {
+    position: absolute;
+    width: 100%;
+    z-index: 90;
+}
+
+.wf-hud-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 4em;
     padding: 0.5em;
     width: 100%;
@@ -226,7 +249,24 @@ p {
     align-content: flex-start;
     justify-items: flex-end;
     justify-content: flex-end;
-    pointer-events: all;
+    pointer-events: none;
+}
+
+.wf-hud-gameclock {
+    font-family: 'Overpass Mono';
+    display: block;
+    width: 8em;
+    height: 2.625em;
+    color: var(--color-light);
+    font-weight: bold;
+    border-radius: 2em;
+    background-color: var(--color-primary-dark);
+    border: 1px solid var(--color-primary-medium);
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
 }
 
 /* Layout elements */
@@ -248,6 +288,10 @@ p {
     .wf-grid-2col {
         grid-template-columns: 1fr !important;
     }
+}
+
+.wf-grid-gap-m {
+    gap: 0.5em;
 }
 
 .wf-grid-gap-lg {
@@ -275,6 +319,7 @@ p {
     font-optical-sizing: auto;
     text-decoration: none;
     cursor: default;
+    pointer-events: all;
 }
 
 .wf-btn:hover {
@@ -409,7 +454,7 @@ p {
 /* Panels and Modals */
 
 .wf-panel {
-    background-color: #eeeeeebb;
+    background-color: #eeeeeedd;
     flex-grow: 0;
 }
 
@@ -519,3 +564,65 @@ input.wf-form-control:focus {
     outline: none;
     border-bottom: 2px solid var(--color-secondary);
 }
+
+
+.wf-switch {
+    position: relative;
+    display: inline-block;
+    width: 2.4em;
+    height: 1.2em;
+    margin-right: 1em;
+  }
+  
+  .wf-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .wf-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .wf-slider:before {
+    position: absolute;
+    content: "";
+    height: 0.95em;
+    width: 0.95em;
+    left: 0.125em;
+    bottom: 0.124em;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .wf-slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .wf-slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .wf-slider:before {
+    -webkit-transform: translateX(1.2em);
+    -ms-transform: translateX(1.2em);
+    transform: translateX(1.2em);
+  }
+  
+  /* Rounded sliders */
+  .wf-slider-round {
+    border-radius: 1em;
+  }
+  
+  .wf-slider-round:before {
+    border-radius: 50%;
+  }

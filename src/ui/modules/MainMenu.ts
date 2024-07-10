@@ -1,7 +1,7 @@
 import { startGame } from "../../game/Game";
 import { mapFromId } from "../../map/MapRegistry";
-import { ModuleAdapter, closeMenu } from "../ModuleLoader";
-import { openMenu } from "../ModuleLoader";
+import { ModuleAdapter, closeAllModules, closeModule } from "../ModuleLoader";
+import { openModule } from "../ModuleLoader";
 import { FFAGameMode } from "../../game/mode/FFAGameMode";
 import { getSetting, updateSetting } from "../../util/UserSettingManager";
 
@@ -21,21 +21,21 @@ export default {
 } as ModuleAdapter;
 
 (window as any).commandStartGame = function () {
-	closeMenu();
-	openMenu("GameHud");
+	closeAllModules();
+	openModule("GameHud");
 	startGame(mapFromId(Math.floor(Math.random() * 2)), new FFAGameMode());
 };
 
 (window as any).commandShowCommunity = function () {
-	openMenu("CommunityPanel");
+	openModule("CommunityPanel");
 };
 
 (window as any).commandShowImprint = function () {
-	openMenu("ImprintPanel");
+	openModule("ImprintPanel");
 };
 
 (window as any).commandShowPrivacy = function () {
-	openMenu("PrivacyPanel");
+	openModule("PrivacyPanel");
 };
 
 (window as any).commandUpdateName = function () {
