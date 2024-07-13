@@ -29,7 +29,9 @@ export function closeModule(name: string) {
 }
 
 export function closeAllModules() {
-	openModules.map((module) => modules.get(module)!.style.display = "none" );
+	openModules.forEach(module => {
+		modules.get(module)!.style.display = "none";
+	});
 	openModules = [];
 }
 
