@@ -40,7 +40,7 @@ function registerModule(name: string, adapter: ModuleAdapter) {
 	const element = document.getElementById(name) as HTMLDivElement;
 	element.style.display = "none";
 	modules.set(name, element);
-	moduleAdapters.set(name, adapter ?? { onOpen: () => { } });
+	moduleAdapters.set(name, adapter ?? {onOpen: () => {}});
 }
 
 // The following lines are filled in by the build process
