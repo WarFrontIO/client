@@ -24,7 +24,7 @@ export function openModule(name: string) {
 export function closeModule(name: string) {
 	if (openModules.includes(name)) {
 		modules.get(name)!.style.display = "none";
-		openModules = openModules.filter(item => item != name);
+		openModules = openModules.filter(item => item !== name);
 	}
 }
 
