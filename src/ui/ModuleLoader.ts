@@ -1,4 +1,4 @@
-import { getSetting, registerSettingListener } from "../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../util/UserSettingManager";
 
 const modules = new Map<string, HTMLDivElement>();
 const moduleAdapters = new Map<string, ModuleAdapter>();
