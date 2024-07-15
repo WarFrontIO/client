@@ -1,16 +1,17 @@
 import {RendererLayer} from "./layer/RendererLayer";
 import {mapRenderer} from "./layer/MapRenderer";
-import {windowResizeHandler, WindowResizeListener} from "../event/WindowResizeHandler";
+import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {backgroundLayer} from "./layer/BackgroundLayer";
 import {territoryRenderer} from "./layer/TerritoryRenderer";
 import {nameRenderer} from "./layer/NameRenderer";
+import {gameRenderer} from "../Loader";
 
 /**
  * Main renderer for anything canvas related in the game.
  * Paints images on multiple layers (in order) to the canvas.
  * @internal
  */
-export class GameRenderer implements WindowResizeListener {
+export class GameRenderer {
 	private readonly canvas: HTMLCanvasElement;
 	private readonly context: CanvasRenderingContext2D;
 	private layers: RendererLayer[] = [];
@@ -26,7 +27,6 @@ export class GameRenderer implements WindowResizeListener {
 		this.doRenderTick();
 
 		window.onload = () => document.body.appendChild(this.canvas);
-		windowResizeHandler.register(this);
 	}
 
 	/**
@@ -65,8 +65,10 @@ export class GameRenderer implements WindowResizeListener {
 		requestAnimationFrame(() => this.doRenderTick());
 	}
 
-	resize(width: number, height: number): void {
-		this.canvas.width = Math.ceil(width / window.devicePixelRatio);
-		this.canvas.height = Math.ceil(height / window.devicePixelRatio);
+	resize(this: void, width: number, height: number): void {
+		gameRenderer.canvas.width = Math.ceil(width / window.devicePixelRatio);
+		gameRenderer.canvas.height = Math.ceil(height / window.devicePixelRatio);
 	}
 }
+
+windowResizeHandler.register(gameRenderer.resize);

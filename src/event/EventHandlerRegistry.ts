@@ -2,8 +2,8 @@
  * Simple event handler registry for managing event listeners.
  * Mainly used to manage game event listeners.
  */
-export class EventHandlerRegistry<T> {
-	protected listeners: T[] = [];
+export class EventHandlerRegistry<T extends unknown[]> {
+	protected listeners: ((this: void, ...args: T) => void)[] = [];
 
 	/**
 	 * Creates a new event handler registry.
@@ -12,15 +12,16 @@ export class EventHandlerRegistry<T> {
 	 */
 	constructor(
 		private readonly callImmediately: boolean = false,
-		private readonly handleListener: (listener: T) => void
+		private readonly handleListener: (listener: (this: void, ...args: T) => void) => void
 	) {}
 
 	/**
 	 * Registers a listener to receive events.
 	 * If callImmediately is true, the listener is called immediately after registration (e.g. for initialization).
+	 * Note: you most likely have to bind the listener to the correct context or specify "this: void" in the listener.
 	 * @param listener The listener to register.
 	 */
-	register(listener: T) {
+	register(listener: (this: void, ...args: T) => void) {
 		this.listeners.push(listener);
 		if (this.callImmediately) {
 			this.handleListener(listener);
@@ -31,7 +32,7 @@ export class EventHandlerRegistry<T> {
 	 * Unregisters a listener to no longer receive events.
 	 * @param listener The listener to unregister.
 	 */
-	unregister(listener: T) {
+	unregister(listener: (this: void, ...args: T) => void) {
 		this.listeners = this.listeners.filter(l => l !== listener);
 	}
 

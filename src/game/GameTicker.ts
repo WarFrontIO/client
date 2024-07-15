@@ -7,9 +7,11 @@ class GameTicker {
 
 	/**
 	 * Registry for game tick listeners.
-	 * @see GameTickListener
+	 * Game tick listeners are called once per game tick allowing for game logic to be updated.
+	 *
+	 * Format: () => void
 	 */
-	registry: EventHandlerRegistry<GameTickListener> = new EventHandlerRegistry(false, listener => listener.tick());
+	registry: EventHandlerRegistry<[]> = new EventHandlerRegistry(false, listener => listener());
 
 	/**
 	 * Starts and resets the game ticker.
@@ -45,21 +47,6 @@ class GameTicker {
 	getTickCount(): number {
 		return this.tickCount;
 	}
-}
-
-/**
- * Listener for game ticks.
- * Game tick listeners are called once per game tick allowing for game logic to be updated.
- *
- * Register a listener with the game ticker to receive tick events.
- * @see GameTicker.registry
- * @see EventHandlerRegistry.register
- */
-export interface GameTickListener {
-	/**
-	 * Called once per game tick.
-	 */
-	tick(): void;
 }
 
 export const gameTicker = new GameTicker();

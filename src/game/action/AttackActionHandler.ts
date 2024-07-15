@@ -1,11 +1,11 @@
 import {playerManager} from "../player/PlayerManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
+import {gameTicker} from "../GameTicker";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
 import {gameMap, gameMode} from "../Game";
 
-class AttackActionHandler implements GameTickListener {
+class AttackActionHandler {
 	private attacks: AttackExecutor[] = [];
 	private playerIndex: (AttackExecutor | null)[][] = [];
 	private unclaimedIndex: (AttackExecutor | null)[] = [];
@@ -13,10 +13,6 @@ class AttackActionHandler implements GameTickListener {
 	private targetAttackList: AttackExecutor[][] = [];
 	private unclaimedAttackList: AttackExecutor[] = [];
 	amountCache: Uint8Array;
-
-	constructor() {
-		gameTicker.registry.register(this);
-	}
 
 	init(maxPlayers: number): void {
 		this.attacks = [];
@@ -170,3 +166,5 @@ class AttackActionHandler implements GameTickListener {
 }
 
 export const attackActionHandler = new AttackActionHandler();
+
+gameTicker.registry.register(attackActionHandler.tick.bind(attackActionHandler));
