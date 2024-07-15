@@ -21,7 +21,7 @@ export class GameRenderer implements WindowResizeListener {
 		this.canvas.style.left = "0";
 		this.canvas.style.top = "0";
 		this.canvas.style.zIndex = "-1";
-		this.context = this.canvas.getContext("2d");
+		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
 		this.doRenderTick();
 

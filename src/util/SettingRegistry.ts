@@ -33,7 +33,7 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 	 * @param decode the decode function of the setting
 	 * @param version the version of the setting
 	 */
-	registerUpdatable<K extends string, U>(key: K & Exclude<K, keyof T>, defaultValue: U, decode: (this: any, value: string) => U, version: number = 0) {
+	registerUpdatable<K extends string, U extends {toString: (this: U) => string}>(key: K & Exclude<K, keyof T>, defaultValue: U, decode: (this: any, value: string) => U, version: number = 0) {
 		return this.register<K, Setting<U>>(key, {
 			encode: defaultValue.toString,
 			decode: (value: string, oldVer: number) => decode(this.applyUpdaters(key, value, oldVer)),
@@ -106,8 +106,12 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 			const value = localStorage.getItem(key);
 			if (value && value.match(/^.*:\d+$/)) {
 				try {
-					const [_, encoded, version] = value.match(/^(.*):(\d+)$/);
-					setting.value = setting.decode(encoded, parseInt(version));
+					const result = value.match(/^(.*):(\d+)$/);
+					if (result) {
+						setting.value = setting.decode(result[0], parseInt(result[1]));
+					} else {
+						console.warn(`Failed to load setting ${key}: Invalid format`);
+					}
 				} catch (e) {
 					console.error(`Failed to load setting ${key}:`, e);
 				}

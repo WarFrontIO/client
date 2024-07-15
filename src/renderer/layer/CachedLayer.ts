@@ -16,7 +16,7 @@ export abstract class CachedLayer implements RendererLayer {
 
 	protected constructor() {
 		this.canvas = document.createElement("canvas");
-		this.context = this.canvas.getContext("2d");
+		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 	}
 
 	/**

@@ -51,11 +51,11 @@ export class PriorityQueue<T> {
 	 */
 	pop(): T {
 		if (this.size() === 1) {
-			return this.heap.pop();
+			return this.heap.pop() as T;
 		}
 
 		const value = this.heap[0];
-		this.siftDown(this.heap.pop());
+		this.siftDown(this.heap.pop() as T);
 		return value;
 	}
 

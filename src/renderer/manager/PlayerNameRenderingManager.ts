@@ -30,7 +30,7 @@ class PlayerNameRenderingManager {
 		this.atlasRowLength = Math.sqrt(maxPlayers) | 0;
 		this.partialElementAtlas.width = this.atlasRowLength * 20;
 		this.partialElementAtlas.height = Math.ceil(maxPlayers / this.atlasRowLength) * 20;
-		this.partialAtlasContext = this.partialElementAtlas.getContext("2d");
+		this.partialAtlasContext = this.partialElementAtlas.getContext("2d") as CanvasRenderingContext2D;
 		this.partialAtlasContext.textRendering = "optimizeSpeed";
 		this.partialAtlasContext.textAlign = "center";
 		this.partialAtlasContext.textBaseline = "bottom";
@@ -42,7 +42,7 @@ class PlayerNameRenderingManager {
 	 */
 	registerPlayer(player: Player): void {
 		const canvas = document.createElement("canvas");
-		const context = canvas.getContext("2d");
+		const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 		const troopLength = context.measureText("123.").width / 10;
 		this.playerData[player.id] = new PlayerNameRenderingData(player.name, troopLength, player.borderTiles, player.id);
 	}

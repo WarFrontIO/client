@@ -7,8 +7,8 @@ import {gameMap, gameMode} from "../Game";
 
 class AttackActionHandler implements GameTickListener {
 	private attacks: AttackExecutor[] = [];
-	private playerIndex: AttackExecutor[][] = [];
-	private unclaimedIndex: AttackExecutor[] = [];
+	private playerIndex: (AttackExecutor | null)[][] = [];
+	private unclaimedIndex: (AttackExecutor | null)[] = [];
 	private playerAttackList: AttackExecutor[][] = [];
 	private targetAttackList: AttackExecutor[][] = [];
 	private unclaimedAttackList: AttackExecutor[] = [];
@@ -88,7 +88,7 @@ class AttackActionHandler implements GameTickListener {
 	 * @returns The attack executor for the given players.
 	 * @private
 	 */
-	private getAttack(player: Player, target: Player): AttackExecutor {
+	private getAttack(player: Player, target: Player): AttackExecutor | null {
 		return this.playerIndex[player.id][target.id];
 	}
 

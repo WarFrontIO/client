@@ -68,10 +68,10 @@ export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOver
 	}
 	registry[id] = {
 		id,
+		...theme,
 		toString: function (this: GameTheme) {
 			return this.id
 		},
-		...theme
 	}
 }
 

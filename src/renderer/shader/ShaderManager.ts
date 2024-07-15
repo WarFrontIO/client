@@ -11,7 +11,7 @@ const shaderList = {
 	"territory-inline-smooth": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new DynamicDistanceShader(args.color, 0, args.thickness, -1 / args.thickness)},
 	"fixed-distance": {type: "post-generation", build: (args: { color: HSLColor, min: number, max: number }) => new FixedDistanceShader(args.color, args.min, args.max)},
 	"dynamic-distance": {type: "post-generation", build: (args: { color: HSLColor, min: number, max: number, gradient: number }) => new DynamicDistanceShader(args.color, args.min, args.max, args.gradient)}
-};
+} as Record<string, {type: "post-generation", build: (args: any) => PostGenerationShader}>;
 const activePostGeneration: PostGenerationShader[] = [];
 
 /**
