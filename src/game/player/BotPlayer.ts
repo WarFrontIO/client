@@ -13,7 +13,7 @@ export class BotPlayer extends Player {
 	//TODO: Implement bot logic
 	tick(): void {
 		if (random.nextInt(20) < 19) return;
-		let targets: number[] = [];
+		const targets: number[] = [];
 		for (const border of this.borderTiles) {
 			onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);

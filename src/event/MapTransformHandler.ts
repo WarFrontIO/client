@@ -3,47 +3,25 @@ import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
 
 /**
  * Registry for map transform listeners.
- * @see MapScaleListener
- * @see MapMoveListener
  */
 class MapTransformHandler {
-	/** Registry for map scale listeners.*/
-	scale: EventHandlerRegistry<MapScaleListener> = new EventHandlerRegistry(true, listener => listener.onMapScale(mapNavigationHandler.zoom));
-	/** Registry for map move listeners.*/
-	move: EventHandlerRegistry<MapMoveListener> = new EventHandlerRegistry(true, listener => listener.onMapMove(mapNavigationHandler.x, mapNavigationHandler.y));
-}
-
-/**
- * Listener for map scale events.
- * Map scale listeners are called when the map scale changes.
- *
- * Register a listener with the registry above to receive scale events.
- * @see MapTransformHandler.scale
- * @see EventHandlerRegistry.register
- */
-export interface MapScaleListener {
 	/**
-	 * Called when the map scale changes.
+	 * Registry for map scale listeners.
+	 * Map scale listeners are called when the map scale changes.
+	 *
+	 * Format: (scale: number) => void
 	 * @param scale The new scale of the map.
 	 */
-	onMapScale(scale: number): void;
-}
-
-/**
- * Listener for map move events.
- * Map move listeners are called when the map is moved.
- *
- * Register a listener with the registry above to receive move events.
- * @see MapTransformHandler.move
- * @see EventHandlerRegistry.register
- */
-export interface MapMoveListener {
+	scale: EventHandlerRegistry<[number]> = new EventHandlerRegistry(true, listener => listener(mapNavigationHandler.zoom));
 	/**
-	 * Called when the map is moved.
+	 * Registry for map move listeners.
+	 * Map move listeners are called when the map is moved.
+	 *
+	 * Format: (x: number, y: number) => void
 	 * @param x The new x-coordinate of the map.
 	 * @param y The new y-coordinate of the map.
 	 */
-	onMapMove(x: number, y: number): void;
+	move: EventHandlerRegistry<[number, number]> = new EventHandlerRegistry(true, listener => listener(mapNavigationHandler.x, mapNavigationHandler.y));
 }
 
 export const mapTransformHandler = new MapTransformHandler();

@@ -1,16 +1,12 @@
 import {Player} from "./Player";
 import {BotPlayer} from "./BotPlayer";
 import {spawnManager} from "./SpawnManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
+import {gameTicker} from "../GameTicker";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
-class PlayerManager implements GameTickListener {
+class PlayerManager {
 	private players: Player[];
 	private bots: BotPlayer[];
-
-	constructor() {
-		gameTicker.registry.register(this);
-	}
 
 	/**
 	 * Initializes the player manager with the given players.
@@ -67,3 +63,5 @@ class PlayerManager implements GameTickListener {
 
 export const playerManager = new PlayerManager();
 export let clientPlayer: Player;
+
+gameTicker.registry.register(playerManager.tick.bind(playerManager));

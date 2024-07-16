@@ -7,6 +7,9 @@
   },
   "devDependencies": {
     "typescript": "^5.4.4",
+    "eslint": "^9.7.0",
+    "@eslint/js": "^9.7.0",
+    "typescript-eslint": "^8.0.0-alpha.44",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
     "ts-loader": "^9.5.1",

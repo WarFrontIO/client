@@ -89,7 +89,7 @@ class TerritoryRenderingManager {
 	/**
 	 * Force a repaint of the territory layer.
 	 */
-	forceRepaint(theme: GameTheme): void {
+	forceRepaint(this: void, theme: GameTheme): void {
 		if (!isPlaying) return;
 		territoryRenderer.context.clearRect(0, 0, gameMap.width, gameMap.height);
 		const colorCache: string[] = [];

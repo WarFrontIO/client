@@ -126,19 +126,19 @@ export class AttackExecutor {
 			const x = tile % gameMap.width;
 			const y = Math.floor(tile / gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {
-				!amountCache[tile - 1] && result.push(tile - 1);
+				if (!amountCache[tile - 1]) result.push(tile - 1);
 				amountCache[tile - 1]++;
 			}
 			if (x < gameMap.width - 1 && tileOwners[tile + 1] === target) {
-				!amountCache[tile + 1] && result.push(tile + 1);
+				if (!amountCache[tile + 1]) result.push(tile + 1);
 				amountCache[tile + 1]++;
 			}
 			if (y > 0 && tileOwners[tile - gameMap.width] === target) {
-				!amountCache[tile - gameMap.width] && result.push(tile - gameMap.width);
+				if (!amountCache[tile - gameMap.width]) result.push(tile - gameMap.width);
 				amountCache[tile - gameMap.width]++;
 			}
 			if (y < gameMap.height - 1 && tileOwners[tile + gameMap.width] === target) {
-				!amountCache[tile + gameMap.width] && result.push(tile + gameMap.width);
+				if (!amountCache[tile + gameMap.width]) result.push(tile + gameMap.width);
 				amountCache[tile + gameMap.width]++;
 			}
 		}

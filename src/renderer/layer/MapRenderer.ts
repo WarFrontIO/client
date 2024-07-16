@@ -1,10 +1,9 @@
 import {CachedLayer} from "./CachedLayer";
 import {gameMap, isPlaying} from "../../game/Game";
-import {MapMoveListener, MapScaleListener, mapTransformHandler} from "../../event/MapTransformHandler";
+import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {GameTheme} from "../GameTheme";
 import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
-import {HSLColor} from "../../util/HSLColor";
 import {RGBColor} from "../../util/RGBColor";
 
 /**
@@ -12,13 +11,7 @@ import {RGBColor} from "../../util/RGBColor";
  * All static map tiles (and possibly other static objects) should be rendered here.
  * @internal
  */
-class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListener {
-	constructor() {
-		super();
-		mapTransformHandler.move.register(this);
-		mapTransformHandler.scale.register(this);
-	}
-
+class MapRenderer extends CachedLayer {
 	invalidateCaches(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
 		loadShaders();
@@ -39,16 +32,19 @@ class MapRenderer extends CachedLayer implements MapMoveListener, MapScaleListen
 		this.context.putImageData(imageData, 0, 0);
 	}
 
-	onMapMove(x: number, y: number): void {
-		this.dx = x;
-		this.dy = y;
+	onMapMove(this: void, x: number, y: number): void {
+		mapRenderer.dx = x;
+		mapRenderer.dy = y;
 	}
 
-	onMapScale(scale: number): void {
-		this.scale = scale;
+	onMapScale(this: void, scale: number): void {
+		mapRenderer.scale = scale;
 	}
 }
 
 export const mapRenderer = new MapRenderer();
+
+mapTransformHandler.scale.register(mapRenderer.onMapScale);
+mapTransformHandler.move.register(mapRenderer.onMapMove);
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

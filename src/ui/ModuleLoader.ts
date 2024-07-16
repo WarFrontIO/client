@@ -2,7 +2,6 @@ import {getSetting, registerSettingListener} from "../util/UserSettingManager";
 
 const modules = new Map<string, HTMLDivElement>();
 const moduleAdapters = new Map<string, ModuleAdapter>();
-
 let openModules: string[] = [];
 
 document.documentElement.classList.add("theme-" + getSetting("theme").id);
@@ -35,7 +34,7 @@ export function closeAllModules() {
 	openModules = [];
 }
 
-// noinspection JSUnusedLocalSymbols
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function registerModule(name: string, adapter: ModuleAdapter) {
 	const element = document.getElementById(name) as HTMLDivElement;
 	element.style.display = "none";

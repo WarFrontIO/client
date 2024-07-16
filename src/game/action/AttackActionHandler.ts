@@ -1,26 +1,22 @@
 import {playerManager} from "../player/PlayerManager";
-import {gameTicker, GameTickListener} from "../GameTicker";
+import {gameTicker} from "../GameTicker";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
 import {gameMap, gameMode} from "../Game";
 
-class AttackActionHandler implements GameTickListener {
+class AttackActionHandler {
 	private attacks: AttackExecutor[] = [];
-	private playerIndex: AttackExecutor[][] = [];
-	private unclaimedIndex: AttackExecutor[] = [];
+	private playerIndex: (AttackExecutor | null)[][] = [];
+	private unclaimedIndex: (AttackExecutor | null)[] = [];
 	private playerAttackList: AttackExecutor[][] = [];
 	private targetAttackList: AttackExecutor[][] = [];
 	private unclaimedAttackList: AttackExecutor[] = [];
 	amountCache: Uint8Array;
 
-	constructor() {
-		gameTicker.registry.register(this);
-	}
-
 	init(maxPlayers: number): void {
 		this.attacks = [];
-		this.playerIndex = new Array(maxPlayers).fill(null).map(() => new Array(maxPlayers).fill(null));
+		this.playerIndex = new Array(maxPlayers).fill(null).map(() => new Array<AttackExecutor | null>(maxPlayers).fill(null));
 		this.playerAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.unclaimedIndex = [];
@@ -33,7 +29,7 @@ class AttackActionHandler implements GameTickListener {
 			return;
 		}
 
-		let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
+		const troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
 		playerManager.getPlayer(player).removeTroops(troopCount);
 
 		if (target === territoryManager.OWNER_NONE) {
@@ -88,7 +84,7 @@ class AttackActionHandler implements GameTickListener {
 	 * @returns The attack executor for the given players.
 	 * @private
 	 */
-	private getAttack(player: Player, target: Player): AttackExecutor {
+	private getAttack(player: Player, target: Player): AttackExecutor | null {
 		return this.playerIndex[player.id][target.id];
 	}
 
@@ -170,3 +166,5 @@ class AttackActionHandler implements GameTickListener {
 }
 
 export const attackActionHandler = new AttackActionHandler();
+
+gameTicker.registry.register(attackActionHandler.tick.bind(attackActionHandler));

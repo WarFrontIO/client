@@ -1,5 +1,4 @@
 import {GameMap} from "../map/GameMap";
-import {gameRenderer} from "../Loader";
 import {mapNavigationHandler} from "./action/MapNavigationHandler";
 import {territoryManager} from "./TerritoryManager";
 import {playerManager} from "./player/PlayerManager";
@@ -13,6 +12,7 @@ import {attackActionHandler} from "./action/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
 import {getSetting} from "../util/UserSettingManager";
+import {gameRenderer} from "../renderer/GameRenderer";
 
 /**
  * The map of the current game.

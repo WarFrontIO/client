@@ -7,8 +7,8 @@ import {territoryManager} from "../game/TerritoryManager";
  * @param closure The closure to call on each neighbor.
  */
 export function onNeighbors(tile: number, closure: (tile: number) => void): void {
-	let x = tile % gameMap.width;
-	let y = Math.floor(tile / gameMap.width);
+	const x = tile % gameMap.width;
+	const y = Math.floor(tile / gameMap.width);
 	if (x > 0) {
 		closure(tile - 1);
 	}
@@ -30,8 +30,8 @@ export function onNeighbors(tile: number, closure: (tile: number) => void): void
  * @returns True if the tile borders a tile owned by the player, false otherwise.
  */
 export function bordersTile(tile: number, player: number): boolean {
-	let x = tile % gameMap.width;
-	let y = Math.floor(tile / gameMap.width);
+	const x = tile % gameMap.width;
+	const y = Math.floor(tile / gameMap.width);
 	return (x > 0 && territoryManager.isOwner(tile - 1, player)) ||
 		(x < gameMap.width - 1 && territoryManager.isOwner(tile + 1, player)) ||
 		(y > 0 && territoryManager.isOwner(tile - gameMap.width, player)) ||

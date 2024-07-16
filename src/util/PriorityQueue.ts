@@ -51,11 +51,11 @@ export class PriorityQueue<T> {
 	 */
 	pop(): T {
 		if (this.size() === 1) {
-			return this.heap.pop();
+			return this.heap.pop() as T;
 		}
 
 		const value = this.heap[0];
-		this.siftDown(this.heap.pop());
+		this.siftDown(this.heap.pop() as T);
 		return value;
 	}
 
@@ -84,7 +84,7 @@ export class PriorityQueue<T> {
 	 */
 	private siftDown(node: T) {
 		let index = 0;
-		let maxParent = this.size() >>> 1;
+		const maxParent = this.size() >>> 1;
 		while (index < maxParent) {
 			const leftIndex = (index << 1) + 1;
 			const rightIndex = leftIndex + 1;

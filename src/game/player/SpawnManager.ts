@@ -48,7 +48,7 @@ class SpawnManager {
 		const cellSize = radius / Math.sqrt(2);
 		const rows = Math.ceil(gameMap.height / cellSize);
 		const cols = Math.ceil(gameMap.width / cellSize);
-		const grid = new Array(rows * cols).fill(-1);
+		const grid: number[] = new Array<number>(rows * cols).fill(-1);
 		const active = [], points = [];
 		const initialX = random.nextInt(gameMap.width), initialY = random.nextInt(gameMap.height);
 		const initial = initialX + initialY * gameMap.width;
@@ -167,7 +167,7 @@ class SpawnManager {
 	 * @private
 	 */
 	private getSpawnPixels(tile: number): number[] {
-		let result = [];
+		const result = [];
 		for (let dx = -2; dx <= 2; dx++) {
 			for (let dy = -2; dy <= 2; dy++) {
 				if (Math.abs(dx) === 2 && Math.abs(dy) === 2) {

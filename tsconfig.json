@@ -3,6 +3,12 @@
     "module": "ESNext",
     "target": "es6",
     "rootDir": "src",
-    "sourceMap": true
+    "sourceMap": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true
   }
 }

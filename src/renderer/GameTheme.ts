@@ -47,7 +47,7 @@ export type GameTheme = {
 	 * @returns the list of shaders to use
 	 * @internal
 	 */
-	getShaderArgs(): {name: string, args: {[key: string]: any}}[];
+	getShaderArgs(): {name: string, args: {[key: string]: unknown}}[];
 }
 
 const registry: Record<string, GameTheme> = {};
@@ -68,10 +68,10 @@ export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOver
 	}
 	registry[id] = {
 		id,
+		...theme,
 		toString: function (this: GameTheme) {
 			return this.id
 		},
-		...theme
 	}
 }
 
