@@ -47,6 +47,15 @@ class GameTicker {
 	getTickCount(): number {
 		return this.tickCount;
 	}
+
+	/**
+	 * Gets the elapsed in-game-time in milliseconds.
+	 * Note that this is not necessarily the same as the real-world time.
+	 * @returns The elapsed in-game-time in milliseconds.
+	 */
+	getElapsedTime(): number {
+		return this.tickCount * this.TICK_INTERVAL;
+	}
 }
 
 export const gameTicker = new GameTicker();

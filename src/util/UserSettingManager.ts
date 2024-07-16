@@ -7,6 +7,7 @@ import {getTheme} from "../renderer/GameTheme";
 const registry = SettingRegistry.init()
 	.registerUpdatable("theme", getTheme("pastel"), (value: string) => getTheme(value))
 	.registerString("playerName", "UnknownPlayer")
+	.registerBoolean("gameHud-clock", true)
 
 registry.load();
 

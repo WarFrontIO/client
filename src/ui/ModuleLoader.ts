@@ -2,7 +2,7 @@ import {getSetting, registerSettingListener} from "../util/UserSettingManager";
 
 const modules = new Map<string, HTMLDivElement>();
 const moduleAdapters = new Map<string, ModuleAdapter>();
-let currentModule: string | null = null;
+let openModules: string[] = [];
 
 document.documentElement.classList.add("theme-" + getSetting("theme").id);
 
@@ -11,21 +11,27 @@ registerSettingListener("theme", (theme) => {
 	document.documentElement.classList.add("theme-" + theme.id);
 });
 
-export function openMenu(name: string) {
+export function openModule(name: string) {
 	const module = modules.get(name);
 	if (module) {
-		closeMenu();
 		moduleAdapters.get(name)!.onOpen();
 		module.style.display = "block";
-		currentModule = name;
+		openModules.push(name);
 	}
 }
 
-export function closeMenu() {
-	if (currentModule) {
-		modules.get(currentModule)!.style.display = "none";
-		currentModule = null;
+export function closeModule(name: string) {
+	if (openModules.includes(name)) {
+		modules.get(name)!.style.display = "none";
+		openModules = openModules.filter(item => item !== name);
 	}
+}
+
+export function closeAllModules() {
+	openModules.forEach(module => {
+		modules.get(module)!.style.display = "none";
+	});
+	openModules = [];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,7 +1,5 @@
-import {closeMenu} from "../ModuleLoader";
-import {openMenu} from "../ModuleLoader";
+import {closeModule} from "../ModuleLoader";
 
-(window as any).commandClosePanel = function () {
-	closeMenu();
-	openMenu("MainMenu");
+(window as any).commandClosePrivacyPanel = function () {
+	closeModule("PrivacyPanel");
 };

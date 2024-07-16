@@ -1,7 +1,8 @@
-(window as any).commandShowSettings = function () {
-	alert("Nothing to see here yet XD");
-};
+import {ModuleAdapter} from "../ModuleLoader";
+import {openModule} from "../ModuleLoader";
 
-(window as any).commandExitGame = function () {
-	window.location.reload();
-};
+export default {
+	onOpen: () => {
+		openModule("GameHud-TopBar");
+	}
+} as ModuleAdapter;
