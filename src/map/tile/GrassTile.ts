@@ -8,7 +8,7 @@ export class GrassTile extends TileType {
 	readonly baseColor: HSLColor = HSLColor.fromRGB(40, 200, 20);
 	readonly isSolid: boolean = true;
 
-	render(context: CanvasRenderingContext2D, x: number, y: number): void {
+	render(_context: CanvasRenderingContext2D, _x: number, _y: number): void {
 		//TODO sprite ?
 	}
 }

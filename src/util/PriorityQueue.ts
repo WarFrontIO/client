@@ -84,7 +84,7 @@ export class PriorityQueue<T> {
 	 */
 	private siftDown(node: T) {
 		let index = 0;
-		let maxParent = this.size() >>> 1;
+		const maxParent = this.size() >>> 1;
 		while (index < maxParent) {
 			const leftIndex = (index << 1) + 1;
 			const rightIndex = leftIndex + 1;

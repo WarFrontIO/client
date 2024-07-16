@@ -9,7 +9,7 @@ type EncodedMapData = {
 	data: Uint8Array;
 }
 
-// noinspection JSUnusedLocalSymbols
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function registerMap(name: string, base64Data: string) {
 	mapRegistry.push({
 		name: name,

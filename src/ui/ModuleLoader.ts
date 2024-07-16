@@ -28,7 +28,7 @@ export function closeMenu() {
 	}
 }
 
-// noinspection JSUnusedLocalSymbols
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function registerModule(name: string, adapter: ModuleAdapter) {
 	const element = document.getElementById(name) as HTMLDivElement;
 	element.style.display = "none";

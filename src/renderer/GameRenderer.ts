@@ -4,7 +4,6 @@ import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {backgroundLayer} from "./layer/BackgroundLayer";
 import {territoryRenderer} from "./layer/TerritoryRenderer";
 import {nameRenderer} from "./layer/NameRenderer";
-import {gameRenderer} from "../Loader";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -26,7 +25,7 @@ export class GameRenderer {
 
 		this.doRenderTick();
 
-		window.onload = () => document.body.appendChild(this.canvas);
+		document.body.appendChild(this.canvas);
 	}
 
 	/**
@@ -70,5 +69,7 @@ export class GameRenderer {
 		gameRenderer.canvas.height = Math.ceil(height / window.devicePixelRatio);
 	}
 }
+
+export const gameRenderer = new GameRenderer();
 
 windowResizeHandler.register(gameRenderer.resize);

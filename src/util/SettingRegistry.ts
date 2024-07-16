@@ -1,8 +1,10 @@
+import {UnsupportedDataException} from "./exception/UnsupportedDataException";
+
 /**
  * Important Note: For types to work correctly, all register calls must be chained together.
  * @internal
  */
-export class SettingRegistry<T extends Record<string, Setting<any>>> {
+export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	private registry: T = {} as T;
 	private updaters: Record<string, Record<number, (value: string) => string>> = {};
 
@@ -20,9 +22,9 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 	 * @param setting the setting object
 	 * @see Setting
 	 */
-	register<K extends string, S extends Setting<any>>(key: K & Exclude<K, keyof T>, setting: S): SettingRegistry<T & Record<K, S>> {
-		(this.registry as any)[key] = setting;
-		return this as any as SettingRegistry<T & Record<K, S>>;
+	register<K extends string, S>(key: K & Exclude<K, keyof T>, setting: Setting<S>): SettingRegistry<T & Record<K, Setting<S>>> {
+		(this.registry as unknown as Record<K, Setting<S>>)[key] = setting;
+		return this as unknown as SettingRegistry<T & Record<K, Setting<S>>>;
 	}
 
 	/**
@@ -33,10 +35,10 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 	 * @param decode the decode function of the setting
 	 * @param version the version of the setting
 	 */
-	registerUpdatable<K extends string, U extends {toString: (this: U) => string}>(key: K & Exclude<K, keyof T>, defaultValue: U, decode: (this: any, value: string) => U, version: number = 0) {
-		return this.register<K, Setting<U>>(key, {
-			encode: defaultValue.toString,
-			decode: (value: string, oldVer: number) => decode(this.applyUpdaters(key, value, oldVer)),
+	registerUpdatable<K extends string, U extends {toString: (this: U) => string}>(key: K & Exclude<K, keyof T>, defaultValue: U, decode: (this: void, value: string) => U, version: number = 0) {
+		return this.register<K, U>(key, {
+			encode: function (this: U) { return this.toString(); },
+			decode: this.decodeUpdatable.bind(this, key, defaultValue, decode) as Setting<U>["decode"],
 			defaultValue,
 			value: defaultValue,
 			version
@@ -44,10 +46,28 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 	}
 
 	/**
+	 * Decode an updatable setting or return the default value if decoding fails
+	 * @param key the key of the setting
+	 * @param defaultValue the default value of the setting
+	 * @param decode the decode function of the setting
+	 * @param value the value to decode
+	 * @param version the version of the setting
+	 */
+	private decodeUpdatable<U>(key: string & keyof T, defaultValue: U, decode: (this: void, value: string) => U, value: string, version: number): U {
+		try {
+			return decode(this.applyUpdaters(key, value, version));
+		} catch (e) {
+			console.warn(`Failed to decode setting ${key}:`, e);
+			return defaultValue;
+		}
+	}
+
+	/**
 	 * Apply all available updaters to a setting
 	 * @param key the key of the setting
 	 * @param value the value to update
 	 * @param oldVer the version of the value prior to the update
+	 * @throws UnsupportedDataException if no fitting updater is found
 	 */
 	private applyUpdaters(key: string & keyof T, value: string, oldVer: number): string {
 		const setting = this.registry[key];
@@ -58,9 +78,8 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 				value = updater(value);
 				oldVer++;
 			} else {
-				console.warn(`No updater found for setting ${key} from version ${oldVer}`);
 				// We don't save the setting here, in case the updater is added later
-				return setting.defaultValue;
+				throw new UnsupportedDataException(`No updater found for setting ${key} from version ${oldVer}`);
 			}
 		}
 		this.saveSetting(key);
@@ -108,7 +127,7 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 				try {
 					const result = value.match(/^(.*):(\d+)$/);
 					if (result) {
-						setting.value = setting.decode(result[0], parseInt(result[1]));
+						setting.value = setting.decode(result[1], parseInt(result[2]));
 					} else {
 						console.warn(`Failed to load setting ${key}: Invalid format`);
 					}
@@ -142,7 +161,7 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
 	 * @returns an array of all settings
 	 */
 	getAll() {
-		const result: Setting<any>[] = [];
+		const result: Setting<unknown>[] = [];
 		for (const key in this.registry) {
 			result.push(this.registry[key]);
 		}
@@ -156,7 +175,7 @@ export class SettingRegistry<T extends Record<string, Setting<any>>> {
  */
 export type Setting<T> = {
 	encode: (this: T) => string,
-	decode: (this: any, value: string, version: number) => T,
+	decode: (this: Setting<T>, value: string, version: number) => T,
 	defaultValue: T,
 	value: T,
 	version?: number

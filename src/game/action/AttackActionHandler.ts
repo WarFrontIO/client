@@ -16,7 +16,7 @@ class AttackActionHandler {
 
 	init(maxPlayers: number): void {
 		this.attacks = [];
-		this.playerIndex = new Array(maxPlayers).fill(null).map(() => new Array(maxPlayers).fill(null));
+		this.playerIndex = new Array(maxPlayers).fill(null).map(() => new Array<AttackExecutor | null>(maxPlayers).fill(null));
 		this.playerAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.unclaimedIndex = [];
@@ -29,7 +29,7 @@ class AttackActionHandler {
 			return;
 		}
 
-		let troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
+		const troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
 		playerManager.getPlayer(player).removeTroops(troopCount);
 
 		if (target === territoryManager.OWNER_NONE) {

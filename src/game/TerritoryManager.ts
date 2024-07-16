@@ -28,9 +28,9 @@ class TerritoryManager {
 	 * @returns True if the tile is a border tile, false otherwise.
 	 */
 	isBorder(tile: number): boolean {
-		let x = tile % gameMap.width;
-		let y = Math.floor(tile / gameMap.width);
-		let owner = this.tileOwners[tile];
+		const x = tile % gameMap.width;
+		const y = Math.floor(tile / gameMap.width);
+		const owner = this.tileOwners[tile];
 		return x === 0 || x === gameMap.width - 1 || y === 0 || y === gameMap.height - 1 ||
 			this.tileOwners[tile - 1] !== owner || this.tileOwners[tile + 1] !== owner ||
 			this.tileOwners[tile - gameMap.width] !== owner || this.tileOwners[tile + gameMap.width] !== owner;

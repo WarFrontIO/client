@@ -1,6 +1,4 @@
 import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
-import {mapTransformHandler} from "./MapTransformHandler";
-import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
 
 /**
  * Manages interactions with the user.
@@ -40,7 +38,7 @@ class InteractionManager {
 		document.addEventListener("wheel", this.onScroll, {passive: false});
 	}
 
-	private onPointerDown(event: PointerEvent) {
+	private onPointerDown(this: void, event: PointerEvent) {
 		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
 		if (interactionManager.touchPoints.size > 1) return;
 		interactionManager.pressX = event.x;
@@ -52,11 +50,11 @@ class InteractionManager {
 		}, 1000);
 	}
 
-	private onPointerUp(event: PointerEvent) {
+	private onPointerUp(this: void, event: PointerEvent) {
 		interactionManager.touchPoints.delete(event.pointerId);
 		if (interactionManager.touchPoints.size > 0) {
 			if (interactionManager.touchPoints.size === 1) {
-				const point = interactionManager.touchPoints.values().next().value;
+				const point = interactionManager.touchPoints.values().next().value as { x: number, y: number };
 				interactionManager.pressX = point.x;
 				interactionManager.pressY = point.y;
 			}
@@ -73,7 +71,7 @@ class InteractionManager {
 		}
 	}
 
-	private onHover(event: PointerEvent) {
+	private onHover(this: void, event: PointerEvent) {
 		if (interactionManager.dragTimeout) {
 			if (Math.abs(event.x - interactionManager.pressX) + Math.abs(event.y - interactionManager.pressY) < 10) return;
 			clearTimeout(interactionManager.dragTimeout);
@@ -92,7 +90,7 @@ class InteractionManager {
 		interactionManager.hover.call(l => l.onHover(event.x, event.y));
 	}
 
-	private onScroll(event: WheelEvent) {
+	private onScroll(this: void, event: WheelEvent) {
 		let delta = event.deltaY;
 		if (event.ctrlKey) {
 			event.preventDefault();
@@ -102,11 +100,11 @@ class InteractionManager {
 		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, delta));
 	}
 
-	private checkMobileGesture(event: PointerEvent) {
+	private checkMobileGesture(this: void, event: PointerEvent) {
 		if (interactionManager.touchPoints.size !== 2) return;
-		const [oldPoint1, oldPoint2] = Array.from(this.touchPoints.values());
-		this.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
-		const [newPoint1, newPoint2] = Array.from(this.touchPoints.values());
+		const [oldPoint1, oldPoint2] = Array.from(interactionManager.touchPoints.values());
+		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
+		const [newPoint1, newPoint2] = Array.from(interactionManager.touchPoints.values());
 
 		const oldDistance = Math.hypot(oldPoint1.x - oldPoint2.x, oldPoint1.y - oldPoint2.y);
 		const newDistance = Math.hypot(newPoint1.x - newPoint2.x, newPoint1.y - newPoint2.y);

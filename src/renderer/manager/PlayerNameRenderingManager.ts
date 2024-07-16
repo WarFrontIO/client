@@ -254,7 +254,7 @@ export class PlayerNameRenderingData {
 				}
 			}
 		}
-		this.setPosAt(this.borderSet.values().next().value, 1);
+		this.setPosAt(this.borderSet.values().next().value as number, 1);
 	}
 
 	setPosAt(tile: number, size: number): void {

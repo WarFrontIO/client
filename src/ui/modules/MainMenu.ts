@@ -9,12 +9,12 @@ const txtPlayerName: HTMLInputElement = (window.document.getElementById("txtPlay
 const lblPlayerNameValidation: HTMLElement = (window.document.getElementById("lblPlayerNameValidation") as HTMLElement);
 const btnStart: HTMLButtonElement = (window.document.getElementById("btnStart") as HTMLButtonElement)
 
-const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\-_\. \(\{\)\}<>]{3,32}$/;
+const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u1E00-\u1EFF\-_. ({)}<>]{3,32}$/;
 
 export default {
 	
 	onOpen: () => {
-		let savedPlayerName = getSetting("playerName");
+		const savedPlayerName = getSetting("playerName");
 		if (savedPlayerName)
 			txtPlayerName.value = savedPlayerName;
 	}

@@ -47,7 +47,7 @@ export type GameTheme = {
 	 * @returns the list of shaders to use
 	 * @internal
 	 */
-	getShaderArgs(): {name: string, args: {[key: string]: any}}[];
+	getShaderArgs(): {name: string, args: {[key: string]: unknown}}[];
 }
 
 const registry: Record<string, GameTheme> = {};

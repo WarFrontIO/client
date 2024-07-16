@@ -22,7 +22,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	 * Sets the initial zoom level and position to center the map on the screen.
 	 */
 	enable() {
-		let minXZoom = window.innerWidth / gameMap.width, minYZoom = window.innerHeight / gameMap.height;
+		const minXZoom = window.innerWidth / gameMap.width, minYZoom = window.innerHeight / gameMap.height;
 		this.zoom = 0.9 * Math.min(minXZoom, minYZoom);
 		this.x = (window.innerWidth - gameMap.width * this.zoom) / 2;
 		this.y = (window.innerHeight - gameMap.height * this.zoom) / 2;
@@ -52,7 +52,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 
 	private processZoom(x: number, y: number, newZoom: number) {
 		if (newZoom < 0.1 || newZoom > 200) return;
-		let mapX = this.getMapX(x), mapY = this.getMapY(y);
+		const mapX = this.getMapX(x), mapY = this.getMapY(y);
 		this.zoom = newZoom;
 		this.x = Math.max(Math.min(-mapX * this.zoom + x, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(-mapY * this.zoom + y, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
