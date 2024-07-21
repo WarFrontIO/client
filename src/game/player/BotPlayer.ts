@@ -1,7 +1,7 @@
 import {Player} from "./Player";
 import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
-import {attackActionHandler} from "../action/AttackActionHandler";
+import {attackActionHandler} from "../attack/AttackActionHandler";
 import {onNeighbors} from "../../util/MathUtil";
 import {HSLColor} from "../../util/HSLColor";
 

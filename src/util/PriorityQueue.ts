@@ -60,12 +60,30 @@ export class PriorityQueue<T> {
 	}
 
 	/**
+	 * Update a value in the queue.
+	 * WARNING: The new value must have a higher priority than the old value.
+	 * @param predicate The predicate to find the value to update.
+	 * @param value The new value.
+	 * @returns The new size of the queue.
+	 */
+	update(predicate: (element: T) => boolean, value: T): number {
+		const index = this.heap.findIndex(predicate);
+		if (index === -1) {
+			return this.size();
+		}
+
+		this.heap[index] = value;
+		this.siftUp(value, index);
+		return this.size();
+	}
+
+	/**
 	 * Sift up a node in the heap.
 	 * @param node The node to sift up.
+	 * @param index The index of the node in the heap.
 	 * @private
 	 */
-	private siftUp(node: T) {
-		let index = this.size();
+	private siftUp(node: T, index: number = this.size()) {
 		while (index > 0) {
 			const parentIndex = ((index + 1) >>> 1) - 1;
 			if (!this.comparator(node, this.heap[parentIndex])) {

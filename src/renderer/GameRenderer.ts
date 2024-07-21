@@ -4,6 +4,7 @@ import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {backgroundLayer} from "./layer/BackgroundLayer";
 import {territoryRenderer} from "./layer/TerritoryRenderer";
 import {nameRenderer} from "./layer/NameRenderer";
+import {boatRenderer} from "./layer/BoatRenderer";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -38,6 +39,7 @@ export class GameRenderer {
 		this.registerLayer(mapRenderer);
 		this.registerLayer(territoryRenderer);
 		this.registerLayer(nameRenderer);
+		this.registerLayer(boatRenderer);
 	}
 
 	/**

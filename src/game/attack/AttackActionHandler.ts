@@ -39,6 +39,27 @@ class AttackActionHandler {
 		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
 	}
 
+	//TODO: Remove this once we have proper attack buttons
+	hasBorderWith(player: Player, target: number): boolean {
+		for (const tile of player.borderTiles) {
+			const x = tile % gameMap.width;
+			const y = Math.floor(tile / gameMap.width);
+			if (x > 0 && territoryManager.isOwner(tile - 1, target)) {
+				return true;
+			}
+			if (x < gameMap.width - 1 && territoryManager.isOwner(tile + 1, target)) {
+				return true;
+			}
+			if (y > 0 && territoryManager.isOwner(tile - gameMap.width, target)) {
+				return true;
+			}
+			if (y < gameMap.height - 1 && territoryManager.isOwner(tile + gameMap.width, target)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Schedule an attack on an unclaimed territory.
 	 * @param player The player that is attacking.

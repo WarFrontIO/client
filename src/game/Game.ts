@@ -8,11 +8,12 @@ import {spawnManager} from "./player/SpawnManager";
 import {random} from "./Random";
 import {gameTicker} from "./GameTicker";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
-import {attackActionHandler} from "./action/AttackActionHandler";
+import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
 import {getSetting} from "../util/UserSettingManager";
 import {gameRenderer} from "../renderer/GameRenderer";
+import {boatManager} from "./boat/BoatManager";
 
 /**
  * The map of the current game.
@@ -41,8 +42,9 @@ export function startGame(map: GameMap, mode: GameMode) {
 	gameMode = mode;
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
-	gameRenderer.initGameplayLayers();
 	territoryManager.reset();
+	boatManager.reset();
+	gameRenderer.initGameplayLayers();
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);

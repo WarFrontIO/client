@@ -1,11 +1,14 @@
 import {gameMap} from "./Game";
-import {playerManager} from "./player/PlayerManager";
+import {clientPlayer, playerManager} from "./player/PlayerManager";
 import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
+import {areaCalculator} from "../map/area/AreaCalculator";
+import {onNeighbors} from "../util/MathUtil";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
 	readonly OWNER_NONE = 65535;
+	playerIndex: Uint16Array;
 
 	/**
 	 * Resets the territory manager.
@@ -17,6 +20,8 @@ class TerritoryManager {
 		for (let i = 0; i < this.tileOwners.length; i++) {
 			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
 		}
+
+		this.playerIndex = new Uint16Array(areaCalculator.preprocessMap());
 	}
 
 	/**
@@ -86,8 +91,22 @@ class TerritoryManager {
 		this.tileOwners[tile] = owner;
 		if (previousOwner !== this.OWNER_NONE) {
 			playerManager.getPlayer(previousOwner).removeTile(tile);
+			if (previousOwner === clientPlayer.id) {
+				onNeighbors(tile, (neighbor) => {
+					if (!this.isTerritory(neighbor)) {
+						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
+					}
+				});
+			}
 		}
 		playerManager.getPlayer(owner).addTile(tile);
+		if (owner === clientPlayer.id) {
+			onNeighbors(tile, (neighbor) => {
+				if (!this.isTerritory(neighbor)) {
+					this.playerIndex[areaCalculator.areaIndex[neighbor]]++;
+				}
+			});
+		}
 	}
 
 	/**
@@ -101,6 +120,13 @@ class TerritoryManager {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile);
 			territoryRenderingManager.clear(tile);
+			if (owner === clientPlayer.id) {
+				onNeighbors(tile, (neighbor) => {
+					if (!this.isTerritory(neighbor)) {
+						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
+					}
+				});
+			}
 		}
 	}
 }
