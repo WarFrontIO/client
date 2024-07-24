@@ -69,7 +69,7 @@ class BoatManager {
 	 * @param percentage The percentage of the owner's troops to send.
 	 */
 	addBoat(owner: number, start: number, end: number, percentage: number): void {
-		const path = calculateBoatWaypoints(start, end);
+		const path = calculateBoatWaypoints(start, end).filter(piece => piece.length > 0);
 
 		if (path.length > 0) {
 			//TODO: boats need a hefty tax (scaling with distance and player strength)
