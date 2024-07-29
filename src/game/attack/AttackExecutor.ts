@@ -11,6 +11,7 @@ import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRende
 export class AttackExecutor {
 	readonly player: Player;
 	readonly target: Player | null;
+	readonly borderTiles: Set<number> | null;
 	private troops: number;
 	private tileQueue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] < b[0]);
 	private basePriority: number = 0;
@@ -20,11 +21,13 @@ export class AttackExecutor {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked, or null if the target is unclaimed territory.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed. If it is null, it will be the player's border tiles by default.
 	 */
-	constructor(player: Player, target: Player | null, troops: number) {
+	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null) {
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
+		this.borderTiles = borderTiles;
 		this.orderTiles();
 	}
 
@@ -122,7 +125,7 @@ export class AttackExecutor {
 
 		const result = [];
 		const amountCache = attackActionHandler.amountCache;
-		for (const tile of this.player.borderTiles) {
+		for (const tile of this.borderTiles || this.player.borderTiles) {
 			const x = tile % gameMap.width;
 			const y = Math.floor(tile / gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {

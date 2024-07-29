@@ -113,9 +113,9 @@ export class Boat {
 				playerNameRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
 
 				if (target === territoryManager.OWNER_NONE) {
-					attackActionHandler.attackUnclaimed(this.owner, this.troops);
+					attackActionHandler.attackUnclaimed(this.owner, this.troops, new Set([this.currentPath[this.currentNode]]));
 				} else {
-					attackActionHandler.attackPlayer(this.owner, playerManager.getPlayer(target), this.troops);
+					attackActionHandler.attackPlayer(this.owner, playerManager.getPlayer(target), this.troops, new Set([this.currentPath[this.currentNode]]));
 				}
 			}
 			boatManager.unregisterBoat(this);
