@@ -33,10 +33,10 @@ class AttackActionHandler {
 		playerManager.getPlayer(player).removeTroops(troopCount);
 
 		if (target === territoryManager.OWNER_NONE) {
-			this.attackUnclaimed(playerManager.getPlayer(player), troopCount, null);
+			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
 			return;
 		}
-		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount, null);
+		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
 	}
 
 	//TODO: Remove this once we have proper attack buttons
@@ -64,9 +64,9 @@ class AttackActionHandler {
 	 * Schedule an attack on an unclaimed territory.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed. If it is null, it will be the player's border tiles by default.
+	 * @param borderTiles The tiles from which the attack is executed. If not 
 	 */
-	attackUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null): void {
+	attackUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.unclaimedIndex[player.id];
 		if (parent) {
 			parent.modifyTroops(troops);
@@ -81,9 +81,9 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed. If it is null, it will be the player's border tiles by default.
+	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
 	 */
-	attackPlayer(player: Player, target: Player, troops: number, borderTiles: Set<number> | null): void {
+	attackPlayer(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.getAttack(player, target);
 		if (parent) {
 			parent.modifyTroops(troops);
@@ -115,10 +115,10 @@ class AttackActionHandler {
 	 * Add an unclaimed attack to the list of ongoing attacks.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed. If it is null, it will be the player's border tiles by default.
+	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
 	 * @private
 	 */
-	private addUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null): void {
+	private addUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const attack = new AttackExecutor(player, null, troops, borderTiles);
 		this.attacks.push(attack);
 		this.unclaimedIndex[player.id] = attack;
@@ -131,10 +131,10 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed. If it is null, it will be the player's border tiles by default.
+	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
 	 * @private
 	 */
-	private addAttack(player: Player, target: Player, troops: number, borderTiles: Set<number> | null): void {
+	private addAttack(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const attack = new AttackExecutor(player, target, troops, borderTiles);
 		this.attacks.push(attack);
 		this.playerIndex[player.id][target.id] = attack;
