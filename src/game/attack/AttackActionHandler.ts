@@ -64,15 +64,16 @@ class AttackActionHandler {
 	 * Schedule an attack on an unclaimed territory.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
-	attackUnclaimed(player: Player, troops: number): void {
+	attackUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.unclaimedIndex[player.id];
 		if (parent) {
 			parent.modifyTroops(troops);
 			return;
 		}
 
-		this.addUnclaimed(player, troops);
+		this.addUnclaimed(player, troops, borderTiles);
 	}
 
 	/**
@@ -80,8 +81,9 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
-	attackPlayer(player: Player, target: Player, troops: number): void {
+	attackPlayer(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.getAttack(player, target);
 		if (parent) {
 			parent.modifyTroops(troops);
@@ -95,7 +97,7 @@ class AttackActionHandler {
 			troops -= opposite.getTroops();
 		}
 
-		this.addAttack(player, target, troops);
+		this.addAttack(player, target, troops, borderTiles);
 	}
 
 	/**
@@ -113,10 +115,11 @@ class AttackActionHandler {
 	 * Add an unclaimed attack to the list of ongoing attacks.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 * @private
 	 */
-	private addUnclaimed(player: Player, troops: number): void {
-		const attack = new AttackExecutor(player, null, troops);
+	private addUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
+		const attack = new AttackExecutor(player, null, troops, borderTiles);
 		this.attacks.push(attack);
 		this.unclaimedIndex[player.id] = attack;
 		this.playerAttackList[player.id].push(attack);
@@ -128,10 +131,11 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 * @private
 	 */
-	private addAttack(player: Player, target: Player, troops: number): void {
-		const attack = new AttackExecutor(player, target, troops);
+	private addAttack(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
+		const attack = new AttackExecutor(player, target, troops, borderTiles);
 		this.attacks.push(attack);
 		this.playerIndex[player.id][target.id] = attack;
 		this.playerAttackList[player.id].push(attack);
