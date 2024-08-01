@@ -64,7 +64,7 @@ class AttackActionHandler {
 	 * Schedule an attack on an unclaimed territory.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed. If not 
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
 	attackUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.unclaimedIndex[player.id];
@@ -81,7 +81,7 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
 	attackPlayer(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.getAttack(player, target);
@@ -115,7 +115,7 @@ class AttackActionHandler {
 	 * Add an unclaimed attack to the list of ongoing attacks.
 	 * @param player The player that is attacking.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 * @private
 	 */
 	private addUnclaimed(player: Player, troops: number, borderTiles: Set<number> | null = null): void {
@@ -131,7 +131,7 @@ class AttackActionHandler {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked.
 	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed, or null if its going to executed from player's border tiles.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 * @private
 	 */
 	private addAttack(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
