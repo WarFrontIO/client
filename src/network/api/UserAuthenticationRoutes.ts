@@ -19,7 +19,13 @@ export function loginUser(service: "discord") {
  * @param device The device ID
  * @internal
  */
-export const refreshToken = endpointPOST("/refresh/")<{ token: string, device: string }, { 200: { access_token: string, expires_in: number, refresh_token: string, user: APIUserAccount }, 400: void, 401: string, 500: string }>();
+export const refreshToken = endpointPOST("/token/")<{ token: string, device: string }, { 200: { access_token: string, expires_in: number, refresh_token: string, user: APIUserAccount }, 400: void, 401: string, 500: string }>();
+
+/**
+ * Request a new external access token for the given host.
+ * @param host The host to request the token for
+ */
+export const requestTokenExternal = endpointPOST("/token/external/", true)<{ host: string }, { 200: string, 400: void, 401: string, 500: void }>();
 
 /**
  * Revoke the refresh token, this will invalidate the specified refresh token.
