@@ -45,19 +45,21 @@ class APIResponse<T extends { [key: number]: unknown }, E extends keyof T> {
 	private errorListener: ((data: { [K in keyof T]: { error: false, code: K, data: T[K] } }[keyof T] | { error: true, data: unknown }) => void) | null = null;
 	private result: { [K in keyof T]: { error: false, code: K, data: T[K] } }[keyof T] | { error: true, data: unknown } | null = null;
 
-	constructor(url: string, options: RequestInit) {
-		fetch(getSetting("api-location") + url, options).then(response => {
-			if (response.headers.get("Content-Type") === "application/json") {
-				response.json().then(data => {
-					this.handleResponse(response.status as keyof T, data as T[keyof T]);
-				}).catch(this.handleError.bind(this));
-			} else {
-				//Let's assume (hope) that the response is text
-				response.text().then(data => {
-					this.handleResponse(response.status as keyof T, data as T[keyof T]);
-				}).catch(this.handleError.bind(this));
-			}
-		}).catch(this.handleError.bind(this));
+	constructor(url: string, options: Promise<RequestInit>) {
+		options.then(options => {
+			fetch(getSetting("api-location") + url, options).then(response => {
+				if (response.headers.get("Content-Type") === "application/json") {
+					response.json().then(data => {
+						this.handleResponse(response.status as keyof T, data as T[keyof T]);
+					}).catch(this.handleError.bind(this));
+				} else {
+					//Let's assume (hope) that the response is text
+					response.text().then(data => {
+						this.handleResponse(response.status as keyof T, data as T[keyof T]);
+					}).catch(this.handleError.bind(this));
+				}
+			}).catch(this.handleError.bind(this));
+		}).catch(this.handleError.bind(this))
 	}
 
 	/**
@@ -125,7 +127,7 @@ class APIResponse<T extends { [key: number]: unknown }, E extends keyof T> {
 	 */
 	static get<T extends { [key: number]: unknown }>(url: string, params: Record<string, string>, auth: boolean) {
 		const options = {method: "GET"};
-		return new APIResponse<T, never>(url + "?" + (new URLSearchParams(params)).toString(), auth ? getUserToken().addAuth(options) : options);
+		return new APIResponse<T, never>(url + "?" + (new URLSearchParams(params)).toString(), auth ? getUserToken().refresh().then(token => token.addAuth(options)) : Promise.resolve(options));
 	}
 
 	/**
@@ -136,7 +138,7 @@ class APIResponse<T extends { [key: number]: unknown }, E extends keyof T> {
 	 */
 	static post<T extends { [key: number]: unknown }>(url: string, params: Record<string, string>, auth: boolean) {
 		const options = {method: "POST", body: new URLSearchParams(params), headers: {"Content-Type": "application/x-www-form-urlencoded"}};
-		return new APIResponse<T, never>(url, auth ? getUserToken().addAuth(options) : options);
+		return new APIResponse<T, never>(url, auth ? getUserToken().refresh().then(token => token.addAuth(options)) : Promise.resolve(options));
 	}
 }
 
