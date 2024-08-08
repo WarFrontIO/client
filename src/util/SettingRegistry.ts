@@ -1,4 +1,6 @@
 import {UnsupportedDataException} from "./exception/UnsupportedDataException";
+import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {InvalidArgumentException} from "./exception/InvalidArgumentException";
 
 /**
  * Important Note: For types to work correctly, all register calls must be chained together.
@@ -8,12 +10,18 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	private registry: T = {} as T;
 	private updaters: Record<string, Record<number, (value: string) => string>> = {};
 
+	private constructor(private readonly prefix: string) {}
+
 	/**
 	 * Create a new setting registry
+	 * Warning: The prefix parameter has to be unique for each setting registry
+	 * @param prefix the prefix of the setting keys, must not contain '@'
+	 * @throws InvalidArgumentException if the prefix contains '@'
 	 * @internal
 	 */
-	static init() {
-		return new SettingRegistry<{}>();
+	static init(prefix: string) {
+		if (prefix.includes("@")) throw new InvalidArgumentException("Prefix cannot contain '@'");
+		return new SettingRegistry<{}>(prefix);
 	}
 
 	/**
@@ -22,8 +30,9 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	 * @param setting the setting object
 	 * @see Setting
 	 */
-	register<K extends string, S>(key: K & Exclude<K, keyof T>, setting: Setting<S>): SettingRegistry<T & Record<K, Setting<S>>> {
-		(this.registry as unknown as Record<K, Setting<S>>)[key] = setting;
+	register<K extends string, S>(key: K & Exclude<K, keyof T>, setting: Omit<Setting<S>, "registry">): SettingRegistry<T & Record<K, Setting<S>>> {
+		(setting as Setting<S>).registry = new EventHandlerRegistry<[S]>();
+		(this.registry as unknown as Record<K, Setting<S>>)[key] = setting as Setting<S>;
 		return this as unknown as SettingRegistry<T & Record<K, Setting<S>>>;
 	}
 
@@ -122,7 +131,7 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	load() {
 		for (const key in this.registry) {
 			const setting = this.registry[key];
-			const value = localStorage.getItem(key);
+			const value = localStorage.getItem(`${this.prefix}@${key}`);
 			if (value && value.match(/^.*:\d+$/)) {
 				try {
 					const result = value.match(/^(.*):(\d+)$/);
@@ -143,7 +152,7 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	 */
 	saveSetting<K extends string & keyof T>(key: K) {
 		const setting = this.registry[key];
-		localStorage.setItem(key, `${setting.encode.call(setting.value)}:${setting.version}`);
+		localStorage.setItem(`${this.prefix}@${key}`, `${setting.encode.call(setting.value)}:${setting.version}`);
 	}
 
 	/**
@@ -178,5 +187,6 @@ export type Setting<T> = {
 	decode: (this: Setting<T>, value: string, version: number) => T,
 	defaultValue: T,
 	value: T,
-	version?: number
+	version?: number,
+	registry: EventHandlerRegistry<[T]>
 }

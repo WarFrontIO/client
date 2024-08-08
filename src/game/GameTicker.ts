@@ -11,7 +11,7 @@ class GameTicker {
 	 *
 	 * Format: () => void
 	 */
-	registry: EventHandlerRegistry<[]> = new EventHandlerRegistry(false, listener => listener());
+	registry: EventHandlerRegistry<[]> = new EventHandlerRegistry();
 
 	/**
 	 * Starts and resets the game ticker.

@@ -1,5 +1,5 @@
-import {EventHandlerRegistry} from "./EventHandlerRegistry";
 import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
+import {ManagedEventHandlerRegistry} from "./ManagedEventHandlerRegistry";
 
 /**
  * Registry for map transform listeners.
@@ -12,7 +12,7 @@ class MapTransformHandler {
 	 * Format: (scale: number) => void
 	 * @param scale The new scale of the map.
 	 */
-	scale: EventHandlerRegistry<[number]> = new EventHandlerRegistry(true, listener => listener(mapNavigationHandler.zoom));
+	scale: ManagedEventHandlerRegistry<[number]> = new ManagedEventHandlerRegistry(true, listener => listener(mapNavigationHandler.zoom));
 	/**
 	 * Registry for map move listeners.
 	 * Map move listeners are called when the map is moved.
@@ -21,7 +21,7 @@ class MapTransformHandler {
 	 * @param x The new x-coordinate of the map.
 	 * @param y The new y-coordinate of the map.
 	 */
-	move: EventHandlerRegistry<[number, number]> = new EventHandlerRegistry(true, listener => listener(mapNavigationHandler.x, mapNavigationHandler.y));
+	move: ManagedEventHandlerRegistry<[number, number]> = new ManagedEventHandlerRegistry(true, listener => listener(mapNavigationHandler.x, mapNavigationHandler.y));
 }
 
 export const mapTransformHandler = new MapTransformHandler();

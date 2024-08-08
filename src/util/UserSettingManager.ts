@@ -4,14 +4,12 @@ import {getTheme} from "../renderer/GameTheme";
 /**
  * Setting registry, all register calls need to be chained together
  */
-const registry = SettingRegistry.init()
+const registry = SettingRegistry.init("wf")
 	.registerUpdatable("theme", getTheme("pastel"), (value: string) => getTheme(value))
-	.registerString("playerName", "UnknownPlayer")
-	.registerBoolean("gameHud-clock", true)
+	.registerString("player-name", "Unknown Player")
+	.registerBoolean("hud-clock", true)
 
 registry.load();
-
-const listeners: Record<string, ((value: any) => void)[]> = {};
 
 /**
  * Get a setting value
@@ -27,12 +25,7 @@ export function getSetting<K extends keyof typeof registry["registry"]>(key: K):
  * @param value new value
  */
 export function updateSetting<K extends keyof typeof registry["registry"]>(key: K, value: typeof registry["registry"][K]["value"]) {
-	if (listeners[key]) {
-		for (const listener of listeners[key]) {
-			listener(value);
-		}
-	}
-
+	registry.get(key).registry.broadcast(value as never);
 	registry.get(key).value = value;
 	registry.saveSetting(key);
 }
@@ -41,8 +34,9 @@ export function updateSetting<K extends keyof typeof registry["registry"]>(key: 
  * Register a setting listener that will be called before the value is updated
  * @param key identifier of the setting
  * @param listener listener to register, argument is the new value of the setting
+ * @param callImmediately if true, the listener is called immediately after registration
  */
-export function registerSettingListener<K extends keyof typeof registry["registry"]>(key: K, listener: (value: typeof registry["registry"][K]["value"]) => void) {
-	if (!listeners[key]) listeners[key] = [];
-	listeners[key].push(listener);
+export function registerSettingListener<K extends keyof typeof registry["registry"]>(key: K, listener: (value: typeof registry["registry"][K]["value"]) => void, callImmediately: boolean = false) {
+	registry.get(key).registry.register(listener);
+	if (callImmediately) listener(getSetting(key));
 }

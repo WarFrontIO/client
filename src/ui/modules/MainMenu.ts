@@ -1,9 +1,9 @@
-import { startGame } from "../../game/Game";
-import { mapFromId } from "../../map/MapRegistry";
-import { ModuleAdapter, closeAllModules, closeModule } from "../ModuleLoader";
-import { openModule } from "../ModuleLoader";
-import { FFAGameMode } from "../../game/mode/FFAGameMode";
-import { getSetting, updateSetting } from "../../util/UserSettingManager";
+import {startGame} from "../../game/Game";
+import {mapFromId} from "../../map/MapRegistry";
+import {closeAllModules} from "../ModuleLoader";
+import {openModule} from "../ModuleLoader";
+import {FFAGameMode} from "../../game/mode/FFAGameMode";
+import {registerSettingListener, updateSetting} from "../../util/UserSettingManager";
 
 const txtPlayerName: HTMLInputElement = (window.document.getElementById("txtPlayerName") as HTMLInputElement);
 const lblPlayerNameValidation: HTMLElement = (window.document.getElementById("lblPlayerNameValidation") as HTMLElement);
@@ -11,14 +11,8 @@ const btnStart: HTMLButtonElement = (window.document.getElementById("btnStart") 
 
 const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u1E00-\u1EFF\-_. ({)}<>]{3,32}$/;
 
-export default {
-	
-	onOpen: () => {
-		const savedPlayerName = getSetting("playerName");
-		if (savedPlayerName)
-			txtPlayerName.value = savedPlayerName;
-	}
-} as ModuleAdapter;
+//TODO: When the input is processed (e.g. trimmed), this needs to only change the value after the focus is lost.
+registerSettingListener("player-name", name => txtPlayerName.value = name, true);
 
 (window as any).commandStartGame = function () {
 	closeAllModules();
@@ -46,14 +40,14 @@ export default {
 	btnStart.disabled = false;
 
 	if (playerNameValidationExp.test(txtPlayerName.value)) {
-		updateSetting("playerName", txtPlayerName.value);
+		updateSetting("player-name", txtPlayerName.value);
 	} else {
 		txtPlayerName.classList.add("wf-form-control-error");
 		lblPlayerNameValidation.innerHTML = "Name contains invalid characters.";
 		lblPlayerNameValidation.style.display = "block";
 		btnStart.disabled = true;
 	}
-	
+
 	if (txtPlayerName.value.length < 3) {
 		txtPlayerName.classList.add("wf-form-control-error");
 		lblPlayerNameValidation.innerHTML = "Name is too short (must be at least 3 characters).";

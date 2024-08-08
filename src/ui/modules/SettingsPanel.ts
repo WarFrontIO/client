@@ -1,19 +1,12 @@
-import {startGame} from "../../game/Game";
-import {mapFromId} from "../../map/MapRegistry";
-import { getSetting, updateSetting } from "../../util/UserSettingManager";
-import {closeModule, ModuleAdapter} from "../ModuleLoader";
-import {openModule} from "../ModuleLoader";
+import {registerSettingListener, updateSetting} from "../../util/UserSettingManager";
+import {closeModule} from "../ModuleLoader";
 
 const switchGameClock = (window).document.getElementById("switchGameClock") as HTMLInputElement;
 
-export default {
-	onOpen: () => {
-			switchGameClock.checked = getSetting("gameHud-clock");
-	}
-} as ModuleAdapter;
+registerSettingListener("hud-clock", show => switchGameClock.checked = show, true);
 
 (window as any).commandToggleClockSetting = function (element: HTMLInputElement) {
-	updateSetting("gameHud-clock", element.checked);
+	updateSetting("hud-clock", element.checked);
 };
 
 (window as any).commandCloseSettingsPanel = function () {
