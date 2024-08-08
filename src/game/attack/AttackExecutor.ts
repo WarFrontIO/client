@@ -20,12 +20,13 @@ export class AttackExecutor {
 	 * @param player The player that is attacking.
 	 * @param target The player that is being attacked, or null if the target is unclaimed territory.
 	 * @param troops The amount of troops that are attacking.
+	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
-	constructor(player: Player, target: Player | null, troops: number) {
+	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
-		this.orderTiles();
+		this.orderTiles(borderTiles);
 	}
 
 	/**
@@ -114,15 +115,16 @@ export class AttackExecutor {
 
 	/**
 	 * Build the initial tile queue.
+	 * @param borderTiles The tiles to calculate initial tile queue from, or null to use the player's border tiles.
 	 * @private
 	 */
-	private orderTiles(): void {
+	private orderTiles(borderTiles: Set<number> | null = null): void {
 		const tileOwners = territoryManager.tileOwners;
 		const target = this.target ? this.target.id : territoryManager.OWNER_NONE;
 
 		const result = [];
 		const amountCache = attackActionHandler.amountCache;
-		for (const tile of this.player.borderTiles) {
+		for (const tile of borderTiles || this.player.borderTiles) {
 			const x = tile % gameMap.width;
 			const y = Math.floor(tile / gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {
