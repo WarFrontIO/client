@@ -106,22 +106,23 @@ function processCssFiles(files) {
 				files[i] = files[i].replace(identifiers[j], "");
 				const name = identifiers[j].match(new RegExp(`${identifier}\\s+([^\\s{]+)`))[1];
 				globalScope.push(identifiers[j].replace(name, `a${variableCounter}`));
-				files[i] = files[i].replaceAll(`${property}: ${name}`, `${property}: a${variableCounter++}`);
+				files[i] = files[i].replace(new RegExp(`${property}:\\s*${name}`, "g"), `${property}: a${variableCounter++}`);
 			}
 		}
 
 		const fontFace = findBlock(files[i], "@font-face");
 		for (let j = 0; j < fontFace.length; j++) {
 			const fontFiles = fontFace[j].match(/url\((.*?)\)/g);
-			for (let k = 0; k < fontFiles.length; k++)
-			{
-				let url = fontFiles[k].slice(4, -1);
-				if (url.startsWith("'") || url.startsWith("\"")) {
-					url = url.slice(1, -1);
-				}
-				fontFace[j] = fontFace[j].replace(fontFiles[k], `url(data:${lookup(url)};base64,${readFileSync("./" + url).toString("base64")});`);
-			}
 			files[i] = files[i].replace(fontFace[j], "");
+			if (fontFiles) {
+				for (let k = 0; k < fontFiles.length; k++) {
+					let url = fontFiles[k].slice(4, -1);
+					if (url.startsWith("'") || url.startsWith("\"")) {
+						url = url.slice(1, -1);
+					}
+					fontFace[j] = fontFace[j].replace(fontFiles[k], `url(data:${lookup(url)};base64,${readFileSync("./" + url).toString("base64")});`);
+				}
+			}
 			globalScope.push(fontFace[j]);
 		}
 	}
