@@ -8,6 +8,8 @@ const registry = SettingRegistry.init()
 	.registerUpdatable("theme", getTheme("pastel"), (value: string) => getTheme(value))
 	.registerString("playerName", "UnknownPlayer")
 	.registerBoolean("gameHud-clock", true)
+	.registerString("api-location", "https://warfront.io/api") //This needs to enforce no trailing slash, no query parameters and a protocol
+	.registerString("game-server", "warfront.io")
 
 registry.load();
 
