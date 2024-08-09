@@ -7,6 +7,7 @@ module.exports = {
 	entry: {
 		main: "./src/Loader.ts"
 	},
+	devtool: "source-map",
 	output: {
 		publicPath: "/",
 		path: path.resolve(__dirname, './out'),
