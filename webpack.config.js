@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const UiModuleLoader = require("./scripts/WebpackUIModuleLoader");
+const SourceMapFixer = require("./scripts/SourceMapFixer");
 
 module.exports = {
 	entry: {
@@ -11,7 +12,8 @@ module.exports = {
 	output: {
 		publicPath: "/",
 		path: path.resolve(__dirname, './out'),
-		filename: "[name]-bundle.js"
+		filename: "[name]-bundle.js",
+		sourceMapFilename: "[name].js.map"
 	},
 	resolve: {
 		extensions: [".ts", ".js"],
@@ -48,5 +50,5 @@ module.exports = {
 	},
 	plugins: [new HtmlWebpackPlugin({
 		template: "./src/template.html"
-	}), new HtmlInlineScriptPlugin(), new UiModuleLoader()]
+	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer()]
 };
