@@ -1,3 +1,6 @@
 [submodule "src/map/codec"]
 	path = src/map/codec
 	url = https://github.com/WarFrontIO/MapCodec
+[submodule "src/network/protocol"]
+	path = src/network/protocol
+	url = https://github.com/WarFrontIO/protocol
