@@ -1,7 +1,7 @@
 import {endpointPOST} from "./Endpoint";
 import {awaitSafeForward} from "../NetworkAuthenticator";
 import {getSetting} from "../../util/UserSettingManager";
-import {APIUserAccount} from "./UserAccount";
+import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
 /**
  * Redirects the user to the login page for the given service
