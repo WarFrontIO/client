@@ -14,12 +14,18 @@ export function loginUser(service: "discord") {
 }
 
 /**
- * Request a new access token using the refresh token, this will invalidate the old access token.
- * @param token The refresh token
- * @param device The device ID
+ * Request a new refresh token using authentication code.
+ * @param token The authentication code
  * @internal
  */
-export const refreshToken = endpointPOST("/token/")<{ token: string, device: string }, { 200: { access_token: string, expires_in: number, refresh_token: string, user: APIUserAccount }, 400: void, 401: string, 500: string }>();
+export const requestToken = endpointPOST("/token/")<{ token: string }, { 200: string, 400: void, 401: string, 500: string }>();
+
+/**
+ * Request a new access token using the refresh token, this will invalidate the old access token.
+ * @param token The refresh token
+ * @internal
+ */
+export const refreshToken = endpointPOST("/token/")<{ token: string }, { 200: { access_token: string, expires_in: number, refresh_token: string, user: APIUserAccount }, 400: void, 401: string, 500: string }>();
 
 /**
  * Request a new external access token for the given host.

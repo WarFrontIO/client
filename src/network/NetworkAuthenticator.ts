@@ -62,7 +62,6 @@ class InvalidUserToken implements UserToken {
 let userToken: UserToken = new ActualUserToken("", 0); // Dummy token to cause a fetch on first use
 
 const refreshTokenCookie = new CookieContext("token");
-const deviceIdCookie = new CookieContext("device");
 
 /**
  * Gets the current user token.
@@ -87,14 +86,12 @@ const fetchUserToken = buildPromiseBundle(() => {
  */
 function tryFetchUserToken(resolve: (token: UserToken) => void, retries: number) {
 	const token = refreshTokenCookie.get();
-	const device = deviceIdCookie.get();
-	if (token === null || device === null) {
-		console.log(token, device);
+	if (token === null) {
 		updateUserAccount(null);
 		resolve(userToken = new InvalidUserToken());
 		return;
 	}
-	refreshToken({token, device})
+	refreshToken({token})
 		.on(200, data => {
 			refreshTokenCookie.forceSet(data.refresh_token, 29);
 			updateUserAccount(data.user);
