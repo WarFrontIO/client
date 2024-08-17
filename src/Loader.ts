@@ -1,8 +1,8 @@
 import {TileManager} from "./map/TileManager";
-import {openModule} from "./ui/ModuleLoader";
 
 export const tileManager = new TileManager();
+import {handlePath} from "./util/PathHandler";
 
 window.addEventListener("load", () => {
-	openModule("MainMenu");
+	handlePath();
 });

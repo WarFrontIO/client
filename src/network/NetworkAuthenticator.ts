@@ -1,7 +1,9 @@
 import {buildPromiseBundle} from "../util/PromiseBundle";
 import {CookieContext} from "../util/CookieContext";
 import {updateUserAccount} from "./api/UserAccount";
-import {refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
+import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
+import {InvalidArgumentException} from "../util/exception/InvalidArgumentException";
+import {openModule} from "../ui/ModuleLoader";
 
 type UserToken = {
 	/**
@@ -136,6 +138,14 @@ export function awaitSafeForward(): Promise<void> {
 	return Promise.resolve();
 }
 
+export function login(service: "discord") {
+	const state = Math.random().toString(36).substring(2, 15);
+	awaitSafeForward().then(() => {
+		sessionStorage.setItem("authState", state);
+		loginUser(service, state);
+	}).catch(() => {});
+}
+
 /**
  * Logs out the user.
  */
@@ -144,4 +154,26 @@ export function logout() {
 	refreshTokenCookie.forceSet("", -1);
 	userToken = new InvalidUserToken();
 	updateUserAccount(null);
+}
+
+/**
+ * Handles the authentication callback.
+ * @param params The URL parameters
+ * @param _path The path
+ * @throws InvalidArgumentException If the parameters are invalid
+ */
+export function handleAuthCallback(params: URLSearchParams, _path: string[]) {
+	const token = params.get("token");
+	const state = params.get("state");
+	if (token === null) {
+		throw new InvalidArgumentException("Missing token");
+	}
+	if (state === null || sessionStorage.getItem("authState") === null || state !== sessionStorage.getItem("authState")) {
+		throw new InvalidArgumentException("State mismatch");
+	}
+	refreshTokenCookie.forceSet(token, 29);
+	sessionStorage.removeItem("authState");
+	window.history.replaceState(null, "", "/");
+	//TODO: Show a tooltip that the user was logged in
+	openModule("MainMenu");
 }

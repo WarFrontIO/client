@@ -6,11 +6,11 @@ import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 /**
  * Redirects the user to the login page for the given service
  * @param service The service to log in with
+ * @param state The state to use for the login
+ * @internal Use {@link login} instead
  */
-export function loginUser(service: "discord") {
-	awaitSafeForward().then(() => {
-		window.location.href = getSetting("api-location") + "/login/" + service;
-	}).catch(() => {});
+export function loginUser(service: "discord", state: string) {
+	window.location.href = getSetting("api-location") + "/login/" + service + "/?state=" + state;
 }
 
 /**
