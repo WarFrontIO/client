@@ -3,6 +3,3 @@ contact_links:
   - name: Support via Discord
     url: https://discord.gg/tvgfpeCGaD
     about: Get help from the community and the developers.
-  - name: Security Vulnerability Reporting
-    url: mailto:security@warfront.io
-    about: Please report security vulnerabilities here.
