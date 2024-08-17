@@ -49,6 +49,12 @@ module.exports = {
 		}
 	},
 	plugins: [new HtmlWebpackPlugin({
-		template: "./src/template.html"
-	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer()]
+		template: "./src/template.html",
+		cache: false
+	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer()],
+	devServer: {
+		hot: false,
+		static: false,
+		historyApiFallback: true
+	}
 };
