@@ -1,8 +1,5 @@
-import {startGame} from "../../game/Game";
-import {mapFromId} from "../../map/MapRegistry";
 import { getSetting, updateSetting } from "../../util/UserSettingManager";
 import {closeModule, ModuleAdapter} from "../ModuleLoader";
-import {openModule} from "../ModuleLoader";
 
 const switchGameClock = (window).document.getElementById("switchGameClock") as HTMLInputElement;
 

@@ -1,5 +1,4 @@
 import {endpointPOST} from "./Endpoint";
-import {awaitSafeForward} from "../NetworkAuthenticator";
 import {getSetting} from "../../util/UserSettingManager";
 import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
