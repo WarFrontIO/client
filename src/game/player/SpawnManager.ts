@@ -4,6 +4,11 @@ import {territoryManager} from "../TerritoryManager";
 import {Player} from "./Player";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {packetRegistry, sendPacket} from "../../network/NetworkManager";
+import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundlePacket";
+import {clientPlayer, playerManager} from "./PlayerManager";
+import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
+import {gameTicker} from "../GameTicker";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -130,17 +135,31 @@ class SpawnManager {
 	}
 
 	/**
+	 * Requests a spawn for the local player.
+	 * @param target The target position
+	 */
+	requestSpawn(target: number): void {
+		if (isLocalGame) {
+			this.selectSpawnPoint(clientPlayer.id, target);
+			this.isSelecting = false;
+			gameTicker.start();
+		} else {
+			sendPacket(new SpawnRequestPacket(target));
+		}
+	}
+
+	/**
 	 * Select a spawn point for the given player based on the selected tile.
 	 *
 	 * Marks spawn points near the selected tile as blocked, so random spawn points will not be selected near the selected tile.
 	 * @param player The player to spawn.
 	 * @param tile The selected tile.
 	 */
-	selectSpawnPoint(player: Player, tile: number): void {
-		if (this.spawnData[player.id]) {
-			this.spawnData[player.id].pixels.forEach(pixel => territoryManager.clear(pixel));
-			this.spawnPoints.push(...this.spawnData[player.id].blockedPoints);
-			this.spawnData[player.id].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
+	selectSpawnPoint(player: number, tile: number): void {
+		if (this.spawnData[player]) {
+			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel));
+			this.spawnPoints.push(...this.spawnData[player].blockedPoints);
+			this.spawnData[player].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
 		}
 
 		//TODO: Check if the selected tile is a valid spawn point
@@ -148,16 +167,13 @@ class SpawnManager {
 		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);
 		data.pixels = this.getSpawnPixels(tile);
 		data.blockedPoints.forEach(point => this.spawnPoints.splice(this.spawnPoints.indexOf(point), 1));
-		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player.id));
+		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player));
 		this.backupPoints.push(...data.blockedPoints);
-		this.spawnData[player.id] = data;
-		territoryRenderingManager.applyTransaction(player, player);
-		playerNameRenderingManager.applyTransaction(player, player);
+		this.spawnData[player] = data;
 
-		if (isLocalGame) {
-			this.isSelecting = false;
-			startGameCycle();
-		}
+		const playerInstance = playerManager.getPlayer(player);
+		territoryRenderingManager.applyTransaction(playerInstance, playerInstance);
+		playerNameRenderingManager.applyTransaction(playerInstance, playerInstance);
 	}
 
 	/**
@@ -192,3 +208,10 @@ class SpawnData {
 }
 
 export const spawnManager = new SpawnManager();
+
+packetRegistry.handle(SpawnBundlePacket, function () {
+	for (const spawn of this.spawnPositions) {
+		spawnManager.selectSpawnPoint(spawn.player, spawn.position);
+	}
+	//TODO: Display timer
+});
