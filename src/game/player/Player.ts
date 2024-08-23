@@ -5,6 +5,7 @@ import {attackActionHandler} from "../attack/AttackActionHandler";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {gameMode} from "../Game";
+import {spawnManager} from "./SpawnManager";
 
 export class Player {
 	readonly id: number;
@@ -65,7 +66,7 @@ export class Player {
 			}
 		});
 
-		if (this.territorySize === 0) {
+		if (this.territorySize === 0 && !spawnManager.isSelecting) {
 			this.alive = false;
 		}
 	}
