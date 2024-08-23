@@ -140,7 +140,9 @@ class SpawnManager {
 	 */
 	requestSpawn(target: number): void {
 		if (isLocalGame) {
-			this.selectSpawnPoint(clientPlayer.id, target);
+			if (!this.selectSpawnPoint(clientPlayer.id, target)) {
+				return;
+			}
 			this.isSelecting = false;
 			gameTicker.start();
 		} else {
@@ -155,17 +157,20 @@ class SpawnManager {
 	 * @param player The player to spawn.
 	 * @param tile The selected tile.
 	 */
-	selectSpawnPoint(player: number, tile: number): void {
+	selectSpawnPoint(player: number, tile: number): boolean {
+		const pixels = this.getSpawnPixels(tile);
+		if (pixels.length === 0) {
+			return false; //Invalid spawn point
+		}
 		if (this.spawnData[player]) {
 			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel));
 			this.spawnPoints.push(...this.spawnData[player].blockedPoints);
 			this.spawnData[player].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
 		}
 
-		//TODO: Check if the selected tile is a valid spawn point
 		const data = new SpawnData();
 		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);
-		data.pixels = this.getSpawnPixels(tile);
+		data.pixels = pixels;
 		data.blockedPoints.forEach(point => this.spawnPoints.splice(this.spawnPoints.indexOf(point), 1));
 		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player));
 		this.backupPoints.push(...data.blockedPoints);
@@ -174,6 +179,7 @@ class SpawnManager {
 		const playerInstance = playerManager.getPlayer(player);
 		territoryRenderingManager.applyTransaction(playerInstance, playerInstance);
 		playerNameRenderingManager.applyTransaction(playerInstance, playerInstance);
+		return true;
 	}
 
 	/**
