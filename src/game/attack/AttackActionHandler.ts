@@ -1,9 +1,8 @@
 import {playerManager} from "../player/PlayerManager";
 import {gameTicker} from "../GameTicker";
-import {territoryManager} from "../TerritoryManager";
 import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
-import {gameMap, gameMode} from "../Game";
+import {gameMap} from "../GameData";
 
 class AttackActionHandler {
 	private attacks: AttackExecutor[] = [];
@@ -21,43 +20,6 @@ class AttackActionHandler {
 		this.targetAttackList = new Array(maxPlayers).fill(null).map(() => []);
 		this.unclaimedIndex = [];
 		this.amountCache = new Uint8Array(gameMap.width * gameMap.height);
-	}
-
-	//TODO: Move this out of here
-	preprocessAttack(player: number, target: number, percentage: number): void {
-		if (!gameMode.canAttack(player, target)) {
-			return;
-		}
-
-		const troopCount = Math.floor(playerManager.getPlayer(player).getTroops() * percentage);
-		playerManager.getPlayer(player).removeTroops(troopCount);
-
-		if (target === territoryManager.OWNER_NONE) {
-			this.attackUnclaimed(playerManager.getPlayer(player), troopCount);
-			return;
-		}
-		this.attackPlayer(playerManager.getPlayer(player), playerManager.getPlayer(target), troopCount);
-	}
-
-	//TODO: Remove this once we have proper attack buttons
-	hasBorderWith(player: Player, target: number): boolean {
-		for (const tile of player.borderTiles) {
-			const x = tile % gameMap.width;
-			const y = Math.floor(tile / gameMap.width);
-			if (x > 0 && territoryManager.isOwner(tile - 1, target)) {
-				return true;
-			}
-			if (x < gameMap.width - 1 && territoryManager.isOwner(tile + 1, target)) {
-				return true;
-			}
-			if (y > 0 && territoryManager.isOwner(tile - gameMap.width, target)) {
-				return true;
-			}
-			if (y < gameMap.height - 1 && territoryManager.isOwner(tile + gameMap.width, target)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**

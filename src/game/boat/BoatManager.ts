@@ -2,6 +2,11 @@ import {Boat} from "./Boat";
 import {clientPlayer, playerManager} from "../player/PlayerManager";
 import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
 import {gameTicker} from "../GameTicker";
+import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
+import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
+import {Player} from "../player/Player";
+import {onNeighbors} from "../../util/MathUtil";
+import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
 class BoatManager {
@@ -13,10 +18,10 @@ class BoatManager {
 
 	/**
 	 * Requests a new boat for the local player.
-	 * @param target The target position.
-	 * @param percentage The percentage of the player's troops to send.
+	 * @param target The target position
+	 * @param power The percentage of the player's troops to send
 	 */
-	requestBoat(target: number, percentage: number): void {
+	requestBoat(target: number, power: number): void {
 		const coast = this.findCoastNear(target);
 		if (coast === null) {
 			return;
@@ -24,14 +29,14 @@ class BoatManager {
 		const start = findStartingPoint(coast);
 
 		if (start !== null) {
-			this.addBoat(clientPlayer.id, start, coast, percentage);
+			submitGameAction(new BoatActionPacket(clientPlayer.id, start, coast, power));
 		}
 	}
 
 	/**
 	 * Finds a tile bordering water near the given tile (5x5 area).
 	 * @param tile The tile to find water near.
-	 * @returns The water tile or null if no water is found
+	 * @returns The coast tile or null if no coast was found.
 	 */
 	private findCoastNear(tile: number): number | null {
 		const x = tile % gameMap.width;
@@ -68,16 +73,15 @@ class BoatManager {
 	 * @param end The ending position of the boat.
 	 * @param percentage The percentage of the owner's troops to send.
 	 */
-	addBoat(owner: number, start: number, end: number, percentage: number): void {
+	addBoat(owner: Player, start: number, end: number, percentage: number): void {
 		const path = calculateBoatWaypoints(start, end).filter(piece => piece.length > 0);
 
 		if (path.length > 0) {
 			//TODO: boats need a hefty tax (scaling with distance and player strength)
-			const player = playerManager.getPlayer(owner);
-			const troops = Math.floor(player.getTroops() * percentage);
-			player.removeTroops(troops);
+			const troops = Math.floor(owner.getTroops() * percentage);
+			owner.removeTroops(troops);
 
-			this.boats.push(new Boat(playerManager.getPlayer(owner), path, troops));
+			this.boats.push(new Boat(owner, path, troops));
 		}
 	}
 
@@ -108,3 +112,28 @@ class BoatManager {
 export const boatManager = new BoatManager();
 
 gameTicker.registry.register(boatManager.tick);
+
+packetRegistry.handle(BoatActionPacket, function (this: BoatActionPacket): void {
+	const player = playerManager.getPlayer(this.player);
+	if (!player || !player.isAlive()) {
+		return;
+	}
+	if (this.start >= gameMap.width * gameMap.height || this.end >= gameMap.width * gameMap.height) {
+		return;
+	}
+	if (gameMap.getDistance(this.start) !== -1 || gameMap.getDistance(this.end) !== 0) {
+		return;
+	}
+
+	let hasBorder = false;
+	onNeighbors(this.start, neighbor => {
+		if (territoryManager.isOwner(neighbor, player.id)) {
+			hasBorder = true;
+		}
+	});
+	if (!hasBorder) {
+		return;
+	}
+
+	boatManager.addBoat(player, this.start, this.end, Math.min(1000, this.power) / 1000);
+});
