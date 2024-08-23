@@ -177,7 +177,7 @@ class SpawnManager {
 		this.spawnData[player] = data;
 
 		const playerInstance = playerManager.getPlayer(player);
-		territoryRenderingManager.applyTransaction(playerInstance, playerInstance);
+		territoryRenderingManager.applyTransaction(playerInstance, playerInstance, true);
 		playerNameRenderingManager.applyTransaction(playerInstance, playerInstance);
 		return true;
 	}
