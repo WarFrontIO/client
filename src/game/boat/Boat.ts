@@ -1,4 +1,3 @@
-import {gameMap, gameMode} from "../Game";
 import {Player} from "../player/Player";
 import {mapNavigationHandler} from "../action/MapNavigationHandler";
 import {boatManager} from "./BoatManager";
@@ -7,6 +6,7 @@ import {attackActionHandler} from "../attack/AttackActionHandler";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {playerManager} from "../player/PlayerManager";
+import {gameMap, gameMode} from "../GameData";
 
 export class Boat {
 	private readonly MAX_SPEED = 1;

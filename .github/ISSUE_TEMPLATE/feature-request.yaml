@@ -1,0 +1,36 @@
+name: Feature Request
+description: Propose a new feature or enhancement. For game-related suggestions, please use the respective Discord channel instead.
+labels: "Type: Enhancement"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below to help us understand your feature request.
+        Only well-documented and well-thought-out feature requests will be considered.
+        The fields accept [Markdown](https://guides.github.com/features/mastering-markdown/), you can use it to format your text.
+
+        **Note:** If you are proposing a game-related feature, please use the respective Discord channel instead.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the feature you are proposing?
+      placeholder: Describe a brief summary of the feature here
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Why do you think this feature should be implemented?
+      placeholder: Describe the justification for the feature here
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like the feature to be implemented? If you don't know how to fill this field, please use the discord channel instead of creating an issue.
+      placeholder: Describe the proposed solution for the feature here.
+    validations:
+      required: true

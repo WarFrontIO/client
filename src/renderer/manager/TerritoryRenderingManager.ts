@@ -1,11 +1,11 @@
 import {Player} from "../../game/player/Player";
-import {gameMap, isPlaying} from "../../game/Game";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
 import {GameTheme} from "../GameTheme";
+import {gameMap, isPlaying} from "../../game/GameData";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -54,10 +54,11 @@ class TerritoryRenderingManager {
 	 * Execute the transaction.
 	 * @param player the player to apply the transaction to
 	 * @param target the target player
+	 * @param safeClear whether to check the status of border tiles (set to true if clearing multiple rows)
 	 * @internal
 	 */
-	applyTransaction(player: Player, target: Player): void {
-		this.paintTiles(this.targetBorderQueue, getSetting("theme").getBorderColor(target.baseColor));
+	applyTransaction(player: Player, target: Player, safeClear: boolean = false): void {
+		this.paintTiles(safeClear ? this.targetBorderQueue.filter(tile => territoryManager.isOwner(tile, target.id)) : this.targetBorderQueue, getSetting("theme").getBorderColor(target.baseColor));
 		this.paintTiles(this.playerBorderQueue, getSetting("theme").getBorderColor(player.baseColor));
 		this.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(player.baseColor));
 

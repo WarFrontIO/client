@@ -1,9 +1,9 @@
-import {startGame} from "../../game/Game";
 import {mapFromId} from "../../map/MapRegistry";
-import {closeAllModules} from "../ModuleLoader";
-import {openModule} from "../ModuleLoader";
-import {FFAGameMode} from "../../game/mode/FFAGameMode";
-import {registerSettingListener, updateSetting} from "../../util/UserSettingManager";
+import {closeAllModules, ModuleAdapter, openModule} from "../ModuleLoader";
+import {getSetting, updateSetting} from "../../util/UserSettingManager";
+import {startGame} from "../../game/Game";
+import {gameModeFromId} from "../../game/mode/GameModeRegistry";
+import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 
 const txtPlayerName: HTMLInputElement = (window.document.getElementById("txtPlayerName") as HTMLInputElement);
 const lblPlayerNameValidation: HTMLElement = (window.document.getElementById("lblPlayerNameValidation") as HTMLElement);
@@ -17,7 +17,7 @@ registerSettingListener("player-name", name => txtPlayerName.value = name, true)
 (window as any).commandStartGame = function () {
 	closeAllModules();
 	openModule("GameHud");
-	startGame(mapFromId(Math.floor(Math.random() * 2)), new FFAGameMode());
+	startGame(mapFromId(Math.floor(Math.random() * 2)), gameModeFromId(GameModeIds.FFA), 23452345, [{ name: getSetting("playerName") }], 0, true);
 };
 
 (window as any).commandShowCommunity = function () {

@@ -3,7 +3,8 @@
   "scripts": {
     "prebuild": "tsc --project scripts",
     "build-dev": "webpack --config webpack.config.js --mode development",
-    "build-prod": "webpack --config webpack.config.js --mode production"
+    "build-prod": "webpack --config webpack.config.js --mode production",
+    "dev": "webpack serve --config webpack.config.js --mode development"
   },
   "devDependencies": {
     "typescript": "^5.4.4",
@@ -12,10 +13,18 @@
     "typescript-eslint": "^8.0.0-alpha.44",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4",
     "ts-loader": "^9.5.1",
     "html-webpack-plugin": "^5.6.0",
     "html-inline-script-webpack-plugin": "^3.2.1",
-    "sharp": "^0.33.3",
+    "sharp": "^0.33.5",
     "mrmime": "^2.0.0"
+  },
+  "optionalDependencies": {
+    "@img/sharp-win32-x64": "^0.33.5",
+    "@img/sharp-win32-ia32": "^0.33.5",
+    "@img/sharp-linux-x64": "^0.33.5",
+    "@img/sharp-linux-arm": "^0.33.5",
+    "@img/sharp-linux-arm64": "^0.33.5"
   }
 }

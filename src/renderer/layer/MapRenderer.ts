@@ -1,10 +1,10 @@
 import {CachedLayer} from "./CachedLayer";
-import {gameMap, isPlaying} from "../../game/Game";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {GameTheme} from "../GameTheme";
 import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
 import {RGBColor} from "../../util/RGBColor";
+import {gameMap, isPlaying} from "../../game/GameData";
 
 /**
  * Map background renderer.

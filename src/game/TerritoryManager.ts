@@ -1,9 +1,9 @@
-import {gameMap} from "./Game";
 import {clientPlayer, playerManager} from "./player/PlayerManager";
 import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {areaCalculator} from "../map/area/AreaCalculator";
 import {onNeighbors} from "../util/MathUtil";
+import {gameMap} from "./GameData";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;

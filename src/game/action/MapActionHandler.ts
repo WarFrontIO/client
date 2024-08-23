@@ -3,8 +3,8 @@ import {mapNavigationHandler} from "./MapNavigationHandler";
 import {clientPlayer} from "../player/PlayerManager";
 import {spawnManager} from "../player/SpawnManager";
 import {boatManager} from "../boat/BoatManager";
-import {attackActionHandler} from "../attack/AttackActionHandler";
 import {territoryManager} from "../TerritoryManager";
+import {hasBorderWith, preprocessAttack} from "../attack/AttackActionValidator";
 
 /**
  * Default map click action handler.
@@ -17,7 +17,7 @@ class MapActionHandler implements ClickEventListener {
 	 * Enables the map action handler.
 	 */
 	enable() {
-		this.setAction(tile => spawnManager.isSelecting ? spawnManager.selectSpawnPoint(clientPlayer, tile) : attackActionHandler.hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? attackActionHandler.preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 0.2) : boatManager.requestBoat(tile, 0.2));
+		this.setAction(tile => spawnManager.isSelecting ? spawnManager.requestSpawn(tile) : hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 200) : boatManager.requestBoat(tile, 200));
 		interactionManager.click.register(this);
 	}
 

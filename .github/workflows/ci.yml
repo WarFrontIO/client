@@ -15,12 +15,14 @@ jobs:
       with:
         node-version: 20
     - name: Setup npm
-      run: npm install
+      run: npm ci
     - name: Prebuild
       run: npm run prebuild
     - name: Build
       run: npm run build-prod
     - uses: actions/upload-artifact@v4
       with:
-        path: out/index.html
+        path: |
+          out/index.html
+          out/main.js.map
         retention-days: 1

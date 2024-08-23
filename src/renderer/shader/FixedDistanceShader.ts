@@ -1,7 +1,7 @@
 import {PostGenerationShader} from "./PostGenerationShader";
 import {HSLColor} from "../../util/HSLColor";
-import {gameMap} from "../../game/Game";
 import {RGBColor} from "../../util/RGBColor";
+import {gameMap} from "../../game/GameData";
 
 /**
  * Shader affecting all tiles withing a fixed distance range.

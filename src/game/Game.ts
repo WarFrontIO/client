@@ -11,35 +11,27 @@ import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderin
 import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
-import {getSetting} from "../util/UserSettingManager";
 import {gameRenderer} from "../renderer/GameRenderer";
 import {boatManager} from "./boat/BoatManager";
-
-/**
- * The map of the current game.
- */
-export let gameMap: GameMap;
-/**
- * The current game mode.
- */
-export let gameMode: GameMode;
-/**
- * Whether the game is currently running.
- */
-export let isPlaying: boolean;
-/**
- * Local games are directly played on the client without any server interaction.
- */
-export let isLocalGame: boolean;
+import {disconnectFromServer, packetRegistry} from "../network/NetworkManager";
+import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
+import {mapFromId} from "../map/MapRegistry";
+import {gameModeFromId} from "./mode/GameModeRegistry";
+import {closeAllModules, openModule} from "../ui/ModuleLoader";
+import {initGameData} from "./GameData";
+import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 
 /**
  * Start a new game with the given map.
- * @param map The map to start the game with.
- * @param mode The game mode to use.
+ * @param map The map to start the game with
+ * @param mode The game mode to use
+ * @param seed The seed for the random number generator
+ * @param players The players in the game
+ * @param clientId The id of the local player
+ * @param isLocal Whether the game is a local game
  */
-export function startGame(map: GameMap, mode: GameMode) {
-	gameMap = map;
-	gameMode = mode;
+export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean) {
+	initGameData(map, mode, isLocal);
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	territoryManager.reset();
@@ -48,17 +40,34 @@ export function startGame(map: GameMap, mode: GameMode) {
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init([new Player(0, getSetting("player-name"), HSLColor.fromRGB(0, 200, 200))], 0, 500);
+	playerManager.init(players.map((p, i) => new Player(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, 500);
 
-	isPlaying = true;
-	isLocalGame = true;
-	random.reset(23452345);
+	random.reset(seed);
 }
 
-/**
- * Start the game cycle.
- * @internal This method is called by the spawn manager when the player has selected a spawn point.
- */
-export function startGameCycle() {
-	gameTicker.start();
-}
+packetRegistry.handle(GameStartPacket, function () {
+	closeAllModules();
+	openModule("GameHud");
+	startGame(mapFromId(this.map), gameModeFromId(this.mode), this.seed, this.players, this.clientId, false);
+});
+
+packetRegistry.handle(GameTickPacket, function () {
+	if (this.index === 0 && !gameTicker.isRunning) {
+		spawnManager.isSelecting = false;
+		for (const player of playerManager.getPlayers()) {
+			if (player.getTerritorySize() === 0) {
+				spawnManager.randomSpawnPoint(player);
+			}
+		}
+		gameTicker.start();
+	}
+	const expectedIndex = Math.ceil(gameTicker.getTickCount() / 10) + gameTicker.dataPacketQueue.length;
+	if (this.index === expectedIndex % 256) {
+		gameTicker.addPacket(this);
+	} else {
+		console.warn(`Received out-of-order game tick packet ${this.index} expected ${expectedIndex % 256}`);
+		//TODO: Handle out-of-order packets: Cache this packet and request missing packets from the server
+		//TODO: Show error message to the user
+		disconnectFromServer();
+	}
+});

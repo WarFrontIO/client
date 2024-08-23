@@ -1,5 +1,4 @@
 import {Player} from "../../game/player/Player";
-import {gameMap} from "../../game/Game";
 import {formatTroops} from "../../util/StringFormatter";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../../game/TerritoryManager";
@@ -7,6 +6,7 @@ import {getSetting} from "../../util/UserSettingManager";
 import {random} from "../../game/Random";
 import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
+import {gameMap} from "../../game/GameData";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
@@ -21,7 +21,7 @@ class PlayerNameRenderingManager {
 	 */
 	private currentPlayerMax: number = 0;
 	private currentPlayerPos: number = 0;
-	private currentTargetMax: number = 0;
+	private currentTargetMax: number = -1;
 	private currentTargetPos: number = 0;
 
 	reset(maxPlayers: number) {
@@ -123,10 +123,10 @@ class PlayerNameRenderingManager {
 	 */
 	applyTransaction(player: Player, target: Player): void {
 		if (this.currentPlayerMax !== 0) this.playerData[player.id].handleAdd(this.currentPlayerMax, this.currentPlayerPos);
-		if (this.currentTargetMax !== 0) this.playerData[target.id].handleRemove(this.nameDepth, this.currentTargetMax, this.currentTargetPos);
+		if (this.currentTargetMax !== -1) this.playerData[target.id].handleRemove(this.nameDepth, this.currentTargetMax, this.currentTargetPos);
 		this.currentPlayerMax = 0;
 		this.currentPlayerPos = 0;
-		this.currentTargetMax = 0;
+		this.currentTargetMax = -1;
 		this.currentTargetPos = 0;
 	}
 

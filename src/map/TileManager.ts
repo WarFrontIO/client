@@ -58,3 +58,5 @@ export class TileManager {
 		return this.tileTypes[id];
 	}
 }
+
+export const tileManager = new TileManager();

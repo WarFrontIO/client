@@ -1,9 +1,10 @@
 import {Player} from "./Player";
 import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
-import {attackActionHandler} from "../attack/AttackActionHandler";
 import {onNeighbors} from "../../util/MathUtil";
 import {HSLColor} from "../../util/HSLColor";
+import {actuallyHandleAttack} from "../attack/AttackActionValidator";
+import {gameMode} from "../GameData";
 
 export class BotPlayer extends Player {
 	constructor(id: number) {
@@ -13,7 +14,7 @@ export class BotPlayer extends Player {
 	//TODO: Implement bot logic
 	tick(): void {
 		if (random.nextInt(20) < 19) return;
-		const targets: number[] = [];
+		let targets: number[] = [];
 		for (const border of this.borderTiles) {
 			onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);
@@ -22,13 +23,14 @@ export class BotPlayer extends Player {
 				}
 			});
 		}
+		targets = targets.filter(target => gameMode.canAttack(this.id, target));
 		if (targets.length < 1) {
 			return;
 		}
 		if (targets.includes(territoryManager.OWNER_NONE)) {
-			attackActionHandler.preprocessAttack(this.id, territoryManager.OWNER_NONE, 0.1);
+			actuallyHandleAttack(this, territoryManager.OWNER_NONE, 100);
 			return;
 		}
-		attackActionHandler.preprocessAttack(this.id, targets[random.nextInt(targets.length)], 0.1);
+		actuallyHandleAttack(this, targets[random.nextInt(targets.length)], 100);
 	}
 }

@@ -1,0 +1,66 @@
+name: Bug Report
+description: File a bug report
+labels: "Type: Bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below to help us reproduce and fix the issue.
+        If you are not sure if this is a bug, please consider asking for help on our [Discord server](https://discord.gg/tvgfpeCGaD) instead.
+        If some fields are not applicable, please fill them with "-" or "N/A".
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen? Please be as specific as possible.
+      placeholder: Describe the expected behavior here
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Please be as specific as possible. If applicable, include screenshots or logs.
+      placeholder: Describe the actual behavior here
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: What steps can we take to reproduce the issue? Try to include as much detail as possible, we need to be able to reproduce the issue in order to fix it.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Send a boat to '...'
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Which browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Other (please fill in the next field)
+        - N/A
+    validations:
+      required: true
+  - type: input
+    id: browser-other
+    attributes:
+      label: If you selected "Other", please specify
+      placeholder: Leave blank if another option was selected
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Is there anything else you would like to add?
+      placeholder: |
+        - Link to a video demonstrating the issue
+        - Screenshots
+        - Browser Logs
+        - Potential solutions you have tried

@@ -8,12 +8,12 @@ import {HSLColor} from "../../util/HSLColor";
 export abstract class GameMode {
 	/**
 	 * Returns whether a player can attack another player.
-	 * @param player The player that wants to attack.
+	 * @param attacker The player that wants to attack.
 	 * @param target The player that is attacked.
 	 * @returns true if the player can attack the target, false otherwise.
 	 */
-	canAttack(player: number, target: number): boolean {
-		return player !== target && target !== territoryManager.OWNER_NONE - 1;
+	canAttack(attacker: number, target: number): boolean {
+		return attacker !== target && target !== territoryManager.OWNER_NONE - 1;
 	}
 
 	/**
