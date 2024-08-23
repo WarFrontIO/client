@@ -1,6 +1,6 @@
 import {CachedLayer} from "./CachedLayer";
-import {gameMap} from "../../game/Game";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
+import {gameMap} from "../../game/GameData";
 
 /**
  * Territory renderer.

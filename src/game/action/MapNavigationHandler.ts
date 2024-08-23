@@ -4,8 +4,8 @@ import {
 	MultiTouchEventListener,
 	ScrollEventListener
 } from "../../event/InteractionManager";
-import {gameMap} from "../Game";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
+import {gameMap} from "../GameData";
 
 /**
  * Default map navigation handler.

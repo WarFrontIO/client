@@ -1,5 +1,5 @@
-import {gameMap} from "../../game/Game";
 import {territoryManager} from "../../game/TerritoryManager";
+import {gameMap} from "../../game/GameData";
 
 class AreaCalculator {
 	readonly AREA_SIZE = 50;

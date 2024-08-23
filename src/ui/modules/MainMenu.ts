@@ -23,7 +23,7 @@ export default {
 (window as any).commandStartGame = function () {
 	closeAllModules();
 	openModule("GameHud");
-	startGame(mapFromId(Math.floor(Math.random() * 2)), new FFAGameMode());
+	startGame(mapFromId(Math.floor(Math.random() * 2)), gameModeFromId(GameModeIds.FFA), 23452345, [{ name: getSetting("playerName") }], 0, true);
 };
 
 (window as any).commandShowCommunity = function () {

@@ -1,9 +1,9 @@
 import {random} from "../Random";
-import {gameMap, isLocalGame, startGameCycle} from "../Game";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "./Player";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {gameMap, isLocalGame} from "../GameData";
 import {packetRegistry, sendPacket} from "../../network/NetworkManager";
 import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundlePacket";
 import {clientPlayer, playerManager} from "./PlayerManager";

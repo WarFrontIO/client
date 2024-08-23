@@ -1,5 +1,4 @@
 import {Player} from "../../game/player/Player";
-import {gameMap} from "../../game/Game";
 import {formatTroops} from "../../util/StringFormatter";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../../game/TerritoryManager";
@@ -7,6 +6,7 @@ import {getSetting} from "../../util/UserSettingManager";
 import {random} from "../../game/Random";
 import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
+import {gameMap} from "../../game/GameData";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];

@@ -2,7 +2,7 @@ import {Boat} from "./Boat";
 import {clientPlayer, playerManager} from "../player/PlayerManager";
 import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
 import {gameTicker} from "../GameTicker";
-import {gameMap} from "../Game";
+import {gameMap} from "../GameData";
 
 class BoatManager {
 	private readonly boats: Boat[] = [];

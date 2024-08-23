@@ -4,7 +4,7 @@ import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRende
 import {attackActionHandler} from "../attack/AttackActionHandler";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {gameMode} from "../Game";
+import {gameMode} from "../GameData";
 import {spawnManager} from "./SpawnManager";
 
 export class Player {

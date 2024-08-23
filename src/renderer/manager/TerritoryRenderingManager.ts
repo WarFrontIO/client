@@ -1,11 +1,11 @@
 import {Player} from "../../game/player/Player";
-import {gameMap, isPlaying} from "../../game/Game";
 import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
 import {GameTheme} from "../GameTheme";
+import {gameMap, isPlaying} from "../../game/GameData";
 
 /**
  * When a player claims a tile, three types of updates are required:
