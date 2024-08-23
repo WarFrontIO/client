@@ -13,7 +13,13 @@ import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
 import {gameRenderer} from "../renderer/GameRenderer";
 import {boatManager} from "./boat/BoatManager";
+import {disconnectFromServer, packetRegistry} from "../network/NetworkManager";
+import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
+import {mapFromId} from "../map/MapRegistry";
+import {gameModeFromId} from "./mode/GameModeRegistry";
+import {closeAllModules, openModule} from "../ui/ModuleLoader";
 import {initGameData} from "./GameData";
+import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 
 /**
  * Start a new game with the given map.
@@ -38,3 +44,30 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 
 	random.reset(seed);
 }
+
+packetRegistry.handle(GameStartPacket, function () {
+	closeAllModules();
+	openModule("GameHud");
+	startGame(mapFromId(this.map), gameModeFromId(this.mode), this.seed, this.players, this.clientId, false);
+});
+
+packetRegistry.handle(GameTickPacket, function () {
+	if (this.index === 0 && !gameTicker.isRunning) {
+		spawnManager.isSelecting = false;
+		for (const player of playerManager.getPlayers()) {
+			if (player.getTerritorySize() === 0) {
+				spawnManager.randomSpawnPoint(player);
+			}
+		}
+		gameTicker.start();
+	}
+	const expectedIndex = Math.ceil(gameTicker.getTickCount() / 10) + gameTicker.dataPacketQueue.length;
+	if (this.index === expectedIndex % 256) {
+		gameTicker.addPacket(this);
+	} else {
+		console.warn(`Received out-of-order game tick packet ${this.index} expected ${expectedIndex % 256}`);
+		//TODO: Handle out-of-order packets: Cache this packet and request missing packets from the server
+		//TODO: Show error message to the user
+		disconnectFromServer();
+	}
+});

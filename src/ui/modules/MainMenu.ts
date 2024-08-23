@@ -1,9 +1,9 @@
-import { startGame } from "../../game/Game";
-import { mapFromId } from "../../map/MapRegistry";
-import { ModuleAdapter, closeAllModules, closeModule } from "../ModuleLoader";
-import { openModule } from "../ModuleLoader";
-import { FFAGameMode } from "../../game/mode/FFAGameMode";
-import { getSetting, updateSetting } from "../../util/UserSettingManager";
+import {mapFromId} from "../../map/MapRegistry";
+import {closeAllModules, ModuleAdapter, openModule} from "../ModuleLoader";
+import {getSetting, updateSetting} from "../../util/UserSettingManager";
+import {startGame} from "../../game/Game";
+import {gameModeFromId} from "../../game/mode/GameModeRegistry";
+import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 
 const txtPlayerName: HTMLInputElement = (window.document.getElementById("txtPlayerName") as HTMLInputElement);
 const lblPlayerNameValidation: HTMLElement = (window.document.getElementById("lblPlayerNameValidation") as HTMLElement);

@@ -52,6 +52,13 @@ class PlayerManager {
 		return this.players[id];
 	}
 
+	/**
+	 * Get all players.
+	 */
+	getPlayers(): Player[] {
+		return this.players;
+	}
+
 	//TODO: bot ticking should be done in a separate bot manager
 	tick(): void {
 		this.bots.forEach(bot => bot.tick());
