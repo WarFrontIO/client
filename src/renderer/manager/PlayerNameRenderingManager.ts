@@ -216,7 +216,7 @@ export class PlayerNameRenderingData {
 	 */
 	private renderName(name: string): void {
 		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(200 / (this.nameLength = playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 8) + "px " + getSetting("theme").getFont();
+		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.min(Math.floor(200 / (this.nameLength = playerNameRenderingManager.partialAtlasContext.measureText(name).width)), 8).toString() + "px " + getSetting("theme").getFont();
 		playerNameRenderingManager.partialAtlasContext.fillText(name, this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 
@@ -275,10 +275,10 @@ export class PlayerNameRenderingData {
 		if (this.size * mapNavigationHandler.zoom >= 20) {
 			context.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
 			context.textBaseline = "bottom";
-			context.font = "bold " + Math.floor(Math.min(10 / this.nameLength, 0.4) * this.size * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
+			context.font = "bold " + Math.floor(Math.min(10 / this.nameLength, 0.4) * this.size * mapNavigationHandler.zoom).toString() + "px " + getSetting("theme").getFont();
 			context.fillText(player.name, Math.floor((this.nameX - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y));
 			context.textBaseline = "top";
-			context.font = "bold " + Math.floor(1 / Math.max(3, player.getTroops().toString().length) * 3 * this.size / this.troopLength * mapNavigationHandler.zoom) + "px " + getSetting("theme").getFont();
+			context.font = "bold " + Math.floor(1 / Math.max(3, player.getTroops().toString().length) * 3 * this.size / this.troopLength * mapNavigationHandler.zoom).toString() + "px " + getSetting("theme").getFont();
 			context.fillText(formatTroops(player.getTroops()), Math.floor((this.nameX - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size / 2 + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y));
 		} else {
 			context.drawImage(playerNameRenderingManager.partialElementAtlas, (this.id % playerNameRenderingManager.atlasRowLength) * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20, 20, 20, Math.floor((this.nameX - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.x), Math.floor((this.nameY - this.size + 1) * mapNavigationHandler.zoom + mapNavigationHandler.y), Math.floor(this.size * mapNavigationHandler.zoom), Math.floor(this.size * mapNavigationHandler.zoom));
@@ -292,7 +292,7 @@ export class PlayerNameRenderingData {
 	updatePartial(player: Player): void {
 		playerNameRenderingManager.partialAtlasContext.clearRect(this.id % playerNameRenderingManager.atlasRowLength * 20, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10, 20, 10);
 		playerNameRenderingManager.partialAtlasContext.fillStyle = "rgb(0, 0, 0)"; //TODO: This needs to be decided by the theme
-		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(60 / Math.max(3, player.getTroops().toString().length) / this.troopLength) + "px " + getSetting("theme").getFont();
+		playerNameRenderingManager.partialAtlasContext.font = "bold " + Math.floor(60 / Math.max(3, player.getTroops().toString().length) / this.troopLength).toString() + "px " + getSetting("theme").getFont();
 		playerNameRenderingManager.partialAtlasContext.fillText(formatTroops(player.getTroops()), this.id % playerNameRenderingManager.atlasRowLength * 20 + 10, Math.floor(this.id / playerNameRenderingManager.atlasRowLength) * 20 + 10);
 	}
 }

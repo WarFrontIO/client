@@ -35,6 +35,7 @@ export function endpointPOST<T extends string>(url: T, auth: boolean = false) {
 function fillPathParams<T extends string, U extends ExtractParams<T> & Record<string, string>>(url: T, params: U) {
 	return url.replace(/{([^}]+)}/g, (_, key: keyof U) => {
 		const value = params[key];
+		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- We intentionally mutate the object here
 		delete params[key];
 		return value;
 	});

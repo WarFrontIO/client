@@ -9,7 +9,7 @@ export function formatTroops(troops: number): string {
 }
 
 export function formatTime(time: number): string {
-    const pad = (n: number, z: number = 2) => ('00' + n).slice(-z);
+    const pad = (n: number, z: number = 2) => ("00" + n.toString()).slice(-z);
     
     const minutes = Math.floor(time / 60000);
     time %= 60000;

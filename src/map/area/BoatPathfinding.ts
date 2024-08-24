@@ -190,7 +190,7 @@ export function findStartingPoint(target: number): number | null {
 		if (cost >= foundCost) {
 			break;
 		}
-		if (territoryManager.playerIndex[node.canonicalAreaId] > 0) {
+		if (territoryManager.playerIndex[node.canonicalAreaId as number] > 0) {
 			const [tile, distance] = findPlayerTile(node.x + node.y * gameMap.width);
 			if (distance < foundCost) {
 				found = tile;

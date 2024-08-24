@@ -132,7 +132,7 @@ function tryFetchUserToken(resolve: (token: UserToken) => void, retries: number)
 export function awaitSafeForward(): Promise<void> {
 	if (fetchUserToken.isPending()) {
 		return new Promise((resolve, reject) => {
-			fetchUserToken().then(() => resolve()).catch((e: Error) => reject(e));
+			fetchUserToken().then(() => resolve()).catch(reject);
 		});
 	}
 	return Promise.resolve();

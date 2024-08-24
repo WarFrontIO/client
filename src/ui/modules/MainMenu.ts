@@ -1,5 +1,5 @@
 import {mapFromId} from "../../map/MapRegistry";
-import {closeAllModules, ModuleAdapter, openModule} from "../ModuleLoader";
+import {closeAllModules, openModule} from "../ModuleLoader";
 import {getSetting, registerSettingListener, updateSetting} from "../../util/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";

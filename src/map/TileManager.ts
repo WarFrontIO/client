@@ -22,7 +22,7 @@ export class TileManager {
 	 */
 	registerTileType(tileType: TileType): void {
 		if (this.tileTypes[tileType.id] !== undefined) {
-			throw new UnsupportedDataException("TileType with id " + tileType.id + " already registered")
+			throw new UnsupportedDataException(`TileType with id ${tileType.id} already registered`)
 		}
 		this.tileTypes[tileType.id] = tileType;
 	}
@@ -40,10 +40,10 @@ export class TileManager {
 	overrideTileType(tileType: TileType): void {
 		const existingTileType = this.tileTypes[tileType.id];
 		if (existingTileType === undefined) {
-			throw new UnsupportedDataException("TileType with id " + tileType.id + " not registered")
+			throw new UnsupportedDataException(`TileType with id ${tileType.id} not registered`)
 		}
 		if (existingTileType.isSolid !== tileType.isSolid) {
-			throw new UnsupportedDataException("TileType with id " + tileType.id + " isSolid does not match")
+			throw new UnsupportedDataException(`TileType with id ${tileType.id} isSolid does not match`)
 		}
 		this.tileTypes[tileType.id] = tileType;
 	}

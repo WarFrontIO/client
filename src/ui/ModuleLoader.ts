@@ -14,7 +14,7 @@ registerSettingListener("theme", (theme) => {
 export function openModule(name: string) {
 	const module = modules.get(name);
 	if (module) {
-		moduleAdapters.get(name)!.onOpen();
+		moduleAdapters.get(name)?.onOpen();
 		module.style.display = "block";
 		openModules.push(name);
 	}
@@ -22,14 +22,20 @@ export function openModule(name: string) {
 
 export function closeModule(name: string) {
 	if (openModules.includes(name)) {
-		modules.get(name)!.style.display = "none";
+		const module = modules.get(name);
+		if (module) {
+			module.style.display = "none";
+		}
 		openModules = openModules.filter(item => item !== name);
 	}
 }
 
 export function closeAllModules() {
-	openModules.forEach(module => {
-		modules.get(module)!.style.display = "none";
+	openModules.forEach(name => {
+		const module = modules.get(name);
+		if (module) {
+			module.style.display = "none";
+		}
 	});
 	openModules = [];
 }

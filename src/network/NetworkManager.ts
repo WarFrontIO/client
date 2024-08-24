@@ -42,7 +42,7 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 		if (openSocket !== null) {
 			openSocket.close();
 		}
-		openSocket = new WebSocket(host + "?v=" + PROTOCOL_VERSION);
+		openSocket = new WebSocket(`${host}?v=${PROTOCOL_VERSION}`);
 		openSocket.binaryType = "arraybuffer";
 		openSocket.onopen = () => {
 			console.log("Socket opened");
@@ -65,7 +65,7 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 			reject(new NetworkException("Socket closed"));
 			if (e.code !== SocketErrorCodes.NO_ERROR as number) {
 				//TODO: Show error message to user
-				console.error("Socket closed with code " + e.code);
+				console.error(`Socket closed with code ${e.code}`);
 			}
 		}
 		openSocket.onerror = () => {};
@@ -137,7 +137,7 @@ export function sendPacket<T extends BasePacket<T>>(packet: T, force: boolean = 
 	if (!openSocket || (!force && !socketReady) || openSocket.readyState !== WebSocket.OPEN) {
 		throw new NetworkException("Socket is not open or not connected");
 	}
-	openSocket.send(packet.transferContext.serialize<T, void>(packet, packetRegistry));
+	openSocket.send(packet.transferContext.serialize(packet, packetRegistry));
 }
 
 /**

@@ -191,8 +191,8 @@ class AreaCalculator {
 	 * @param height The height of the area.
 	 */
 	private calculateDistancesRaw(node: Node, others: Node[], minX: number, minY: number, width: number, height: number): void {
-		const isSetting = node.canonicalAreaId === undefined;
-		if (isSetting) {
+		const isNewArea = node.canonicalAreaId === undefined;
+		if (node.canonicalAreaId === undefined) {
 			node.canonicalAreaId = canonicalAreaId++;
 			this.areaIndex[node.x + node.y * gameMap.width] = node.canonicalAreaId;
 			this.nodeIndex[node.canonicalAreaId] = [node];
@@ -214,7 +214,7 @@ class AreaCalculator {
 				if (i >= 4 && (gameMap.getDistance(x + minX + (ny + minY) * gameMap.width) >= 0 || gameMap.getDistance(nx + minX + (y + minY) * gameMap.width) >= 0)) {
 					continue;
 				}
-				if (isSetting) {
+				if (isNewArea) {
 					this.areaIndex[nx + minX + (ny + minY) * gameMap.width] = id;
 				}
 
@@ -291,9 +291,9 @@ export class Node {
 	y: number;
 	level: number = 0;
 	/** Warning: The cache is reversed and excludes this node */
-	edges: { node: Node, cost: number, cache: number[] }[] = [];
+	edges: {node: Node, cost: number, cache: number[]}[] = [];
 	id = currentNodeId++;
-	canonicalAreaId: number;
+	canonicalAreaId: number | undefined;
 
 	constructor(x: number, y: number) {
 		this.x = x;
