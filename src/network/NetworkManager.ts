@@ -48,7 +48,7 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 			console.log("Socket opened");
 			authPromise.then(token => {
 				try {
-					sendPacket(new HandshakeAuthPacket(PROTOCOL_VERSION, getSetting("playerName"), token), true);
+					sendPacket(new HandshakeAuthPacket(PROTOCOL_VERSION, getSetting("player-name"), token), true);
 					awaitHandshakeResponse().then(() => {
 						socketReady = true;
 						resolve();

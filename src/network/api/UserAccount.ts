@@ -1,5 +1,5 @@
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
 import {apiToUserAccount, APIUserAccount, UserAccount} from "../protocol/util/ProtocolUtils";
+import {ManagedEventHandlerRegistry} from "../../event/ManagedEventHandlerRegistry";
 
 let userAccount: UserAccount | null = null;
 
@@ -24,4 +24,4 @@ export function getUserAccount(): UserAccount | null {
 	return userAccount;
 }
 
-export const accountSwitchHandler: EventHandlerRegistry<[UserAccount | null]> = new EventHandlerRegistry(true, listener => listener(userAccount));
+export const accountSwitchHandler: ManagedEventHandlerRegistry<[UserAccount | null]> = new ManagedEventHandlerRegistry(true, listener => listener(userAccount));

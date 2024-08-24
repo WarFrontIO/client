@@ -1,6 +1,6 @@
 import {mapFromId} from "../../map/MapRegistry";
 import {closeAllModules, ModuleAdapter, openModule} from "../ModuleLoader";
-import {getSetting, updateSetting} from "../../util/UserSettingManager";
+import {getSetting, registerSettingListener, updateSetting} from "../../util/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
@@ -17,7 +17,7 @@ registerSettingListener("player-name", name => txtPlayerName.value = name, true)
 (window as any).commandStartGame = function () {
 	closeAllModules();
 	openModule("GameHud");
-	startGame(mapFromId(Math.floor(Math.random() * 2)), gameModeFromId(GameModeIds.FFA), 23452345, [{ name: getSetting("playerName") }], 0, true);
+	startGame(mapFromId(Math.floor(Math.random() * 2)), gameModeFromId(GameModeIds.FFA), 23452345, [{ name: getSetting("player-name") }], 0, true);
 };
 
 (window as any).commandShowCommunity = function () {
