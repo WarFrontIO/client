@@ -1,6 +1,5 @@
-import {UnsupportedDataException} from "./exception/UnsupportedDataException";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
-import {InvalidArgumentException} from "./exception/InvalidArgumentException";
+import {InvalidArgumentException, UnsupportedDataException} from "./Exceptions";
 
 /**
  * Important Note: For types to work correctly, all register calls must be chained together.

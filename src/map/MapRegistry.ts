@@ -1,6 +1,6 @@
 import {decodeMap} from "./codec/MapCodec";
 import {GameMap} from "./GameMap";
-import {InvalidArgumentException} from "../util/exception/InvalidArgumentException";
+import {InvalidArgumentException} from "../util/Exceptions";
 
 const mapRegistry: EncodedMapData[] = [];
 

@@ -2,7 +2,6 @@ import {PacketRegistry, PROTOCOL_VERSION} from "./protocol/PacketRegistry";
 import {getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
 import {HandshakeResponsePacket} from "./protocol/packet/handshake/HandshakeResponsePacket";
-import {NetworkException} from "../util/exception/NetworkException";
 import {HandshakeAuthPacket} from "./protocol/packet/handshake/HandshakeAuthPacket";
 import {getSetting} from "../util/UserSettingManager";
 import {timedPromise} from "../util/TimedPromise";
@@ -11,6 +10,7 @@ import {deserializePacket} from "./protocol/DataTransferContext";
 import {BasePacket} from "./protocol/packet/BasePacket";
 import {isLocalGame} from "../game/GameData";
 import {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
+import {NetworkException} from "../util/Exceptions";
 
 export const packetRegistry = new PacketRegistry<void>();
 

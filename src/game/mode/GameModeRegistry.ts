@@ -1,7 +1,7 @@
 import {GameMode} from "./GameMode";
-import {InvalidArgumentException} from "../../util/exception/InvalidArgumentException";
 import {FFAGameMode} from "./FFAGameMode";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
+import {InvalidArgumentException} from "../../util/Exceptions";
 
 const gameModes: { [id in GameModeIds]: GameMode } & GameMode[] = [
 	new FFAGameMode()

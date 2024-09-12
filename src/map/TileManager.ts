@@ -1,7 +1,7 @@
 import {TileType} from "./tile/TileType";
 import {WaterTile} from "./tile/WaterTile";
 import {GrassTile} from "./tile/GrassTile";
-import {UnsupportedDataException} from "../util/exception/UnsupportedDataException";
+import {UnsupportedDataException} from "../util/Exceptions";
 
 export class TileManager {
 	private tileTypes: TileType[] = [];

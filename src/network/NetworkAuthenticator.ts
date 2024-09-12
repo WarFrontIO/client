@@ -2,8 +2,8 @@ import {buildPromiseBundle} from "../util/PromiseBundle";
 import {CookieContext} from "../util/CookieContext";
 import {updateUserAccount} from "./api/UserAccount";
 import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
-import {InvalidArgumentException} from "../util/exception/InvalidArgumentException";
 import {openModule} from "../ui/ModuleLoader";
+import {InvalidArgumentException} from "../util/Exceptions";
 
 type UserToken = {
 	/**

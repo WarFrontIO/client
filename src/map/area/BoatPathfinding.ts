@@ -2,8 +2,8 @@ import {PriorityQueue} from "../../util/PriorityQueue";
 import {areaCalculator, Node} from "./AreaCalculator";
 import {territoryManager} from "../../game/TerritoryManager";
 import {clientPlayer} from "../../game/player/PlayerManager";
-import {UnsupportedDataException} from "../../util/exception/UnsupportedDataException";
 import {gameMap} from "../../game/GameData";
+import {UnsupportedDataException} from "../../util/Exceptions";
 
 /**
  * Pathfinding for boats.
