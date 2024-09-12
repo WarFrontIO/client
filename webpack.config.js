@@ -32,7 +32,7 @@ module.exports = {
 			{
 				test: /\.ts$/,
 				use: ["menu-loader"],
-				include: path.resolve(__dirname, "./src/ui/ModuleLoader.ts")
+				include: path.resolve(__dirname, "./src/ui/UIManager.ts")
 			},
 			{
 				test: /\.ts$/,

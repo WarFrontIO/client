@@ -40,8 +40,8 @@ class MapActionHandler implements ClickEventListener {
 		this.action(mapNavigationHandler.getIndex(x, y));
 	}
 
-	test(x: number, y: number): boolean {
-		return mapNavigationHandler.isOnMap(x, y);
+	test(x: number, y: number, element: string): boolean {
+		return !element && mapNavigationHandler.isOnMap(x, y);
 	}
 }
 

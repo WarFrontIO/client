@@ -14,15 +14,15 @@ import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry
  */
 class InteractionManager {
 	/** Registry for click event listeners. */
-	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
+	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.CLICK);
 	/** Registry for drag event listeners. */
-	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
+	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.DRAG);
 	/** Registry for scroll event listeners. */
-	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry();
+	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.SCROLL);
 	/** Registry for multi-touch event listeners. */
-	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry();
+	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.MULTITOUCH);
 	/** Registry for hover event listeners. */
-	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
+	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.HOVER);
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
 	pressY: number = 0;
@@ -45,7 +45,7 @@ class InteractionManager {
 		interactionManager.pressY = event.y;
 		interactionManager.dragTimeout = setTimeout(() => {
 			interactionManager.dragTimeout = null;
-			interactionManager.drag.choose(event.x, event.y);
+			interactionManager.drag.choose(event.x, event.y, event.target);
 			interactionManager.drag.call(l => l.onDragStart(event.x, event.y));
 		}, 1000);
 	}
@@ -63,7 +63,7 @@ class InteractionManager {
 		if (interactionManager.dragTimeout) {
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
-			interactionManager.click.choose(event.x, event.y);
+			interactionManager.click.choose(event.x, event.y, event.target);
 			interactionManager.click.call(l => l.onClick(event.x, event.y));
 		} else {
 			interactionManager.drag.call(l => l.onDragEnd(event.x, event.y));
@@ -76,7 +76,7 @@ class InteractionManager {
 			if (Math.abs(event.x - interactionManager.pressX) + Math.abs(event.y - interactionManager.pressY) < 10) return;
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
-			interactionManager.drag.choose(interactionManager.pressX, interactionManager.pressY);
+			interactionManager.drag.choose(interactionManager.pressX, interactionManager.pressY, event.target);
 			interactionManager.drag.call(l => l.onDragStart(interactionManager.pressX, interactionManager.pressY));
 		}
 		if (interactionManager.touchPoints.size > 1) {
@@ -86,7 +86,7 @@ class InteractionManager {
 		interactionManager.drag.call(l => l.onDragMove(event.x, event.y, event.x - interactionManager.pressX, event.y - interactionManager.pressY));
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
-		interactionManager.hover.choose(event.x, event.y);
+		interactionManager.hover.choose(event.x, event.y, event.target);
 		interactionManager.hover.call(l => l.onHover(event.x, event.y));
 	}
 
@@ -96,7 +96,7 @@ class InteractionManager {
 			event.preventDefault();
 			delta *= 7;
 		}
-		interactionManager.scroll.choose(event.x, event.y);
+		interactionManager.scroll.choose(event.x, event.y, event.target);
 		interactionManager.scroll.call(l => l.onScroll(event.x, event.y, delta));
 	}
 
@@ -112,7 +112,8 @@ class InteractionManager {
 		const oldCenterX = (oldPoint1.x + oldPoint2.x) / 2, oldCenterY = (oldPoint1.y + oldPoint2.y) / 2;
 		const newCenterX = (newPoint1.x + newPoint2.x) / 2, newCenterY = (newPoint1.y + newPoint2.y) / 2;
 
-		interactionManager.multitouch.choose(newCenterX, newCenterY);
+		//TODO: Why are we choosing the multitouch listeners here?
+		interactionManager.multitouch.choose(newCenterX, newCenterY, event.target);
 		interactionManager.multitouch.call(l => l.onMultiTouch(oldCenterX, oldCenterY, newCenterX, newCenterY, zoomFactor));
 	}
 }
@@ -127,9 +128,10 @@ export interface BasicInteractionListener {
 	 * Tests if the listener should receive events at the given position.
 	 * @param x The screen x-coordinate of the event.
 	 * @param y The screen y-coordinate of the event.
+	 * @param element The element that received the event.
 	 * @returns True if the listener should receive events at the given position.
 	 */
-	test(x: number, y: number): boolean;
+	test(x: number, y: number, element: string | null): boolean;
 }
 
 /**
@@ -230,6 +232,22 @@ export interface HoverEventListener extends BasicInteractionListener {
 	 * @param y The screen y-coordinate of the hover.
 	 */
 	onHover(x: number, y: number): void;
+}
+
+export enum InteractionType {
+	CLICK,
+	DRAG,
+	SCROLL,
+	MULTITOUCH,
+	HOVER
+}
+
+export type InteractionListeners = {
+	[InteractionType.CLICK]: ClickEventListener,
+	[InteractionType.DRAG]: DragEventListener,
+	[InteractionType.SCROLL]: ScrollEventListener,
+	[InteractionType.MULTITOUCH]: MultiTouchEventListener,
+	[InteractionType.HOVER]: HoverEventListener
 }
 
 export const interactionManager = new InteractionManager();

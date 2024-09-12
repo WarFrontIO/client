@@ -17,9 +17,9 @@ import {disconnectFromServer, packetRegistry} from "../network/NetworkManager";
 import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
 import {mapFromId} from "../map/MapRegistry";
 import {gameModeFromId} from "./mode/GameModeRegistry";
-import {closeAllModules, openModule} from "../ui/ModuleLoader";
 import {initGameData} from "./GameData";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
+import {hideAllUIElements, showUIElement} from "../ui/UIManager";
 
 /**
  * Start a new game with the given map.
@@ -46,8 +46,8 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 }
 
 packetRegistry.handle(GameStartPacket, function () {
-	closeAllModules();
-	openModule("GameHud");
+	hideAllUIElements();
+	showUIElement("GameHud");
 	startGame(mapFromId(this.map), gameModeFromId(this.mode), this.seed, this.players, this.clientId, false);
 });
 

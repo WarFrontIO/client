@@ -1,5 +1,5 @@
 import {handleAuthCallback} from "../network/NetworkAuthenticator";
-import {openModule} from "../ui/ModuleLoader";
+import {showUIElement} from "../ui/UIManager";
 
 const paths: Record<string, (params: URLSearchParams, path: string[]) => void> = {
 	auth: handleAuthCallback
@@ -12,7 +12,7 @@ export function handlePath(): void {
 	const path = window.location.pathname.match(/\/([^/]+)/);
 	if (path === null || path[1] === undefined || !(path[1] in paths)) {
 		window.history.replaceState(null, "", "/");
-		openModule("MainMenu");
+		showUIElement("MainMenu");
 		return;
 	}
 	try {
@@ -21,6 +21,6 @@ export function handlePath(): void {
 	} catch (e) {
 		console.error(e);
 		window.history.replaceState(null, "", "/");
-		openModule("MainMenu");
+		showUIElement("MainMenu");
 	}
 }

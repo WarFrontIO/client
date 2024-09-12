@@ -2,8 +2,8 @@ import {buildPromiseBundle} from "../util/PromiseBundle";
 import {CookieContext} from "../util/CookieContext";
 import {updateUserAccount} from "./api/UserAccount";
 import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
-import {openModule} from "../ui/ModuleLoader";
 import {InvalidArgumentException} from "../util/Exceptions";
+import {showUIElement} from "../ui/UIManager";
 
 type UserToken = {
 	/**
@@ -175,5 +175,5 @@ export function handleAuthCallback(params: URLSearchParams, _path: string[]) {
 	sessionStorage.removeItem("authState");
 	window.history.replaceState(null, "", "/");
 	//TODO: Show a tooltip that the user was logged in
-	openModule("MainMenu");
+	showUIElement("MainMenu");
 }

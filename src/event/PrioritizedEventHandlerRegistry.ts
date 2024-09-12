@@ -1,4 +1,5 @@
-import {BasicInteractionListener} from "./InteractionManager";
+import {BasicInteractionListener, InteractionType} from "./InteractionManager";
+import {resolveInteraction} from "../ui/UIEventResolver";
 
 /**
  * Registry for prioritized event handlers.
@@ -9,6 +10,11 @@ import {BasicInteractionListener} from "./InteractionManager";
 export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener> {
 	protected listeners: T[] = [];
 	private currentListener: T | null = null;
+
+	//TODO: This should not be known to the registry
+	constructor(
+		private readonly type: InteractionType
+	) {}
 
 	/**
 	 * Registers a listener to receive events.
@@ -45,9 +51,11 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	 * The first listener that returns true for the test method is chosen.
 	 * @param x The x coordinate of the event.
 	 * @param y The y coordinate of the event.
+	 * @param element The element that received the event.
 	 */
-	choose(x: number, y: number): void {
-		this.currentListener = this.listeners.find(l => l.test(x, y)) || null;
+	choose(x: number, y: number, element: EventTarget | null): void {
+		const resolved = resolveInteraction(element as HTMLElement, this.type);
+		this.currentListener = this.listeners.find(l => l.test(x, y, resolved ? resolved.id : null)) || (resolved ? resolved.listener as T : null);
 	}
 
 	/**

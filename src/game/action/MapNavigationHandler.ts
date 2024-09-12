@@ -69,8 +69,8 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 		mapTransformHandler.move.broadcast();
 	}
 
-	test(_x: number, _y: number): boolean {
-		return true;
+	test(_x: number, _y: number, element: string): boolean {
+		return !element;
 	}
 
 	onDragStart(_x: number, _y: number): void {

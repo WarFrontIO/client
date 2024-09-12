@@ -9,14 +9,15 @@ class WebpackUIModuleLoader {
 			HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tapAsync("UiModuleLoader", (data, cb) => {
 				console.log("Injecting UI modules...");
 				if (!data.bodyTags) data.bodyTags = [];
-				for (const file of readdirSync("src/ui/modules")) {
+				for (const file of readdirSync("src/ui/element/static")) {
 					if (!file.endsWith(".html")) continue;
 					data.bodyTags.push({
 						tagName: "div",
 						attributes: {
-							id: file.replace(".html", "")
+							id: file.replace(".html", ""),
+							style: "display: none"
 						},
-						innerHTML: readFileSync("src/ui/modules/" + file, "utf8").replace(/<ignore>.*?<\/ignore>/gs, "")
+						innerHTML: readFileSync("src/ui/element/static/" + file, "utf8").replace(/<ignore>.*?<\/ignore>/gs, "")
 					});
 				}
 
@@ -110,7 +111,7 @@ function processCssFiles(files) {
 			}
 		}
 
-		const fontFace = findBlock(files[i], "@font-face");
+		const fontFace = findBlock(files[i], "@font-face", true);
 		for (let j = 0; j < fontFace.length; j++) {
 			const fontFiles = fontFace[j].match(/url\((.*?)\)/g);
 			files[i] = files[i].replace(fontFace[j], "");
@@ -130,18 +131,20 @@ function processCssFiles(files) {
 	return `:root { ${vars} } ${globalScope.join(" ")} ${files.join("\n")}`;
 }
 
-function findBlock(content, block) {
+function findBlock(content, block, includeGlobal = false) {
 	let results = [];
 	let depth = 0;
 	let start = -1;
+	let startDepth = 0;
 	for (let i = 0; i < content.length; i++) {
-		if (content.slice(i, i + block.length) === block && depth === 1) {
+		if (content.slice(i, i + block.length) === block && (depth === 1 || includeGlobal && depth === 0)) {
 			start = i;
+			startDepth = depth;
 		} else if (content[i] === "{") {
 			depth++;
 		} else if (content[i] === "}") {
 			depth--;
-			if (depth === 1 && start !== -1) {
+			if (depth === startDepth && start !== -1) {
 				results.push(content.slice(start, i + 1));
 				start = -1;
 			}

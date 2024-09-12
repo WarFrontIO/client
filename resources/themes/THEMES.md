@@ -14,7 +14,7 @@ Define any rules here, refer to other themes for classes and ids to style
 
 Themes should always start with `@import "../base.css";`, while this doesn't actually affect the theme when imported into the game, it is important for the theme preview in your browser. <br>
 
-Pro-tip: Head over to one of the modules [here](/src/ui/modules) and paste / modify the following code to see the theme in action, without having to compile the game:
+Pro-tip: Head over to one of the modules [here](/src/ui/element) and paste / modify the following code to see the theme in action, without having to compile the game:
 ```html
 <ignore>
 	<link rel="stylesheet" type="text/css" href="../../../resources/themes/<yourtheme>.css">
