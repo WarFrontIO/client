@@ -79,6 +79,15 @@ class TerritoryManager {
 	}
 
 	/**
+	 * Checks if a tile is water.
+	 * @param tile The tile to check.
+	 * @returns True if the tile is water, false otherwise.
+	 */
+	isWater(tile: number): boolean {
+		return this.tileOwners[tile] === this.OWNER_NONE - 1;
+	}
+
+	/**
 	 * Conquers a tile for a player.
 	 *
 	 * If the tile is already owned by a player, the player will lose the tile.

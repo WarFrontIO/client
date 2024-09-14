@@ -15,6 +15,7 @@ export class Player {
 	readonly borderTiles: Set<number> = new Set();
 	private territorySize: number = 0;
 	private alive: boolean = true;
+	protected waterTiles = 0;
 
 	constructor(id: number, name: string, baseColor: HSLColor) {
 		this.id = id;
@@ -38,7 +39,9 @@ export class Player {
 			territoryRenderingManager.setTerritory(tile);
 		}
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
+			if (territoryManager.isWater(neighbor)) {
+				this.waterTiles++;
+			} else if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				territoryRenderingManager.setTerritory(neighbor);
 				playerNameRenderingManager.addTile(neighbor);
 			}
@@ -59,7 +62,9 @@ export class Player {
 			playerNameRenderingManager.removeTile(tile);
 		}
 		onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
+			if (territoryManager.isWater(neighbor)) {
+				this.waterTiles--;
+			} else if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				territoryRenderingManager.setTargetBorder(neighbor);
 				playerNameRenderingManager.removeTile(neighbor);

@@ -77,12 +77,21 @@ class BoatManager {
 		const path = calculateBoatWaypoints(start, end).filter(piece => piece.length > 0);
 
 		if (path.length > 0) {
-			//TODO: boats need a hefty tax (scaling with distance and player strength)
-			const troops = Math.floor(owner.getTroops() * percentage);
-			owner.removeTroops(troops);
-
-			this.boats.push(new Boat(owner, path, troops));
+			this.addBoatInternal(owner, path, percentage);
 		}
+	}
+
+	/**
+	 * Adds a boat to the boat manager.
+	 * @param owner The owner of the boat.
+	 * @param path The path to follow.
+	 * @param percentage The percentage of the owner's troops to send.
+	 */
+	addBoatInternal(owner: Player, path: number[][], percentage: number): void {
+		const troops = Math.floor(owner.getTroops() * percentage);
+		owner.removeTroops(troops);
+
+		this.boats.push(new Boat(owner, path, troops));
 	}
 
 	/**
