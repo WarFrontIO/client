@@ -7,6 +7,7 @@ import {playerManager} from "../player/PlayerManager";
 
 export class BotStrategy {
 	constructor(
+		private readonly dropAttackChance: number,
 		private readonly targetSmallChance: number,
 		private readonly targetNonPlayerChance: number,
 		private readonly densityChoiceChance: number,
@@ -34,6 +35,11 @@ export class BotStrategy {
 		//Always attack neutral territories if possible
 		if (targets.includes(territoryManager.OWNER_NONE)) {
 			return territoryManager.OWNER_NONE;
+		}
+
+		//Chance to not attack, might cause a boat to be spawned instead
+		if (random.nextInt(100) < this.dropAttackChance) {
+			return null;
 		}
 
 		//Prefer attacking players with 10% or less of the player's territories (also kinda to make the game map look less chaotic)
@@ -74,5 +80,5 @@ export class BotStrategy {
  * Selects a bot strategy.
  */
 export function selectBotStrategy(): BotStrategy {
-	return new BotStrategy(random.nextInt(100), random.nextInt(100), random.nextInt(20));
+	return new BotStrategy(5 + random.nextInt(10), random.nextInt(100), random.nextInt(100), random.nextInt(20));
 }
