@@ -1,10 +1,11 @@
 import {Player} from "./Player";
-import {BotPlayer} from "./BotPlayer";
+import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 class PlayerManager {
+	private humanCount: number;
 	private players: Player[];
 	private bots: BotPlayer[];
 
@@ -18,6 +19,7 @@ class PlayerManager {
 		this.players = [];
 		this.bots = [];
 
+		this.humanCount = humans.length;
 		clientPlayer = humans[clientId];
 		for (const player of humans) {
 			this.registerPlayer(player, false);
@@ -57,6 +59,15 @@ class PlayerManager {
 	 */
 	getPlayers(): Player[] {
 		return this.players;
+	}
+
+	/**
+	 * Check if the player with the given ID is a bot.
+	 * @param player The ID of the player.
+	 * @returns Whether the player is a bot.
+	 */
+	isBot(player: number): boolean {
+		return player >= this.humanCount;
 	}
 
 	//TODO: bot ticking should be done in a separate bot manager
