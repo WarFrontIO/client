@@ -1,5 +1,4 @@
 import {Player} from "../player/Player";
-import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../TerritoryManager";
 import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
@@ -8,12 +7,25 @@ import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderi
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "../GameData";
 
+/**
+ * This is the max amount of ticks it can take to conquer a tile.
+ * It can be calculated as follows:
+ * 1. The maximum speed factor is 2 / 0.325
+ * 2. The maximum tile expansion time is 255
+ * 3. The maximum multiplier is (0.025 + 0.06)
+ * -> ceil(255 * 2 / 0.325 * (0.025 + 0.06)) = 134
+ */
+const MAX_ATTACK_SCHEDULE = 134 + 1;
+
+//TODO: Replace per-player data structures with proper transaction handling (this would allow handling tiles out of player order)
 export class AttackExecutor {
 	readonly player: Player;
 	readonly target: Player | null;
 	private troops: number;
-	private tileQueue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] < b[0]);
-	private basePriority: number = 0;
+	private readonly tileQueue: number[][];
+	private queueSlot: number = 0;
+	private scheduledTiles: number = 0;
+	private speedFactor: number;
 
 	/**
 	 * Create a new attack executor.
@@ -26,7 +38,9 @@ export class AttackExecutor {
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
+		this.tileQueue = new Array(MAX_ATTACK_SCHEDULE).fill(null).map(() => []);
 		this.orderTiles(borderTiles);
+		this.speedFactor = this.calculateSpeedFactor();
 	}
 
 	/**
@@ -66,10 +80,14 @@ export class AttackExecutor {
 	tick(): boolean {
 		const attackCost = this.calculateAttackCost();
 		const defenseCost = Math.ceil((1 + attackCost) / 2);
+		this.speedFactor = this.calculateSpeedFactor();
 
+		const currentSlot = this.tileQueue[this.queueSlot % MAX_ATTACK_SCHEDULE];
 		let conquered = 0;
-		while (this.troops >= attackCost && !this.tileQueue.isEmpty() && this.tileQueue.peek()[0] < this.basePriority) {
-			const [_, tile] = this.tileQueue.pop();
+		while (this.troops >= attackCost && currentSlot.length > 1) {
+			this.queueSlot = currentSlot.pop() || 0;
+			const tile = currentSlot.pop() || 0;
+			this.scheduledTiles--;
 			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
 			if (!bordersTile(tile, this.player.id)) continue;
 			territoryManager.conquer(tile, this.player.id);
@@ -83,9 +101,9 @@ export class AttackExecutor {
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);
 
-		if (this.tileQueue.isEmpty() || this.troops < attackCost) return false;
+		if (this.scheduledTiles <= 0 || this.troops < attackCost) return false;
 
-		this.basePriority += this.calculateSpeedFactor();
+		this.queueSlot = Math.floor(this.queueSlot + 1);
 		return true;
 	}
 
@@ -97,7 +115,10 @@ export class AttackExecutor {
 	handlePlayerTileAdd(tile: number) {
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), neighbor]);
+				const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor;
+				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(neighbor);
+				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
+				this.scheduledTiles++;
 			}
 		});
 	}
@@ -109,7 +130,10 @@ export class AttackExecutor {
 	 */
 	handleTargetTileAdd(tile: number) {
 		if (bordersTile(tile, this.player.id)) {
-			this.tileQueue.push([this.basePriority + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06), tile]);
+			const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor;
+			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
+			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
+			this.scheduledTiles++;
 		}
 	}
 
@@ -145,10 +169,13 @@ export class AttackExecutor {
 			}
 		}
 
+		const speedFactor = this.calculateSpeedFactor();
 		for (const tile of result) {
-			const priority = 4 - amountCache[tile] + random.next() * 3;
+			const delay = gameMap.tileExpansionTimes[tile] * (0.08 - 0.02 * amountCache[tile] + random.next() * 0.06) * speedFactor;
 			amountCache[tile] = 0;
-			this.tileQueue.push([gameMap.tileExpansionTimes[tile] * priority / 50, tile]);
+			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
+			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
+			this.scheduledTiles++;
 		}
 	}
 
@@ -160,7 +187,7 @@ export class AttackExecutor {
 	 */
 	private calculateSpeedFactor(): number {
 		if (!this.target) return 1;
-		return 0.65 + Math.log(1 + Math.min(50, this.player.getTerritorySize() * this.player.getTroops() / Math.max(1, this.target.getTerritorySize()) / Math.max(1, this.target.getTroops()))) / 2;
+		return 2 / (0.325 + Math.log(1 + Math.min(50, this.player.getTerritorySize() * this.player.getTroops() / Math.max(1, this.target.getTerritorySize()) / Math.max(1, this.target.getTroops()))));
 	}
 
 	/**
