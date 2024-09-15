@@ -107,7 +107,7 @@ export class Boat {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
 			//TODO: if target isn't attackable, return troops to owner
 			const target = territoryManager.getOwner(this.currentPath[--this.currentNode]);
-			if (gameMode.canAttack(this.owner.id, target)) {
+			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
 				territoryManager.conquer(this.currentPath[this.currentNode], this.owner.id);
 				territoryRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
 				playerNameRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
