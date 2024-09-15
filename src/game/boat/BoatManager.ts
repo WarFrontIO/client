@@ -71,13 +71,13 @@ class BoatManager {
 	 * @param owner The owner of the boat.
 	 * @param start The starting position of the boat.
 	 * @param end The ending position of the boat.
-	 * @param percentage The percentage of the owner's troops to send.
+	 * @param power The percentage of the owner's troops to send.
 	 */
-	addBoat(owner: Player, start: number, end: number, percentage: number): void {
+	addBoat(owner: Player, start: number, end: number, power: number): void {
 		const path = calculateBoatWaypoints(start, end).filter(piece => piece.length > 0);
 
 		if (path.length > 0) {
-			this.addBoatInternal(owner, path, percentage);
+			this.addBoatInternal(owner, path, power);
 		}
 	}
 
@@ -85,10 +85,10 @@ class BoatManager {
 	 * Adds a boat to the boat manager.
 	 * @param owner The owner of the boat.
 	 * @param path The path to follow.
-	 * @param percentage The percentage of the owner's troops to send.
+	 * @param power The percentage of the owner's troops to send.
 	 */
-	addBoatInternal(owner: Player, path: number[][], percentage: number): void {
-		const troops = Math.floor(owner.getTroops() * percentage);
+	addBoatInternal(owner: Player, path: number[][], power: number): void {
+		const troops = Math.floor(owner.getTroops() * Math.min(1000, power) / 1000);
 		owner.removeTroops(troops);
 
 		this.boats.push(new Boat(owner, path, troops));
@@ -144,5 +144,5 @@ packetRegistry.handle(BoatActionPacket, function (this: BoatActionPacket): void 
 		return;
 	}
 
-	boatManager.addBoat(player, this.start, this.end, Math.min(1000, this.power) / 1000);
+	boatManager.addBoat(player, this.start, this.end, this.power);
 });
