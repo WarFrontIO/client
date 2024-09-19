@@ -1,5 +1,4 @@
-import {Player} from "../../game/player/Player";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {registerSettingListener} from "../../util/UserSettingManager";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
@@ -14,34 +13,6 @@ import {gameMap, isPlaying} from "../../game/GameData";
  * 3. A neighboring tile can become a border tile of the player's territory.
  */
 class TerritoryRenderingManager {
-	private readonly territoryQueue: Array<number> = [];
-	private readonly playerBorderQueue: Array<number> = [];
-	private readonly targetBorderQueue: Array<number> = [];
-
-	/**
-	 * Add a tile to the territory update queue.
-	 * @param tile index of the tile
-	 */
-	setTerritory(tile: number): void {
-		this.territoryQueue.push(tile);
-	}
-
-	/**
-	 * Add a border to the territory update queue.
-	 * @param tile index of the tile
-	 */
-	setPlayerBorder(tile: number): void {
-		this.playerBorderQueue.push(tile);
-	}
-
-	/**
-	 * Add a border to the territory update queue.
-	 * @param tile index of the tile
-	 */
-	setTargetBorder(tile: number): void {
-		this.targetBorderQueue.push(tile);
-	}
-
 	/**
 	 * Clear the tile at the given index.
 	 * @param tile index of the tile
@@ -51,28 +22,12 @@ class TerritoryRenderingManager {
 	}
 
 	/**
-	 * Execute the transaction.
-	 * @param player the player to apply the transaction to
-	 * @param target the target player
-	 * @param safeClear whether to check the status of border tiles (set to true if clearing multiple rows)
-	 * @internal
-	 */
-	applyTransaction(player: Player, target: Player, safeClear: boolean = false): void {
-		this.paintTiles(safeClear ? this.targetBorderQueue.filter(tile => territoryManager.isOwner(tile, target.id)) : this.targetBorderQueue, getSetting("theme").getBorderColor(target.baseColor));
-		this.paintTiles(this.playerBorderQueue, getSetting("theme").getBorderColor(player.baseColor));
-		this.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(player.baseColor));
-
-		this.targetBorderQueue.length = 0;
-		this.playerBorderQueue.length = 0;
-		this.territoryQueue.length = 0;
-	}
-
-	/**
 	 * Paint a tile.
 	 * @param tiles the tiles to paint
 	 * @param color the color to paint the tiles
+	 * @internal
 	 */
-	private paintTiles(tiles: number[], color: HSLColor): void {
+	paintTiles(tiles: number[], color: HSLColor): void {
 		const context = territoryRenderer.context;
 		context.fillStyle = color.toString();
 		if (color.a < 1) {

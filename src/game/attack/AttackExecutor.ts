@@ -3,9 +3,10 @@ import {territoryManager} from "../TerritoryManager";
 import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "../GameData";
+import {AttackTransaction} from "../transaction/AttackTransaction";
+import {PlayerAttackTransaction} from "../transaction/PlayerAttackTransaction";
 
 /**
  * This is the max amount of ticks it can take to conquer a tile.
@@ -19,6 +20,7 @@ const MAX_ATTACK_SCHEDULE = 134 + 1;
 
 //TODO: Replace per-player data structures with proper transaction handling (this would allow handling tiles out of player order)
 export class AttackExecutor {
+	private readonly transaction: AttackTransaction;
 	readonly player: Player;
 	readonly target: Player | null;
 	private troops: number;
@@ -35,6 +37,7 @@ export class AttackExecutor {
 	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
+		this.transaction = target ? new PlayerAttackTransaction(player, target, troops) : new AttackTransaction(player, troops);
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
@@ -90,13 +93,13 @@ export class AttackExecutor {
 			this.scheduledTiles--;
 			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
 			if (!bordersTile(tile, this.player.id)) continue;
-			territoryManager.conquer(tile, this.player.id);
+			territoryManager.conquer(tile, this.player.id, this.transaction);
 
 			this.troops -= attackCost + gameMap.tileExpansionCosts[tile] / 50;
 			conquered++;
 		}
 
-		territoryRenderingManager.applyTransaction(this.player, this.target || this.player);
+		this.transaction.apply();
 		playerNameRenderingManager.applyTransaction(this.player, this.target || this.player);
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);

@@ -3,9 +3,9 @@ import {onNeighbors} from "../../util/MathUtil";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
 import {HSLColor} from "../../util/HSLColor";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {gameMode} from "../GameData";
 import {spawnManager} from "./SpawnManager";
+import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 export class Player {
 	readonly id: number;
@@ -26,23 +26,24 @@ export class Player {
 	/**
 	 * Add a tile to the player's territory.
 	 * WARNING: Make sure to call this method AFTER updating the territory manager.
-	 * @param tile
+	 * @param tile The tile to add
+	 * @param transaction The transaction to update the tile in
 	 * @internal
 	 */
-	addTile(tile: number): void {
+	addTile(tile: number, transaction: TerritoryTransaction): void {
 		this.territorySize++;
 		if (territoryManager.isBorder(tile)) {
 			this.borderTiles.add(tile);
-			territoryRenderingManager.setPlayerBorder(tile);
+			transaction.setBorder(tile);
 		} else {
 			playerNameRenderingManager.addTile(tile);
-			territoryRenderingManager.setTerritory(tile);
+			transaction.setTerritory(tile);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				this.waterTiles++;
 			} else if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
-				territoryRenderingManager.setTerritory(neighbor);
+				transaction.setTerritory(neighbor);
 				playerNameRenderingManager.addTile(neighbor);
 			}
 		});
@@ -53,10 +54,11 @@ export class Player {
 	/**
 	 * Remove a tile from the player's territory.
 	 * WARNING: Make sure to call this method AFTER updating the territory manager.
-	 * @param tile The tile to remove.
+	 * @param tile The tile to remove
+	 * @param transaction The transaction to update the tile in
 	 * @internal
 	 */
-	removeTile(tile: number): void {
+	removeTile(tile: number, transaction: TerritoryTransaction): void {
 		this.territorySize--;
 		if (!this.borderTiles.delete(tile)) {
 			playerNameRenderingManager.removeTile(tile);
@@ -66,7 +68,7 @@ export class Player {
 				this.waterTiles--;
 			} else if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
-				territoryRenderingManager.setTargetBorder(neighbor);
+				transaction.setDefendantBorder(neighbor);
 				playerNameRenderingManager.removeTile(neighbor);
 			}
 		});

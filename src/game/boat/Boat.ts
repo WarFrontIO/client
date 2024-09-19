@@ -3,10 +3,11 @@ import {mapNavigationHandler} from "../action/MapNavigationHandler";
 import {boatManager} from "./BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {playerManager} from "../player/PlayerManager";
 import {gameMap, gameMode} from "../GameData";
+import {PlayerAttackTransaction} from "../transaction/PlayerAttackTransaction";
+import {AttackTransaction} from "../transaction/AttackTransaction";
 
 export class Boat {
 	private readonly MAX_SPEED = 1;
@@ -105,11 +106,11 @@ export class Boat {
 			this.nextY = Math.floor(this.currentPath[this.currentNode] / gameMap.width) + 0.5;
 		} else {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
-			//TODO: if target isn't attackable, return troops to owner
 			const target = territoryManager.getOwner(this.currentPath[--this.currentNode]);
 			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
-				territoryManager.conquer(this.currentPath[this.currentNode], this.owner.id);
-				territoryRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
+				const transaction = playerManager.getPlayer(target) ? new PlayerAttackTransaction(this.owner, playerManager.getPlayer(target), this.troops) : new AttackTransaction(this.owner, this.troops);
+				territoryManager.conquer(this.currentPath[this.currentNode], this.owner.id, transaction);
+				transaction.apply();
 				playerNameRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
 
 				if (target === territoryManager.OWNER_NONE) {
@@ -117,6 +118,8 @@ export class Boat {
 				} else {
 					attackActionHandler.attackPlayer(this.owner, playerManager.getPlayer(target), this.troops, new Set([this.currentPath[this.currentNode]]));
 				}
+			} else {
+				playerManager.getPlayer(this.owner.id).addTroops(this.troops);
 			}
 			boatManager.unregisterBoat(this);
 			return false;

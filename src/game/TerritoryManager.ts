@@ -4,6 +4,7 @@ import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderin
 import {areaCalculator} from "../map/area/AreaCalculator";
 import {onNeighbors} from "../util/MathUtil";
 import {gameMap} from "./GameData";
+import {TerritoryTransaction} from "./transaction/TerritoryTransaction";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
@@ -92,14 +93,15 @@ class TerritoryManager {
 	 *
 	 * If the tile is already owned by a player, the player will lose the tile.
 	 * Conquered tiles will be passed to the renderer directly.
-	 * @param tile The tile to conquer.
-	 * @param owner The player that will own the tile.
+	 * @param tile The tile to conquer
+	 * @param owner The player that will own the tile
+	 * @param transaction The transaction to apply the conquering to
 	 */
-	conquer(tile: number, owner: number): void {
+	conquer(tile: number, owner: number, transaction: TerritoryTransaction): void {
 		const previousOwner = this.tileOwners[tile];
 		this.tileOwners[tile] = owner;
 		if (previousOwner !== this.OWNER_NONE) {
-			playerManager.getPlayer(previousOwner).removeTile(tile);
+			playerManager.getPlayer(previousOwner).removeTile(tile, transaction);
 			if (previousOwner === clientPlayer.id) {
 				onNeighbors(tile, (neighbor) => {
 					if (!this.isTerritory(neighbor)) {
@@ -108,7 +110,7 @@ class TerritoryManager {
 				});
 			}
 		}
-		playerManager.getPlayer(owner).addTile(tile);
+		playerManager.getPlayer(owner).addTile(tile, transaction);
 		if (owner === clientPlayer.id) {
 			onNeighbors(tile, (neighbor) => {
 				if (!this.isTerritory(neighbor)) {
@@ -121,13 +123,15 @@ class TerritoryManager {
 	/**
 	 * Clears a tile.
 	 * @see TerritoryManager.conquer
-	 * @param tile The tile to clear.
+	 * @param tile The tile to clear
+	 * @param transaction The transaction to apply the clearing to
 	 */
-	clear(tile: number): void {
+	clear(tile: number, transaction: TerritoryTransaction): void {
 		const owner = this.tileOwners[tile];
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
-			playerManager.getPlayer(owner).removeTile(tile);
+			playerManager.getPlayer(owner).removeTile(tile, transaction);
+			//TODO: integrate this with the transaction system
 			territoryRenderingManager.clear(tile);
 			if (owner === clientPlayer.id) {
 				onNeighbors(tile, (neighbor) => {

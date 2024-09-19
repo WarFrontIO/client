@@ -1,7 +1,6 @@
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "./Player";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {gameMap, isLocalGame} from "../GameData";
 import {packetRegistry, sendPacket} from "../../network/NetworkManager";
@@ -9,6 +8,7 @@ import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundleP
 import {clientPlayer, playerManager} from "./PlayerManager";
 import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
 import {gameTicker} from "../GameTicker";
+import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -128,8 +128,9 @@ class SpawnManager {
 		const index = random.nextInt(target.length);
 		const result = target[index];
 		target.splice(index, 1);
-		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id));
-		territoryRenderingManager.applyTransaction(player, player);
+		const transaction = new TerritoryTransaction(player);
+		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id, transaction));
+		transaction.apply();
 		playerNameRenderingManager.applyTransaction(player, player);
 		return result;
 	}
@@ -162,8 +163,9 @@ class SpawnManager {
 		if (pixels.length === 0) {
 			return false; //Invalid spawn point
 		}
+		const transaction = new TerritoryTransaction(playerManager.getPlayer(player));
 		if (this.spawnData[player]) {
-			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel));
+			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel, transaction));
 			this.spawnPoints.push(...this.spawnData[player].blockedPoints);
 			this.spawnData[player].blockedPoints.forEach(point => this.backupPoints.splice(this.backupPoints.indexOf(point), 1));
 		}
@@ -172,12 +174,12 @@ class SpawnManager {
 		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);
 		data.pixels = pixels;
 		data.blockedPoints.forEach(point => this.spawnPoints.splice(this.spawnPoints.indexOf(point), 1));
-		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player));
+		data.pixels.forEach(pixel => territoryManager.conquer(pixel, player, transaction));
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player] = data;
 
 		const playerInstance = playerManager.getPlayer(player);
-		territoryRenderingManager.applyTransaction(playerInstance, playerInstance, true);
+		transaction.apply(); //This intentionally ignores the "target" pixels
 		playerNameRenderingManager.applyTransaction(playerInstance, playerInstance);
 		return true;
 	}

@@ -115,6 +115,7 @@ class PlayerNameRenderingManager {
 		} while (changed);
 	}
 
+	//TODO: integrate this into the transaction system
 	/**
 	 * Execute the transaction.
 	 * @param player the player to apply the transaction to
