@@ -1,5 +1,5 @@
 import {mapFromId} from "../../map/MapRegistry";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {getSetting, updateSetting} from "../../util/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
@@ -9,14 +9,10 @@ import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, showUIElement} from "../UIManager";
 //import {openMultiplayerLobby} from "./MultiplayerLobby";
 
-const txtPlayerName: HTMLInputElement = (window.document.getElementById("playerNameInput") as HTMLInputElement);
 //const btnStartMultiplayer: HTMLButtonElement = (window.document.getElementById("btnStartMultiplayer") as HTMLButtonElement);
 const btnStartSingleplayer: HTMLButtonElement = (window.document.getElementById("btnStartSingleplayer") as HTMLButtonElement);
 
 const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u1E00-\u1EFF\-_. ({)}<>]*$/;
-
-//TODO: When the input is processed (e.g. trimmed), this needs to only change the value after the focus is lost.
-registerSettingListener("player-name", name => txtPlayerName.value = name, true);
 
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
@@ -34,6 +30,11 @@ buildValidatedInput("playerNameInput", "playerNameInputValidation")
 		//btnStartMultiplayer.disabled = !valid;
 		btnStartSingleplayer.disabled = !valid;
 	})
+	.onBlur(value => {
+		updateSetting("player-name", value); //We save even if the name is invalid
+	})
+	.mutate(value => value.trim())
 	.addRule("Name contains invalid characters.", value => playerNameValidationExp.test(value))
 	.addRule("Name is too short (must be at least 3 characters).", value => value.length >= 3)
-	.addRule("Name is too long (32 characters maximum).", value => value.length <= 32);
+	.addRule("Name is too long (32 characters maximum).", value => value.length <= 32)
+	.linkSetting("player-name");

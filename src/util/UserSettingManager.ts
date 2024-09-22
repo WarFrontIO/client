@@ -42,3 +42,8 @@ export function registerSettingListener<K extends keyof typeof registry["registr
 	registry.get(key).registry.register(listener);
 	if (callImmediately) listener(getSetting(key));
 }
+
+export type SettingKey = keyof typeof registry["registry"];
+export type SettingKeyOf<T> = {
+	[K in SettingKey]: typeof registry["registry"][K]["value"] extends T ? K : never
+}[SettingKey];
