@@ -20,7 +20,7 @@ Exact details on how to contribute can be found in the [CONTRIBUTING.md](CONTRIB
 
 ## Building
 
-To build the project, you will need to have Node.js and npm installed. You can download them
+To build the project, you will need to have Node.js (>= 20) and npm installed. You can download them
 from [here](https://nodejs.org/).
 
 First, clone the repository:

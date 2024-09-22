@@ -6,6 +6,9 @@
     "build-prod": "webpack --config webpack.config.js --mode production",
     "dev": "webpack serve --config webpack.config.js --mode development"
   },
+  "engines" : {
+    "node" : ">=20.0.0"
+  },
   "devDependencies": {
     "typescript": "^5.4.4",
     "eslint": "^9.7.0",
