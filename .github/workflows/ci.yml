@@ -40,4 +40,4 @@ jobs:
     - name: Setup npm
       run: npm ci
     - name: Run ESLint
-      run: eslint
+      run: ./node_modules/.bin/eslint
