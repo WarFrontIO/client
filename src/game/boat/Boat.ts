@@ -3,11 +3,10 @@ import {mapNavigationHandler} from "../action/MapNavigationHandler";
 import {boatManager} from "./BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {playerManager} from "../player/PlayerManager";
 import {gameMap, gameMode} from "../GameData";
-import {PlayerAttackTransaction} from "../transaction/PlayerAttackTransaction";
-import {AttackTransaction} from "../transaction/AttackTransaction";
+import {PlayerTerritoryTransaction} from "../transaction/PlayerTerritoryTransaction";
+import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 export class Boat {
 	private readonly MAX_SPEED = 1;
@@ -108,10 +107,9 @@ export class Boat {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
 			const target = territoryManager.getOwner(this.currentPath[--this.currentNode]);
 			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
-				const transaction = playerManager.getPlayer(target) ? new PlayerAttackTransaction(this.owner, playerManager.getPlayer(target), this.troops) : new AttackTransaction(this.owner, this.troops);
+				const transaction = playerManager.getPlayer(target) ? new PlayerTerritoryTransaction(this.owner, playerManager.getPlayer(target)) : new TerritoryTransaction(this.owner);
 				territoryManager.conquer(this.currentPath[this.currentNode], this.owner.id, transaction);
 				transaction.apply();
-				playerNameRenderingManager.applyTransaction(this.owner, playerManager.getPlayer(target) || this.owner);
 
 				if (target === territoryManager.OWNER_NONE) {
 					attackActionHandler.attackUnclaimed(this.owner, this.troops, new Set([this.currentPath[this.currentNode]]));

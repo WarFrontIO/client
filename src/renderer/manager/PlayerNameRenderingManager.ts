@@ -7,6 +7,7 @@ import {random} from "../../game/Random";
 import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {gameMap} from "../../game/GameData";
+import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
@@ -14,15 +15,6 @@ class PlayerNameRenderingManager {
 	atlasRowLength: number = 0;
 	readonly partialElementAtlas: HTMLCanvasElement = document.createElement("canvas")
 	partialAtlasContext: CanvasRenderingContext2D;
-
-	/**
-	 * Data for the current transaction.
-	 * TODO: Move this somewhere else, maybe a proper transaction implementation...
-	 */
-	private currentPlayerMax: number = 0;
-	private currentPlayerPos: number = 0;
-	private currentTargetMax: number = -1;
-	private currentTargetPos: number = 0;
 
 	reset(maxPlayers: number) {
 		this.playerData = [];
@@ -45,6 +37,24 @@ class PlayerNameRenderingManager {
 		const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 		const troopLength = context.measureText("123.").width / 10;
 		this.playerData[player.id] = new PlayerNameRenderingData(player.name, troopLength, player.borderTiles, player.id);
+	}
+
+	/**
+	 * Get the player name rendering data.
+	 * @param player The player to get the data for.
+	 * @returns The player name rendering data.
+	 */
+	getPlayerData(player: Player): PlayerNameRenderingData {
+		return this.playerData[player.id];
+	}
+
+	//TODO: Remove this hacky solution
+	/**
+	 * Get the name depth map.
+	 * @returns The name depth map.
+	 */
+	getNameDepth(): Uint16Array {
+		return this.nameDepth;
 	}
 
 	//TODO: Remove this hacky solution, just pass the player instance to the rendering manager
@@ -71,25 +81,24 @@ class PlayerNameRenderingManager {
 
 	/**
 	 * Update the player name rendering data.
+	 * @param tile The tile that was added to the territory
+	 * @param transaction The transaction that added the tile
 	 * @internal
 	 */
-	addTile(tile: number): void {
+	addTile(tile: number, transaction: TerritoryTransaction): void {
 		this.nameDepth[tile] = 65535; // force recalculation
-		this.recalculateFrom(tile);
+		this.recalculateFrom(tile, transaction);
 	}
 
 	/**
 	 * Update the player name rendering data.
 	 * @internal
 	 */
-	removeTile(tile: number): void {
+	removeTile(tile: number, transaction: TerritoryTransaction): void {
 		let offset = 0;
 		let rowMax = Infinity;
 		let columnMax = Infinity;
-		if (this.currentTargetMax < this.nameDepth[tile - gameMap.width - 1]) {
-			this.currentTargetMax = this.nameDepth[tile - gameMap.width - 1];
-			this.currentTargetPos = tile - gameMap.width - 1;
-		}
+		transaction.setDefendantNamePos(tile - gameMap.width - 1, this.nameDepth[tile - gameMap.width - 1]);
 		let changed: boolean;
 		do {
 			changed = false;
@@ -115,29 +124,14 @@ class PlayerNameRenderingManager {
 		} while (changed);
 	}
 
-	//TODO: integrate this into the transaction system
-	/**
-	 * Execute the transaction.
-	 * @param player the player to apply the transaction to
-	 * @param target the target player
-	 * @internal
-	 */
-	applyTransaction(player: Player, target: Player): void {
-		if (this.currentPlayerMax !== 0) this.playerData[player.id].handleAdd(this.currentPlayerMax, this.currentPlayerPos);
-		if (this.currentTargetMax !== -1) this.playerData[target.id].handleRemove(this.nameDepth, this.currentTargetMax, this.currentTargetPos);
-		this.currentPlayerMax = 0;
-		this.currentPlayerPos = 0;
-		this.currentTargetMax = -1;
-		this.currentTargetPos = 0;
-	}
-
 	/**
 	 * Recalculate the name depth map from a specific tile.
 	 * Name depth refers to the maximum size a square can be with the bottom-right corner at the tile.
-	 * @param tile The tile to recalculate from.
+	 * @param tile The tile to recalculate from
+	 * @param transaction The transaction to update the tiles in
 	 * @private
 	 */
-	private recalculateFrom(tile: number): void {
+	private recalculateFrom(tile: number, transaction: TerritoryTransaction): void {
 		let currentOrigin = tile;
 		let isColumn = false;
 		let changed = true;
@@ -181,10 +175,7 @@ class PlayerNameRenderingManager {
 			[currentMax, otherMax] = [otherMax, currentMax];
 		}
 
-		if (max > this.currentPlayerMax) {
-			this.currentPlayerMax = max;
-			this.currentPlayerPos = maxPos;
-		}
+		transaction.setNamePos(maxPos, max);
 	}
 }
 

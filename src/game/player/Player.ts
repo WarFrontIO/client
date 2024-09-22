@@ -36,15 +36,15 @@ export class Player {
 			this.borderTiles.add(tile);
 			transaction.setBorder(tile);
 		} else {
-			playerNameRenderingManager.addTile(tile);
 			transaction.setTerritory(tile);
+			playerNameRenderingManager.addTile(tile, transaction);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				this.waterTiles++;
 			} else if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
 				transaction.setTerritory(neighbor);
-				playerNameRenderingManager.addTile(neighbor);
+				playerNameRenderingManager.addTile(neighbor, transaction);
 			}
 		});
 
@@ -61,7 +61,7 @@ export class Player {
 	removeTile(tile: number, transaction: TerritoryTransaction): void {
 		this.territorySize--;
 		if (!this.borderTiles.delete(tile)) {
-			playerNameRenderingManager.removeTile(tile);
+			playerNameRenderingManager.removeTile(tile, transaction);
 		}
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
@@ -69,7 +69,7 @@ export class Player {
 			} else if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
 				transaction.setDefendantBorder(neighbor);
-				playerNameRenderingManager.removeTile(neighbor);
+				playerNameRenderingManager.removeTile(neighbor, transaction);
 			}
 		});
 

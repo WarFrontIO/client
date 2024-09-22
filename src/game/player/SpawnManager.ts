@@ -1,7 +1,6 @@
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
 import {Player} from "./Player";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {gameMap, isLocalGame} from "../GameData";
 import {packetRegistry, sendPacket} from "../../network/NetworkManager";
 import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundlePacket";
@@ -9,6 +8,7 @@ import {clientPlayer, playerManager} from "./PlayerManager";
 import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
 import {gameTicker} from "../GameTicker";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
+import {ClearingTerritoryTransaction} from "../transaction/ClearingTerritoryTransaction";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -131,7 +131,6 @@ class SpawnManager {
 		const transaction = new TerritoryTransaction(player);
 		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id, transaction));
 		transaction.apply();
-		playerNameRenderingManager.applyTransaction(player, player);
 		return result;
 	}
 
@@ -163,7 +162,7 @@ class SpawnManager {
 		if (pixels.length === 0) {
 			return false; //Invalid spawn point
 		}
-		const transaction = new TerritoryTransaction(playerManager.getPlayer(player));
+		const transaction = new ClearingTerritoryTransaction(playerManager.getPlayer(player));
 		if (this.spawnData[player]) {
 			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel, transaction));
 			this.spawnPoints.push(...this.spawnData[player].blockedPoints);
@@ -178,9 +177,7 @@ class SpawnManager {
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player] = data;
 
-		const playerInstance = playerManager.getPlayer(player);
 		transaction.apply(); //This intentionally ignores the "target" pixels
-		playerNameRenderingManager.applyTransaction(playerInstance, playerInstance);
 		return true;
 	}
 

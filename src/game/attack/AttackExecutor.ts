@@ -3,10 +3,9 @@ import {territoryManager} from "../TerritoryManager";
 import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "../GameData";
-import {AttackTransaction} from "../transaction/AttackTransaction";
-import {PlayerAttackTransaction} from "../transaction/PlayerAttackTransaction";
+import {PlayerTerritoryTransaction} from "../transaction/PlayerTerritoryTransaction";
+import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 /**
  * This is the max amount of ticks it can take to conquer a tile.
@@ -20,7 +19,7 @@ const MAX_ATTACK_SCHEDULE = 134 + 1;
 
 //TODO: Replace per-player data structures with proper transaction handling (this would allow handling tiles out of player order)
 export class AttackExecutor {
-	private readonly transaction: AttackTransaction;
+	private readonly transaction: TerritoryTransaction;
 	readonly player: Player;
 	readonly target: Player | null;
 	private troops: number;
@@ -37,7 +36,7 @@ export class AttackExecutor {
 	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
-		this.transaction = target ? new PlayerAttackTransaction(player, target, troops) : new AttackTransaction(player, troops);
+		this.transaction = target ? new PlayerTerritoryTransaction(player, target) : new TerritoryTransaction(player);
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
@@ -100,7 +99,6 @@ export class AttackExecutor {
 		}
 
 		this.transaction.apply();
-		playerNameRenderingManager.applyTransaction(this.player, this.target || this.player);
 
 		if (this.target) this.target.removeTroops(conquered * defenseCost);
 
