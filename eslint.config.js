@@ -59,6 +59,10 @@ module.exports = tslint.config(
                 project: true,
                 tsconfigRootDir: __dirname
             }
-        }
-    }
+        },
+        ignores: [
+            "src/map/codec/src/util/ZoneCalculator.ts",
+            "src/network/protocol/packet/handshake/HandshakeResponsePacket.ts"
+        ]
+	}
 );
