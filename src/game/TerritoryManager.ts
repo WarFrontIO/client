@@ -104,7 +104,7 @@ class TerritoryManager {
 			playerManager.getPlayer(previousOwner).removeTile(tile, transaction);
 			if (previousOwner === clientPlayer.id) {
 				onNeighbors(tile, (neighbor) => {
-					if (!this.isTerritory(neighbor)) {
+					if (this.isWater(neighbor)) {
 						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
 					}
 				});
@@ -113,7 +113,7 @@ class TerritoryManager {
 		playerManager.getPlayer(owner).addTile(tile, transaction);
 		if (owner === clientPlayer.id) {
 			onNeighbors(tile, (neighbor) => {
-				if (!this.isTerritory(neighbor)) {
+				if (this.isWater(neighbor)) {
 					this.playerIndex[areaCalculator.areaIndex[neighbor]]++;
 				}
 			});
@@ -135,7 +135,7 @@ class TerritoryManager {
 			territoryRenderingManager.clear(tile);
 			if (owner === clientPlayer.id) {
 				onNeighbors(tile, (neighbor) => {
-					if (!this.isTerritory(neighbor)) {
+					if (this.isWater(neighbor)) {
 						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
 					}
 				});
