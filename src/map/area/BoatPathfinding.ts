@@ -231,7 +231,7 @@ function findPlayerTile(start: number): [number, number] {
 		const distance = distanceMap[x + y * width];
 		for (let i = 0; i < 8; i++) {
 			const nx = x + dx[i], ny = y + dy[i];
-			if (i <= 4 && territoryManager.isOwner(nx + minX + (ny + minY) * gameMap.width, clientPlayer.id)) {
+			if (i <= 3 && territoryManager.isOwner(nx + minX + (ny + minY) * gameMap.width, clientPlayer.id)) {
 				return [x + minX + (y + minY) * gameMap.width, distance];
 			}
 			if (nx < 0 || ny < 0 || nx >= width || ny >= height || distanceMap[nx + ny * width] !== 0 || gameMap.getDistance(nx + minX + (ny + minY) * gameMap.width) >= 0) {
