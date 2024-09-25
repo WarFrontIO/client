@@ -62,7 +62,7 @@ export class TerritoryTransaction extends Transaction {
 		this.borderQueue.length = 0;
 
 		if (this.namePosSize > 0) {
-			playerNameRenderingManager.getPlayerData(this.player).handleAdd(this.namePosSize, this.namePos);
+			playerNameRenderingManager.getPlayerData(this.player).addPosition(this.namePosSize, this.namePos);
 			this.namePosSize = 0;
 		}
 

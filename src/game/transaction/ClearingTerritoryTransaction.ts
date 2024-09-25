@@ -4,7 +4,7 @@ import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRende
 export class ClearingTerritoryTransaction extends TerritoryTransaction {
 	apply() {
 		super.apply();
-		//TODO: Hack to reindex name position, should be done in a better way
-		playerNameRenderingManager.getPlayerData(this.player).handleRemove(playerNameRenderingManager.getNameDepth(), 0, 0);
+		//TODO: Hack to reindex name position, should be done in a better way (this should not be this class's responsibility)
+		playerNameRenderingManager.getPlayerData(this.player).validatePosition();
 	}
 }

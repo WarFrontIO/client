@@ -189,7 +189,6 @@ export class PlayerNameRenderingData {
 	nameY: number = 0;
 	private nameLength: number;
 	private readonly troopLength: number;
-	troopSize: number = 0;
 	private readonly borderSet: Set<number>;
 	readonly queue: PriorityQueue<[number, number]> = new PriorityQueue((a, b) => a[0] > b[0]);
 
@@ -217,7 +216,7 @@ export class PlayerNameRenderingData {
 	 * @param max the maximum size of the square
 	 * @param pos the position of the square
 	 */
-	handleAdd(max: number, pos: number): void {
+	addPosition(max: number, pos: number): void {
 		if (this.size < max) {
 			this.queue.push([this.size, this.index]);
 			this.setPosAt(pos, max);
@@ -227,29 +226,36 @@ export class PlayerNameRenderingData {
 	}
 
 	/**
-	 * Remove a tile from the queue or adjust the current position if applicable.
-	 * @param nameDepth the name depth map
-	 * @param max the maximum size of the square
-	 * @param pos the position of the square
+	 * Check if the current position is still valid and adjust if necessary.
 	 */
-	handleRemove(nameDepth: Uint16Array, max: number, pos: number): void {
-		this.handleAdd(max, pos);
+	validatePosition(): void {
+		const nameDepth = playerNameRenderingManager.getNameDepth();
 		if (nameDepth[this.index] === this.size) return;
-		this.queue.push([nameDepth[this.index], this.index]);
+		if (nameDepth[this.index] !== 0) {
+			this.queue.push([nameDepth[this.index], this.index]);
+		}
 		while (!this.queue.isEmpty()) {
-			const [newMax, newPos] = this.queue.pop();
+			const [_, newPos] = this.queue.pop();
 			if (territoryManager.tileOwners[newPos] === this.id) {
 				const size = nameDepth[newPos];
-				if (size >= newMax) {
+				if (size >= (this.queue.peek()?.[0] ?? 0)) {
 					this.setPosAt(newPos, size);
 					return;
+				} else if (size > 0) {
+					this.queue.push([size, newPos]);
 				}
 			}
 		}
 		this.setPosAt(this.borderSet.values().next().value as number, 1);
 	}
 
-	setPosAt(tile: number, size: number): void {
+	/**
+	 * Set the position of the player name.
+	 * @param tile The tile to set the position at.
+	 * @param size The size of the player name.
+	 * @private
+	 */
+	private setPosAt(tile: number, size: number): void {
 		this.size = size;
 		this.index = tile;
 		this.nameX = tile % gameMap.width;

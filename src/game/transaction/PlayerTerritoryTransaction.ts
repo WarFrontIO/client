@@ -38,7 +38,8 @@ export class PlayerTerritoryTransaction extends TerritoryTransaction {
 		this.defendantBorderQueue.length = 0;
 
 		if (this.defendantNamePosSize > -1) {
-			playerNameRenderingManager.getPlayerData(this.defendant).handleRemove(playerNameRenderingManager.getNameDepth(), this.defendantNamePosSize, this.defendantNamePos);
+			playerNameRenderingManager.getPlayerData(this.defendant).addPosition(this.defendantNamePosSize, this.defendantNamePos);
+			playerNameRenderingManager.getPlayerData(this.defendant).validatePosition();
 			this.defendantNamePosSize = -1;
 		}
 
