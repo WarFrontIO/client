@@ -74,7 +74,7 @@ class BoatManager {
 	 * @param power The percentage of the owner's troops to send.
 	 */
 	addBoat(owner: Player, start: number, end: number, power: number): void {
-		const path = calculateBoatWaypoints(start, end).filter(piece => piece.length > 0);
+		const path = calculateBoatWaypoints(start, end);
 
 		if (path.length > 0) {
 			this.addBoatInternal(owner, path, power);
@@ -87,7 +87,7 @@ class BoatManager {
 	 * @param path The path to follow.
 	 * @param power The percentage of the owner's troops to send.
 	 */
-	addBoatInternal(owner: Player, path: number[][], power: number): void {
+	addBoatInternal(owner: Player, path: number[], power: number): void {
 		const troops = Math.floor(owner.getTroops() * Math.min(1000, power) / 1000);
 		owner.removeTroops(troops);
 

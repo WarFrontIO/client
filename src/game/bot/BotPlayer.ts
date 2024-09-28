@@ -44,7 +44,7 @@ export class BotPlayer extends Player {
 			const start = possibleStarts[random.nextInt(possibleStarts.length)];
 			const end = rayTraceWater(start % gameMap.width, Math.floor(start / gameMap.width), random.next() - 0.5, random.next() - 0.5);
 			if (end !== null && gameMode.canAttack(this.id, territoryManager.getOwner(end))) {
-				boatManager.addBoatInternal(this, [[start, end]], 100);
+				boatManager.addBoatInternal(this, [start, end], 100);
 			}
 		}
 	}

@@ -13,9 +13,7 @@ export class Boat {
 
 	private readonly owner: Player;
 	private readonly troops: number;
-	private readonly paths: number[][] = [];
-	private currentPathIndex: number = 0;
-	private currentPath: number[] = [];
+	private readonly path: number[] = [];
 	private currentNode: number = 0;
 
 	private x: number = 0;
@@ -31,13 +29,13 @@ export class Boat {
 	 * @param path The path to follow.
 	 * @param troops The amount of troops the boat carries.
 	 */
-	constructor(owner: Player, path: number[][], troops: number) {
+	constructor(owner: Player, path: number[], troops: number) {
 		this.owner = owner;
-		this.paths = path;
+		this.path = path;
 		this.troops = troops;
 
-		this.x = path[0][0] % gameMap.width + 0.5;
-		this.y = Math.floor(path[0][0] / gameMap.width) + 0.5;
+		this.x = path[0] % gameMap.width + 0.5;
+		this.y = Math.floor(path[0] / gameMap.width) + 0.5;
 		this.updateWaypoint();
 	}
 
@@ -95,26 +93,21 @@ export class Boat {
 	private updateWaypoint(): boolean {
 		const beforeX = this.nextX, beforeY = this.nextY;
 
-		if (++this.currentNode < this.currentPath.length) {
-			this.nextX = this.currentPath[this.currentNode] % gameMap.width + 0.5;
-			this.nextY = Math.floor(this.currentPath[this.currentNode] / gameMap.width) + 0.5;
-		} else if (this.currentPathIndex < this.paths.length) {
-			this.currentPath = this.paths[this.currentPathIndex++];
-			this.currentNode = 0;
-			this.nextX = this.currentPath[this.currentNode] % gameMap.width + 0.5;
-			this.nextY = Math.floor(this.currentPath[this.currentNode] / gameMap.width) + 0.5;
+		if (++this.currentNode < this.path.length) {
+			this.nextX = this.path[this.currentNode] % gameMap.width + 0.5;
+			this.nextY = Math.floor(this.path[this.currentNode] / gameMap.width) + 0.5;
 		} else {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
-			const target = territoryManager.getOwner(this.currentPath[--this.currentNode]);
+			const target = territoryManager.getOwner(this.path[--this.currentNode]);
 			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
 				const transaction = playerManager.getPlayer(target) ? new PlayerTerritoryTransaction(this.owner, playerManager.getPlayer(target)) : new TerritoryTransaction(this.owner);
-				territoryManager.conquer(this.currentPath[this.currentNode], this.owner.id, transaction);
+				territoryManager.conquer(this.path[this.currentNode], this.owner.id, transaction);
 				transaction.apply();
 
 				if (target === territoryManager.OWNER_NONE) {
-					attackActionHandler.attackUnclaimed(this.owner, this.troops, new Set([this.currentPath[this.currentNode]]));
+					attackActionHandler.attackUnclaimed(this.owner, this.troops, new Set([this.path[this.currentNode]]));
 				} else {
-					attackActionHandler.attackPlayer(this.owner, playerManager.getPlayer(target), this.troops, new Set([this.currentPath[this.currentNode]]));
+					attackActionHandler.attackPlayer(this.owner, playerManager.getPlayer(target), this.troops, new Set([this.path[this.currentNode]]));
 				}
 			} else {
 				playerManager.getPlayer(this.owner.id).addTroops(this.troops);
@@ -163,19 +156,10 @@ export class Boat {
 	 * @private
 	 */
 	private getWaypoint(offset: number): number {
-		let currentNode = this.currentNode;
-		let currentPathIndex = this.currentPathIndex - 1;
-		for (let i = 0; i < offset; i++) {
-			if (++currentNode < this.paths[currentPathIndex].length) {
-				continue;
-			}
-			if (++currentPathIndex < this.paths.length) {
-				currentNode = 0;
-			} else {
-				return -1;
-			}
+		if (this.currentNode + offset >= this.path.length) {
+			return -1;
 		}
-		return this.paths[currentPathIndex][currentNode];
+		return this.path[this.currentNode + offset];
 	}
 
 	/**

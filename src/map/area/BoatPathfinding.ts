@@ -4,6 +4,7 @@ import {territoryManager} from "../../game/TerritoryManager";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {gameMap} from "../../game/GameData";
 import {UnsupportedDataException} from "../../util/Exceptions";
+import {checkLineOfSight} from "../../util/VoxelRayTrace";
 
 /**
  * Pathfinding for boats.
@@ -17,7 +18,7 @@ import {UnsupportedDataException} from "../../util/Exceptions";
  * @param end The ending position.
  * @returns The path as an array of cached path indices (these combine to form the path).
  */
-export function calculateBoatWaypoints(start: number, end: number): number[][] {
+export function calculateBoatWaypoints(start: number, end: number): number[] {
 	const startAreaId = areaCalculator.areaIndex[start];
 	const startX = start % gameMap.width, startY = Math.floor(start / gameMap.width);
 
@@ -28,7 +29,9 @@ export function calculateBoatWaypoints(start: number, end: number): number[][] {
 		}
 	});
 	if (inSameArea) {
-		return [findPathInArea(start, end), [end]];
+		const path = findPathInArea(start, end);
+		path.push(end);
+		return path;
 	}
 
 	const queue = new PriorityQueue<[Node, number, number]>((a, b) => a[1] < b[1]);
@@ -44,16 +47,15 @@ export function calculateBoatWaypoints(start: number, end: number): number[][] {
 	while (!queue.isEmpty()) {
 		const [node, _, cost] = queue.pop();
 		if (node.canonicalAreaId === startAreaId) {
-			const path: number[][] = [];
+			const path: number[] = [];
 			let current = {node, cache: findPathInArea(start, node.x + node.y * gameMap.width)}, last = current;
 			while (current !== undefined) {
-				path.push(current.cache);
+				appendSmoothed(path, current.cache);
 				last = current;
 				current = parents[current.node.id];
 			}
-			path.pop();
-			path.push(findPathInArea(last.node.x + last.node.y * gameMap.width, end));
-			path.push([end]);
+			appendSmoothed(path, findPathInArea(last.node.x + last.node.y * gameMap.width, end));
+			path.push(end);
 			return path;
 		}
 		for (const edge of node.edges) {
@@ -263,4 +265,25 @@ function onNeighborWater(tile: number, closure: (tile: number) => void) {
 		}
 		closure(checkX + checkY * gameMap.width);
 	}
+}
+
+/**
+ * Appends smoothed points to the path.
+ * @param path The path to append to.
+ * @param points The points to append.
+ */
+function appendSmoothed(path: number[], points: number[]) {
+	if (path.length > 1 && checkLineOfSight(path[path.length - 2] % gameMap.width, Math.floor(path[path.length - 2] / gameMap.width), points[0] % gameMap.width, Math.floor(points[0] / gameMap.width))) {
+		path.pop();
+	} else if (path.length === 0) {
+		path.push(points[0]);
+	}
+	let last = path[path.length - 1];
+	for (let i = 0; i < points.length - 1; i++) {
+		if (!checkLineOfSight(last % gameMap.width, Math.floor(last / gameMap.width), points[i + 1] % gameMap.width, Math.floor(points[i + 1] / gameMap.width))) {
+			path.push(points[i]);
+			last = points[i];
+		}
+	}
+	path.push(points[points.length - 1]);
 }
