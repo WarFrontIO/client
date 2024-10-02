@@ -273,14 +273,14 @@ function onNeighborWater(tile: number, closure: (tile: number) => void) {
  * @param points The points to append.
  */
 function appendSmoothed(path: number[], points: number[]) {
-	if (path.length > 1 && checkLineOfSight(path[path.length - 2] % gameMap.width, Math.floor(path[path.length - 2] / gameMap.width), points[0] % gameMap.width, Math.floor(points[0] / gameMap.width))) {
+	if (path.length > 1 && checkLineOfSight(points[0] % gameMap.width, Math.floor(points[0] / gameMap.width), path[path.length - 2] % gameMap.width, Math.floor(path[path.length - 2] / gameMap.width))) {
 		path.pop();
 	} else if (path.length === 0) {
 		path.push(points[0]);
 	}
 	let last = path[path.length - 1];
 	for (let i = 0; i < points.length - 1; i++) {
-		if (!checkLineOfSight(last % gameMap.width, Math.floor(last / gameMap.width), points[i + 1] % gameMap.width, Math.floor(points[i + 1] / gameMap.width))) {
+		if (!checkLineOfSight(points[i + 1] % gameMap.width, Math.floor(points[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width))) {
 			path.push(points[i]);
 			last = points[i];
 		}

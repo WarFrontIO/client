@@ -237,7 +237,7 @@ class AreaCalculator {
 			let distance = 0;
 			while (current >= 0) {
 				const next = parentMap[current] - 2;
-				if (next >= 0 && !checkLineOfSight(last % width + minX, Math.floor(last / width) + minY, next % width + minX, Math.floor(next / width) + minY)) {
+				if (next >= 0 && !checkLineOfSight(next % width + minX, Math.floor(next / width) + minY, last % width + minX, Math.floor(last / width) + minY)) {
 					path.push(current % width + minX + (Math.floor(current / width) + minY) * gameMap.width);
 					distance += Math.sqrt((current % width - last % width) ** 2 + (Math.floor(current / width) - Math.floor(last / width)) ** 2);
 					last = current;
