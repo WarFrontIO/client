@@ -102,7 +102,7 @@ function findPathInArea(start: number, end: number) {
 				path.push(current % width + minX + (Math.floor(current / width) + minY) * gameMap.width);
 				current = parentMap[current] - 2;
 			}
-			if (path.length !== 1) path.pop();
+			if (path[path.length - 1] === end) path.pop(); //Only remove the end if we didn't opt for a neighboring water tile
 			return path;
 		}
 		for (let i = 0; i < 8; i++) {
