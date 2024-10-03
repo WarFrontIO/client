@@ -22,6 +22,7 @@ export function calculateBoatWaypoints(start: number, end: number): number[] {
 	const startAreaId = areaCalculator.areaIndex[start];
 	const startX = start % gameMap.width, startY = Math.floor(start / gameMap.width);
 
+	//TODO: This is problematic in a lot of ways
 	let inSameArea = false;
 	onNeighborWater(end, tile => {
 		if (areaCalculator.areaIndex[tile] === startAreaId) {
@@ -56,7 +57,7 @@ export function calculateBoatWaypoints(start: number, end: number): number[] {
 			}
 			appendSmoothed(path, findPathInArea(last.node.x + last.node.y * gameMap.width, end));
 			path.push(end);
-			return path;
+			return smoothPath(path); //Smooth again for better results
 		}
 		for (const edge of node.edges) {
 			const newCost = cost + edge.cost + Math.sqrt((edge.node.x - startX) * (edge.node.x - startX) + (edge.node.y - startY) * (edge.node.y - startY));
@@ -287,4 +288,24 @@ function appendSmoothed(path: number[], points: number[]) {
 		}
 	}
 	path.push(points[points.length - 1]);
+}
+
+/**
+ * Smooths the path by removing unnecessary points.
+ * @param path The path to smooth
+ * @returns The smoothed path
+ */
+function smoothPath(path: number[]): number[] {
+	const result = [];
+	if (path.length < 2) return path;
+	let last = path[0];
+	result.push(last);
+	for (let i = 1; i < path.length - 1; i++) {
+		if (!checkLineOfSight(path[i + 1] % gameMap.width, Math.floor(path[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width))) {
+			result.push(path[i]);
+			last = path[i];
+		}
+	}
+	result.push(path[path.length - 1]);
+	return result;
 }
