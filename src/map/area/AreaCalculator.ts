@@ -247,7 +247,9 @@ class AreaCalculator {
 			distance += Math.sqrt((node.x - minX - last % width) ** 2 + (node.y - minY - Math.floor(last / width)) ** 2);
 			other.canonicalAreaId = id;
 			node.edges.push({node: other, cost: distance + this.AREA_SIZE / 2, cache: path}); //increase cost to prefer open water paths
-			this.nodeIndex[id].push(other);
+			if (isNewArea) {
+				this.nodeIndex[id].push(other);
+			}
 		}
 	}
 
