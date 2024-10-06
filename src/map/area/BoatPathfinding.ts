@@ -5,6 +5,7 @@ import {clientPlayer} from "../../game/player/PlayerManager";
 import {gameMap} from "../../game/GameData";
 import {UnsupportedDataException} from "../../util/Exceptions";
 import {checkLineOfSight} from "../../util/VoxelRayTrace";
+import {hasTerritoryNear} from "../../game/player/ClientPlayer";
 
 /**
  * Pathfinding for boats.
@@ -170,7 +171,7 @@ function findStartsInArea(start: number) {
 export function findStartingPoint(target: number): number | null {
 	let inSameArea = false;
 	onNeighborWater(target, tile => {
-		if (territoryManager.playerIndex[areaCalculator.areaIndex[tile]] > 0) {
+		if (hasTerritoryNear(areaCalculator.areaIndex[tile])) {
 			inSameArea = true;
 		}
 	});
@@ -193,7 +194,7 @@ export function findStartingPoint(target: number): number | null {
 		if (cost >= foundCost) {
 			break;
 		}
-		if (territoryManager.playerIndex[node.canonicalAreaId as number] > 0) {
+		if (hasTerritoryNear(node.canonicalAreaId as number)) {
 			const [tile, distance] = findPlayerTile(node.x + node.y * gameMap.width);
 			if (distance < foundCost) {
 				found = tile;

@@ -20,6 +20,7 @@ import {gameModeFromId} from "./mode/GameModeRegistry";
 import {initGameData} from "./GameData";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {hideAllUIElements, showUIElement} from "../ui/UIManager";
+import {ClientPlayer} from "./player/ClientPlayer";
 
 /**
  * Start a new game with the given map.
@@ -40,7 +41,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
-	playerManager.init(players.map((p, i) => new Player(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, 500);
+	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, 500);
 
 	random.reset(seed);
 }

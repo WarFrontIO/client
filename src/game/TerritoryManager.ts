@@ -1,15 +1,12 @@
-import {clientPlayer, playerManager} from "./player/PlayerManager";
+import {playerManager} from "./player/PlayerManager";
 import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
-import {areaCalculator} from "../map/area/AreaCalculator";
-import {onNeighbors} from "../util/MathUtil";
 import {gameMap} from "./GameData";
 import {TerritoryTransaction} from "./transaction/TerritoryTransaction";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;
 	readonly OWNER_NONE = 65535;
-	playerIndex: Uint16Array;
 
 	/**
 	 * Resets the territory manager.
@@ -21,8 +18,6 @@ class TerritoryManager {
 		for (let i = 0; i < this.tileOwners.length; i++) {
 			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
 		}
-
-		this.playerIndex = new Uint16Array(areaCalculator.preprocessMap());
 	}
 
 	/**
@@ -102,22 +97,8 @@ class TerritoryManager {
 		this.tileOwners[tile] = owner;
 		if (previousOwner !== this.OWNER_NONE) {
 			playerManager.getPlayer(previousOwner).removeTile(tile, transaction);
-			if (previousOwner === clientPlayer.id) {
-				onNeighbors(tile, (neighbor) => {
-					if (this.isWater(neighbor)) {
-						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
-					}
-				});
-			}
 		}
 		playerManager.getPlayer(owner).addTile(tile, transaction);
-		if (owner === clientPlayer.id) {
-			onNeighbors(tile, (neighbor) => {
-				if (this.isWater(neighbor)) {
-					this.playerIndex[areaCalculator.areaIndex[neighbor]]++;
-				}
-			});
-		}
 	}
 
 	/**
@@ -133,13 +114,6 @@ class TerritoryManager {
 			playerManager.getPlayer(owner).removeTile(tile, transaction);
 			//TODO: integrate this with the transaction system
 			territoryRenderingManager.clear(tile);
-			if (owner === clientPlayer.id) {
-				onNeighbors(tile, (neighbor) => {
-					if (this.isWater(neighbor)) {
-						this.playerIndex[areaCalculator.areaIndex[neighbor]]--;
-					}
-				});
-			}
 		}
 	}
 }
