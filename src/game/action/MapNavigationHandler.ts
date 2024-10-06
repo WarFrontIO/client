@@ -5,7 +5,8 @@ import {
 	ScrollEventListener
 } from "../../event/InteractionManager";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
-import {gameMap} from "../GameData";
+import {gameMap, isPlaying} from "../GameData";
+import {windowResizeHandler} from "../../event/WindowResizeHandler";
 
 /**
  * Default map navigation handler.
@@ -122,3 +123,5 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 }
 
 export const mapNavigationHandler = new MapNavigationHandler();
+
+windowResizeHandler.register(() => isPlaying && mapNavigationHandler.onDragMove(0, 0, 0, 0));
