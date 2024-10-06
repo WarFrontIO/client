@@ -82,7 +82,7 @@ export class Player {
 	 * Process one tick worth of income.
 	 */
 	income() {
-		this.addTroops(Math.max(1, Math.floor(this.territorySize / 50) + Math.floor(this.getTroops() / 30)));
+		this.addTroops(Math.max(1, Math.floor(this.territorySize / 10) + Math.floor(Math.pow(3 / 5, 1 - Math.log(this.troops) / Math.LN2))));
 	}
 
 	/**

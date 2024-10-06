@@ -81,7 +81,7 @@ export class AttackExecutor {
 	 */
 	tick(): boolean {
 		const attackCost = this.calculateAttackCost();
-		const defenseCost = Math.ceil((1 + attackCost) / 2);
+		const defenseCost = Math.ceil((1 + attackCost) / 1.7);
 		this.speedFactor = this.calculateSpeedFactor();
 
 		const currentSlot = this.tileQueue[this.queueSlot % MAX_ATTACK_SCHEDULE];
@@ -200,6 +200,6 @@ export class AttackExecutor {
 	 */
 	private calculateAttackCost() {
 		if (!this.target) return 0;
-		return Math.min(20, Math.floor(this.target.getTroops() / Math.max(1, this.player.getTroops()) * 3));
+		return Math.floor(this.target.getTroops() / Math.max(1, this.target.getTerritorySize()) * 2);
 	}
 }
