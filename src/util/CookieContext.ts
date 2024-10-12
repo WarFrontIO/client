@@ -27,6 +27,7 @@ export class CookieContext {
 
 	/**
 	 * Sets the cookie value.
+	 * This will only have an effect if the value has been checked with get() before and has not changed since.
 	 * @param value new value
 	 * @param lifetime The lifetime of the cookie in days.
 	 * @returns Whether the value was set successfully.
