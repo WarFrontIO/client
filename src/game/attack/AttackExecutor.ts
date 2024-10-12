@@ -87,8 +87,8 @@ export class AttackExecutor {
 		const currentSlot = this.tileQueue[this.queueSlot % MAX_ATTACK_SCHEDULE];
 		let conquered = 0;
 		while (this.troops >= attackCost && currentSlot.length > 1) {
-			this.queueSlot = currentSlot.pop() || 0;
-			const tile = currentSlot.pop() || 0;
+			this.queueSlot = currentSlot.pop() ?? 0;
+			const tile = currentSlot.pop() ?? 0;
 			this.scheduledTiles--;
 			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
 			if (!bordersTile(tile, this.player.id)) continue;
@@ -149,7 +149,7 @@ export class AttackExecutor {
 
 		const result = [];
 		const amountCache = attackActionHandler.amountCache;
-		for (const tile of borderTiles || this.player.borderTiles) {
+		for (const tile of borderTiles ?? this.player.borderTiles) {
 			const x = tile % gameMap.width;
 			const y = Math.floor(tile / gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {

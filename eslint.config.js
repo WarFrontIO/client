@@ -52,7 +52,8 @@ module.exports = tslint.config(
                 {
                     allowNumber: true
                 }
-            ]
+            ],
+	        "@typescript-eslint/prefer-nullish-coalescing": "error"
         },
         languageOptions: {
             parserOptions: {

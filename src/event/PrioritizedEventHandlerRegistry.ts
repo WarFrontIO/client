@@ -55,7 +55,7 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	 */
 	choose(x: number, y: number, element: EventTarget | null): void {
 		const resolved = resolveInteraction(element as HTMLElement, this.type);
-		this.currentListener = this.listeners.find(l => l.test(x, y, resolved ? resolved.id : null)) || (resolved ? resolved.listener as T : null);
+		this.currentListener = this.listeners.find(l => l.test(x, y, resolved ? resolved.id : null)) ?? (resolved ? resolved.listener as T : null);
 	}
 
 	/**
