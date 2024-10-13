@@ -41,3 +41,18 @@ jobs:
       run: npm ci
     - name: Run ESLint
       run: ./node_modules/.bin/eslint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Setup npm
+      run: npm ci
+    - name: Run tests
+      run: npm test
