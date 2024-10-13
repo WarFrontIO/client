@@ -7,10 +7,10 @@ export class TerritoryTransaction extends Transaction {
 	protected readonly territoryQueue: Array<number> = [];
 	protected readonly borderQueue: Array<number> = [];
 	protected readonly defendantBorderQueue: Array<number> = [];
-	protected namePos: number;
-	protected namePosSize: number;
-	protected defendantNamePos: number;
-	protected defendantNamePosSize: number;
+	protected namePos: number = 0;
+	protected namePosSize: number = 0;
+	protected defendantNamePos: number = 0;
+	protected defendantNamePosSize: number = -1;
 
 	constructor(attacker: Player, defendant: Player | null) {
 		super(attacker);

@@ -8,7 +8,6 @@ export abstract class Transaction {
 	protected constructor(player: Player) {
 		this.player = player;
 		this.addExecutor(...getTransactionExecutors(Transaction));
-		this.cleanup();
 	}
 
 	/**
