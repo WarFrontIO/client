@@ -8,7 +8,7 @@ import {clientPlayer, playerManager} from "./PlayerManager";
 import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
 import {gameTicker} from "../GameTicker";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
-import {ClearingTerritoryTransaction} from "../transaction/ClearingTerritoryTransaction";
+import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -128,7 +128,7 @@ class SpawnManager {
 		const index = random.nextInt(target.length);
 		const result = target[index];
 		target.splice(index, 1);
-		const transaction = new TerritoryTransaction(player);
+		const transaction = new TerritoryTransaction(player, null);
 		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id, transaction));
 		transaction.apply();
 		return result;
@@ -162,7 +162,7 @@ class SpawnManager {
 		if (pixels.length === 0) {
 			return false; //Invalid spawn point
 		}
-		const transaction = new ClearingTerritoryTransaction(playerManager.getPlayer(player));
+		const transaction = new TerritoryTransaction(playerManager.getPlayer(player), null);
 		if (this.spawnData[player]) {
 			this.spawnData[player].pixels.forEach(pixel => territoryManager.clear(pixel, transaction));
 			this.spawnPoints.push(...this.spawnData[player].blockedPoints);
@@ -177,6 +177,9 @@ class SpawnManager {
 		this.backupPoints.push(...data.blockedPoints);
 		this.spawnData[player] = data;
 
+		transaction.addExecutor(function (this: TerritoryTransaction) {
+			playerNameRenderingManager.getPlayerData(this.player).validatePosition(); //Old name position is invalid, but wasn't captured by another player
+		});
 		transaction.apply(); //This intentionally ignores the "target" pixels
 		return true;
 	}

@@ -4,7 +4,6 @@ import {bordersTile, onNeighbors} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
 import {gameMap} from "../GameData";
-import {PlayerTerritoryTransaction} from "../transaction/PlayerTerritoryTransaction";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 /**
@@ -36,7 +35,7 @@ export class AttackExecutor {
 	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
 	 */
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
-		this.transaction = target ? new PlayerTerritoryTransaction(player, target) : new TerritoryTransaction(player);
+		this.transaction = new TerritoryTransaction(player, target);
 		this.player = player;
 		this.target = target;
 		this.troops = troops;

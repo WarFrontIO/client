@@ -1,24 +1,37 @@
 import {Player} from "../player/Player";
-import {applyTransaction} from "./TransactionManager";
+import {getTransactionExecutors, registerTransactionType} from "./TransactionExecutors";
 
 export abstract class Transaction {
 	protected readonly player: Player;
+	private readonly executors: ((this: this) => void)[] = [];
 
-	constructor(player: Player) {
+	protected constructor(player: Player) {
 		this.player = player;
+		this.addExecutor(...getTransactionExecutors(Transaction));
+		this.cleanup();
 	}
 
 	/**
-	 * Get the player that caused the transaction.
+	 * Add an executor to the transaction.
+	 * @param executors The executors to add
 	 */
-	getPlayer(): Player {
-		return this.player;
+	addExecutor(...executors: ((this: this) => void)[]) {
+		this.executors.push(...executors);
 	}
 
 	/**
 	 * Apply the transaction to the game.
 	 */
 	apply() {
-		applyTransaction(this);
+		this.executors.forEach(executor => executor.call(this));
+		this.cleanup();
 	}
+
+	/**
+	 * Clean up the transaction.
+	 * This should clear all data that was used while applying the transaction.
+	 */
+	abstract cleanup(): void;
 }
+
+registerTransactionType(Transaction);

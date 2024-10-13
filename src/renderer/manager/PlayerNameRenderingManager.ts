@@ -8,6 +8,7 @@ import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {gameMap} from "../../game/GameData";
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
@@ -296,3 +297,14 @@ export class PlayerNameRenderingData {
 }
 
 export const playerNameRenderingManager = new PlayerNameRenderingManager();
+
+registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
+	if (this.namePosSize > 0) {
+		playerNameRenderingManager.getPlayerData(this.player).addPosition(this.namePosSize, this.namePos);
+	}
+
+	if (this.defendant && this.defendantNamePosSize > -1) {
+		playerNameRenderingManager.getPlayerData(this.defendant).addPosition(this.defendantNamePosSize, this.defendantNamePos);
+		playerNameRenderingManager.getPlayerData(this.defendant).validatePosition();
+	}
+});

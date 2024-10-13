@@ -5,7 +5,6 @@ import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
 import {playerManager} from "../player/PlayerManager";
 import {gameMap, gameMode} from "../GameData";
-import {PlayerTerritoryTransaction} from "../transaction/PlayerTerritoryTransaction";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 export class Boat {
@@ -100,7 +99,7 @@ export class Boat {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
 			const target = territoryManager.getOwner(this.path[--this.currentNode]);
 			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
-				const transaction = playerManager.getPlayer(target) ? new PlayerTerritoryTransaction(this.owner, playerManager.getPlayer(target)) : new TerritoryTransaction(this.owner);
+				const transaction = new TerritoryTransaction(this.owner, playerManager.getPlayer(target));
 				territoryManager.conquer(this.path[this.currentNode], this.owner.id, transaction);
 				transaction.apply();
 

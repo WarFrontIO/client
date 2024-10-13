@@ -1,10 +1,12 @@
-import {registerSettingListener} from "../../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
 import {HSLColor} from "../../util/HSLColor";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
 import {GameTheme} from "../GameTheme";
 import {gameMap, isPlaying} from "../../game/GameData";
+import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
+import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -68,3 +70,12 @@ class TerritoryRenderingManager {
 export const territoryRenderingManager = new TerritoryRenderingManager();
 
 registerSettingListener("theme", territoryRenderingManager.forceRepaint);
+
+registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
+	if (this.defendant) {
+		territoryRenderingManager.paintTiles(this.defendantBorderQueue, getSetting("theme").getBorderColor(this.defendant.baseColor));
+	}
+
+	territoryRenderingManager.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(this.player.baseColor));
+	territoryRenderingManager.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(this.player.baseColor));
+});

@@ -1,13 +1,22 @@
 import {Transaction} from "./Transaction";
-import {getSetting} from "../../util/UserSettingManager";
-import {territoryRenderingManager} from "../../renderer/manager/TerritoryRenderingManager";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
+import {Player} from "../player/Player";
+import {getTransactionExecutors, registerTransactionType} from "./TransactionExecutors";
 
 export class TerritoryTransaction extends Transaction {
-	private readonly territoryQueue: Array<number> = [];
-	private readonly borderQueue: Array<number> = [];
-	private namePos: number = 0;
-	private namePosSize: number = 0;
+	protected readonly defendant: Player | null;
+	protected readonly territoryQueue: Array<number> = [];
+	protected readonly borderQueue: Array<number> = [];
+	protected readonly defendantBorderQueue: Array<number> = [];
+	protected namePos: number;
+	protected namePosSize: number;
+	protected defendantNamePos: number;
+	protected defendantNamePosSize: number;
+
+	constructor(attacker: Player, defendant: Player | null) {
+		super(attacker);
+		this.defendant = defendant;
+		this.addExecutor(...getTransactionExecutors(TerritoryTransaction));
+	}
 
 	/**
 	 * Add a tile to the territory update queue.
@@ -27,10 +36,10 @@ export class TerritoryTransaction extends Transaction {
 
 	/**
 	 * Set the border of the defendant player.
-	 * @param _tile index of the tile
+	 * @param tile index of the tile
 	 */
-	setDefendantBorder(_tile: number): void {
-		// Noop
+	setDefendantBorder(tile: number): void {
+		this.defendantBorderQueue.push(tile);
 	}
 
 	/**
@@ -48,24 +57,25 @@ export class TerritoryTransaction extends Transaction {
 
 	/**
 	 * Set the defendant name position.
-	 * @param _pos The position of the name
-	 * @param _size The size of the name
+	 * @param pos The position of the name
+	 * @param size The size of the name
 	 */
-	setDefendantNamePos(_pos: number, _size: number) {
-		// Noop
+	setDefendantNamePos(pos: number, size: number) {
+		if (size > this.defendantNamePosSize) {
+			this.defendantNamePos = pos;
+			this.defendantNamePosSize = size;
+		}
 	}
 
-	apply() {
-		territoryRenderingManager.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(this.player.baseColor));
-		territoryRenderingManager.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(this.player.baseColor));
+	cleanup() {
+		this.namePos = 0;
+		this.namePosSize = 0;
+		this.defendantNamePos = 0;
+		this.defendantNamePosSize = -1;
 		this.territoryQueue.length = 0;
 		this.borderQueue.length = 0;
-
-		if (this.namePosSize > 0) {
-			playerNameRenderingManager.getPlayerData(this.player).addPosition(this.namePosSize, this.namePos);
-			this.namePosSize = 0;
-		}
-
-		super.apply();
+		this.defendantBorderQueue.length = 0;
 	}
 }
+
+registerTransactionType(TerritoryTransaction);
