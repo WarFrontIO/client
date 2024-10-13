@@ -26,3 +26,5 @@ export const territoryRenderer = new TerritoryRenderer();
 
 mapTransformHandler.scale.register(territoryRenderer.onMapScale);
 mapTransformHandler.move.register(territoryRenderer.onMapMove);
+
+import("../manager/TerritoryRenderingManager");

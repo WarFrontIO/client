@@ -14,13 +14,15 @@ import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction"
  * 2. The tile can become an inner tile of the player's territory.
  * 3. A neighboring tile can become a border tile of the player's territory.
  */
-class TerritoryRenderingManager {
+export class TerritoryRenderingManager {
 	/**
-	 * Clear the tile at the given index.
-	 * @param tile index of the tile
+	 * Clear the tiles at the given indices.
+	 * @param tiles the tiles to clear
 	 */
-	clear(tile: number): void {
-		territoryRenderer.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+	clearTiles(tiles: number[]): void {
+		for (const tile of tiles) {
+			territoryRenderer.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
+		}
 	}
 
 	/**
@@ -76,6 +78,10 @@ registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTrans
 		territoryRenderingManager.paintTiles(this.defendantBorderQueue, getSetting("theme").getBorderColor(this.defendant.baseColor));
 	}
 
-	territoryRenderingManager.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(this.player.baseColor));
-	territoryRenderingManager.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(this.player.baseColor));
+	if (this.attacker) {
+		territoryRenderingManager.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(this.attacker.baseColor));
+		territoryRenderingManager.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(this.attacker.baseColor));
+	} else {
+		territoryRenderingManager.clearTiles(this.territoryQueue);
+	}
 });

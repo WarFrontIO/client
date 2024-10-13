@@ -1,5 +1,4 @@
 import {playerManager} from "./player/PlayerManager";
-import {territoryRenderingManager} from "../renderer/manager/TerritoryRenderingManager";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "./GameData";
 import {TerritoryTransaction} from "./transaction/TerritoryTransaction";
@@ -105,15 +104,14 @@ class TerritoryManager {
 	 * Clears a tile.
 	 * @see TerritoryManager.conquer
 	 * @param tile The tile to clear
-	 * @param transaction The transaction to apply the clearing to
+	 * @param transaction The transaction to apply the clearing to, requires to have null as the attacker
 	 */
 	clear(tile: number, transaction: TerritoryTransaction): void {
 		const owner = this.tileOwners[tile];
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile, transaction);
-			//TODO: integrate this with the transaction system
-			territoryRenderingManager.clear(tile);
+			transaction.setTerritory(tile);
 		}
 	}
 }

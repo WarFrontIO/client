@@ -299,8 +299,8 @@ export class PlayerNameRenderingData {
 export const playerNameRenderingManager = new PlayerNameRenderingManager();
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
-	if (this.namePosSize > 0) {
-		playerNameRenderingManager.getPlayerData(this.player).addPosition(this.namePosSize, this.namePos);
+	if (this.attacker && this.namePosSize > 0) {
+		playerNameRenderingManager.getPlayerData(this.attacker).addPosition(this.namePosSize, this.namePos);
 	}
 
 	if (this.defendant && this.defendantNamePosSize > -1) {
