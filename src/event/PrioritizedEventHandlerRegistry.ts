@@ -1,5 +1,4 @@
-import {BasicInteractionListener, InteractionType} from "./InteractionManager";
-import {resolveInteraction} from "../ui/UIEventResolver";
+import {BasicInteractionListener} from "./InteractionManager";
 import {PriorityList} from "../util/PriorityList";
 
 /**
@@ -9,13 +8,8 @@ import {PriorityList} from "../util/PriorityList";
  * Use this for non-propagating event handling (e.g. click events).
  */
 export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener> {
-	private currentListener: T | null = null;
-
-	//TODO: This should not be known to the registry
-	constructor(
-		private readonly type: InteractionType
-	) {}
 	protected listeners = new PriorityList<T>();
+	private currentListener: T | undefined;
 
 	/**
 	 * Registers a listener to receive events.
@@ -40,7 +34,7 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	 * Call this method after the event has been handled to prevent the same listener from being called again.
 	 */
 	reset(): void {
-		this.currentListener = null;
+		this.currentListener = undefined;
 	}
 
 	/**
@@ -51,8 +45,7 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	 * @param element The element that received the event.
 	 */
 	choose(x: number, y: number, element: EventTarget | null): void {
-		const resolved = resolveInteraction(element as HTMLElement, this.type);
-		this.currentListener = this.listeners.find(l => l.test(x, y, resolved ? resolved.id : null)) ?? (resolved ? resolved.listener as T : null);
+		this.currentListener = this.listeners.find(l => l.test(x, y, element));
 	}
 
 	/**

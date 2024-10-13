@@ -14,15 +14,15 @@ import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry
  */
 class InteractionManager {
 	/** Registry for click event listeners. */
-	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.CLICK);
+	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for drag event listeners. */
-	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.DRAG);
+	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for scroll event listeners. */
-	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.SCROLL);
+	scroll: PrioritizedEventHandlerRegistry<ScrollEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for multi-touch event listeners. */
-	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.MULTITOUCH);
+	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for hover event listeners. */
-	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry(InteractionType.HOVER);
+	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
 	pressY: number = 0;
@@ -131,7 +131,7 @@ export interface BasicInteractionListener {
 	 * @param element The element that received the event.
 	 * @returns True if the listener should receive events at the given position.
 	 */
-	test(x: number, y: number, element: string | null): boolean;
+	test(x: number, y: number, element: EventTarget | null): boolean;
 }
 
 /**

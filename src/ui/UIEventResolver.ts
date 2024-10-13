@@ -1,4 +1,4 @@
-import {InteractionListeners, InteractionType} from "../event/InteractionManager";
+import {InteractionListeners, interactionManager, InteractionType} from "../event/InteractionManager";
 import {resolveElement} from "./UIElement";
 import {AssertionFailedException} from "../util/Exceptions";
 
@@ -28,6 +28,27 @@ export function resolveInteraction(element: HTMLElement | null, type: Interactio
 	}
 	return {id: element.id, listener};
 }
+
+function buildListener<T extends InteractionType>(type: T): InteractionListeners[T] {
+	let handler: Omit<InteractionListeners[T], "test"> | undefined;
+	return new Proxy({} as InteractionListeners[T], {
+		get: (_, prop) => {
+			if (prop === "test") {
+				return (_x: number, _y: number, element: EventTarget | null) => {
+					handler = resolveInteraction(element as HTMLElement, type)?.listener;
+					return !!handler;
+				};
+			}
+			return handler?.[prop as keyof Omit<InteractionListeners[T], "test">];
+		}
+	});
+}
+
+interactionManager.click.register(buildListener(InteractionType.CLICK));
+interactionManager.drag.register(buildListener(InteractionType.DRAG));
+interactionManager.scroll.register(buildListener(InteractionType.SCROLL));
+interactionManager.multitouch.register(buildListener(InteractionType.MULTITOUCH));
+interactionManager.hover.register(buildListener(InteractionType.HOVER));
 
 /**
  * Registers a click listener for a html element.
