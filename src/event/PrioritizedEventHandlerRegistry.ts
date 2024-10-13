@@ -1,5 +1,6 @@
 import {BasicInteractionListener, InteractionType} from "./InteractionManager";
 import {resolveInteraction} from "../ui/UIEventResolver";
+import {PriorityList} from "../util/PriorityList";
 
 /**
  * Registry for prioritized event handlers.
@@ -8,25 +9,21 @@ import {resolveInteraction} from "../ui/UIEventResolver";
  * Use this for non-propagating event handling (e.g. click events).
  */
 export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener> {
-	protected listeners: T[] = [];
 	private currentListener: T | null = null;
 
 	//TODO: This should not be known to the registry
 	constructor(
 		private readonly type: InteractionType
 	) {}
+	protected listeners = new PriorityList<T>();
 
 	/**
 	 * Registers a listener to receive events.
 	 * @param listener The listener to register.
-	 * @param prioritize If true, the listener is added to the beginning of the stack instead of the end.
+	 * @param priority The priority of the listener. Higher values are called first.
 	 */
-	register(listener: T, prioritize: boolean = false) {
-		if (prioritize) {
-			this.listeners.unshift(listener);
-		} else {
-			this.listeners.push(listener);
-		}
+	register(listener: T, priority: number = 0) {
+		this.listeners.add(listener, priority);
 	}
 
 	/**
@@ -34,7 +31,7 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	 * @param listener The listener to unregister.
 	 */
 	unregister(listener: T) {
-		this.listeners = this.listeners.filter(l => l !== listener);
+		this.listeners.remove(listener);
 	}
 
 	/**

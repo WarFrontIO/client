@@ -29,9 +29,9 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 		this.y = (window.innerHeight - gameMap.height * this.zoom) / 2;
 		mapTransformHandler.scale.broadcast();
 		mapTransformHandler.move.broadcast();
-		interactionManager.drag.register(this);
-		interactionManager.scroll.register(this);
-		interactionManager.multitouch.register(this);
+		interactionManager.drag.register(this, -100);
+		interactionManager.scroll.register(this, -100);
+		interactionManager.multitouch.register(this, -100);
 	}
 
 	/**
