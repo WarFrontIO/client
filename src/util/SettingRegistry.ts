@@ -1,5 +1,6 @@
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {InvalidArgumentException, UnsupportedDataException} from "./Exceptions";
+import {ManagedSetting} from "./ManagedSetting";
 
 /**
  * Important Note: For types to work correctly, all register calls must be chained together.
@@ -94,6 +95,7 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 		return value;
 	}
 
+	//TODO: Turn all of these into managed settings, so we can differentiate between the different types
 	registerString<K extends string>(key: K & Exclude<K, keyof T>, defaultValue: string, version: number = 0) {
 		return this.registerUpdatable<K, string>(key, defaultValue, String, version);
 	}
@@ -108,6 +110,13 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 
 	registerBoolean<K extends string>(key: K & Exclude<K, keyof T>, defaultValue: boolean, version: number = 0) {
 		return this.registerUpdatable<K, boolean>(key, defaultValue, value => value === "true", version);
+	}
+
+	registerManaged<K extends string, S extends ManagedSetting>(key: K & Exclude<K, keyof T>, setting: S, version: number = 0) {
+		return this.registerUpdatable<K, S>(key, setting, value => {
+			setting.fromString(value);
+			return setting;
+		}, version);
 	}
 
 	/**

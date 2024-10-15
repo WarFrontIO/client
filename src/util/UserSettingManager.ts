@@ -1,5 +1,6 @@
 import {SettingRegistry} from "./SettingRegistry";
 import {getTheme} from "../renderer/GameTheme";
+import {debugRendererLayers} from "../renderer/layer/debug/DebugRendererRegistry";
 
 /**
  * Setting registry, all register calls need to be chained together
@@ -10,6 +11,7 @@ const registry = SettingRegistry.init("wf")
 	.registerBoolean("hud-clock", true)
 	.registerString("api-location", "https://warfront.io/api") //This needs to enforce no trailing slash, no query parameters and a protocol
 	.registerString("game-server", "warfront.io")
+	.registerManaged("debug-renderer", debugRendererLayers);
 
 registry.load();
 

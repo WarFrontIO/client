@@ -5,6 +5,7 @@ import {backgroundLayer} from "./layer/BackgroundLayer";
 import {territoryRenderer} from "./layer/TerritoryRenderer";
 import {nameRenderer} from "./layer/NameRenderer";
 import {boatRenderer} from "./layer/BoatRenderer";
+import {debugRenderer} from "./layer/debug/DebugRenderer";
 import {gameStartRegistry} from "../game/Game";
 
 /**
@@ -42,6 +43,7 @@ export class GameRenderer {
 		this.registerLayer(territoryRenderer);
 		this.registerLayer(nameRenderer);
 		this.registerLayer(boatRenderer);
+		this.registerLayer(debugRenderer);
 	}
 
 	/**
