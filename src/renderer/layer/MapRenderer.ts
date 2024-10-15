@@ -5,6 +5,7 @@ import {GameTheme} from "../GameTheme";
 import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
 import {RGBColor} from "../../util/RGBColor";
 import {gameMap, isPlaying} from "../../game/GameData";
+import {gameStartRegistry} from "../../game/Game";
 
 /**
  * Map background renderer.
@@ -12,7 +13,7 @@ import {gameMap, isPlaying} from "../../game/GameData";
  * @internal
  */
 class MapRenderer extends CachedLayer {
-	invalidateCaches(): void {
+	init(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
 		loadShaders();
 		this.forceRepaint(getSetting("theme"));
@@ -46,5 +47,6 @@ export const mapRenderer = new MapRenderer();
 
 mapTransformHandler.scale.register(mapRenderer.onMapScale);
 mapTransformHandler.move.register(mapRenderer.onMapMove);
+gameStartRegistry.register(mapRenderer.init.bind(mapRenderer));
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

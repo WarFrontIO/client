@@ -1,6 +1,7 @@
 import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {gameMap} from "../../game/GameData";
+import {gameStartRegistry} from "../../game/Game";
 
 /**
  * Territory renderer.
@@ -8,7 +9,7 @@ import {gameMap} from "../../game/GameData";
  * @internal
  */
 class TerritoryRenderer extends CachedLayer {
-	invalidateCaches(): void {
+	init(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
 	}
 
@@ -26,5 +27,6 @@ export const territoryRenderer = new TerritoryRenderer();
 
 mapTransformHandler.scale.register(territoryRenderer.onMapScale);
 mapTransformHandler.move.register(territoryRenderer.onMapMove);
+gameStartRegistry.register(territoryRenderer.init.bind(territoryRenderer));
 
 import("../manager/TerritoryRenderingManager");

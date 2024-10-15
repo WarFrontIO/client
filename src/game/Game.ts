@@ -11,7 +11,6 @@ import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderin
 import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {GameMode} from "./mode/GameMode";
-import {gameRenderer} from "../renderer/GameRenderer";
 import {boatManager} from "./boat/BoatManager";
 import {disconnectFromServer, packetRegistry} from "../network/NetworkManager";
 import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
@@ -21,6 +20,7 @@ import {initGameData} from "./GameData";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {hideAllUIElements, showUIElement} from "../ui/UIManager";
 import {ClientPlayer} from "./player/ClientPlayer";
+import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 
 /**
  * Start a new game with the given map.
@@ -37,13 +37,13 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	mapActionHandler.enable();
 	territoryManager.reset();
 	boatManager.reset();
-	gameRenderer.initGameplayLayers();
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
 	spawnManager.init(500);
 	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, 500);
 
 	random.reset(seed);
+	gameStartRegistry.broadcast();
 }
 
 packetRegistry.handle(GameStartPacket, function () {
@@ -72,3 +72,5 @@ packetRegistry.handle(GameTickPacket, function () {
 		disconnectFromServer();
 	}
 });
+
+export const gameStartRegistry = new EventHandlerRegistry<[]>();

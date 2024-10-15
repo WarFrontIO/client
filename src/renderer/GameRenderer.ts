@@ -5,6 +5,7 @@ import {backgroundLayer} from "./layer/BackgroundLayer";
 import {territoryRenderer} from "./layer/TerritoryRenderer";
 import {nameRenderer} from "./layer/NameRenderer";
 import {boatRenderer} from "./layer/BoatRenderer";
+import {gameStartRegistry} from "../game/Game";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -52,7 +53,6 @@ export class GameRenderer {
 	 * @param layer the layer to be rendered.
 	 */
 	registerLayer(layer: RendererLayer): void {
-		layer.invalidateCaches?.();
 		this.layers.push(layer);
 	}
 
@@ -76,3 +76,4 @@ export class GameRenderer {
 export const gameRenderer = new GameRenderer();
 
 windowResizeHandler.register(gameRenderer.resize);
+gameStartRegistry.register(gameRenderer.initGameplayLayers.bind(gameRenderer));
