@@ -12,7 +12,13 @@ const subscribers: {
 	[InteractionType.HOVER]: new Map()
 };
 
-export function resolveInteraction(element: HTMLElement | null, type: InteractionType): { id: string, listener: Omit<InteractionListeners[InteractionType], "test"> } | null {
+/**
+ * Resolves the interaction listener for the given element.
+ * Elements propagate up the DOM tree until a listener is found.
+ * @param element The element to resolve the listener for
+ * @param type The type of listener to resolve
+ */
+export function resolveInteraction<T extends InteractionType>(element: HTMLElement | null, type: T): { id: string, listener: Omit<InteractionListeners[T], "test"> } | null {
 	if (!element || element.id === "" || !subscribers[type].has(element.id)) {
 		if (element && element.parentElement) {
 			return resolveInteraction(element.parentElement, type);
