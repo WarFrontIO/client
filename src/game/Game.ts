@@ -33,6 +33,7 @@ import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
  */
 export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean) {
 	initGameData(map, mode, isLocal);
+	gameLoadRegistry.broadcast();
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	territoryManager.reset();
@@ -73,4 +74,5 @@ packetRegistry.handle(GameTickPacket, function () {
 	}
 });
 
+export const gameLoadRegistry = new EventHandlerRegistry<[]>();
 export const gameStartRegistry = new EventHandlerRegistry<[]>();
