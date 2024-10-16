@@ -34,16 +34,14 @@ export class Player {
 		this.territorySize++;
 		if (territoryManager.isBorder(tile)) {
 			this.borderTiles.add(tile);
-			transaction.setBorder(tile);
 		} else {
-			transaction.setTerritory(tile);
 			playerNameRenderingManager.addTile(tile, transaction);
 		}
+		transaction.addTile(tile);
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				this.waterTiles++;
 			} else if (territoryManager.isOwner(neighbor, this.id) && !territoryManager.isBorder(neighbor) && this.borderTiles.delete(neighbor)) {
-				transaction.setTerritory(neighbor);
 				playerNameRenderingManager.addTile(neighbor, transaction);
 			}
 		});
@@ -68,7 +66,6 @@ export class Player {
 				this.waterTiles--;
 			} else if (territoryManager.isOwner(neighbor, this.id) && !this.borderTiles.has(neighbor)) {
 				this.borderTiles.add(neighbor);
-				transaction.setDefendantBorder(neighbor);
 				playerNameRenderingManager.removeTile(neighbor, transaction);
 			}
 		});

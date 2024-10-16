@@ -111,7 +111,7 @@ class TerritoryManager {
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
 			playerManager.getPlayer(owner).removeTile(tile, transaction);
-			transaction.setTerritory(tile);
+			transaction.addTile(tile);
 		}
 	}
 }

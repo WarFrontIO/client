@@ -7,6 +7,7 @@ import {GameTheme} from "../GameTheme";
 import {gameMap, isPlaying} from "../../game/GameData";
 import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import {borderManager} from "../../game/BorderManager";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -19,7 +20,7 @@ export class TerritoryRenderingManager {
 	 * Clear the tiles at the given indices.
 	 * @param tiles the tiles to clear
 	 */
-	clearTiles(tiles: number[]): void {
+	clearTiles(tiles: number[] | Set<number>): void {
 		for (const tile of tiles) {
 			territoryRenderer.context.clearRect(tile % gameMap.width, Math.floor(tile / gameMap.width), 1, 1);
 		}
@@ -74,14 +75,16 @@ export const territoryRenderingManager = new TerritoryRenderingManager();
 registerSettingListener("theme", territoryRenderingManager.forceRepaint);
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
-	if (this.defendant) {
-		territoryRenderingManager.paintTiles(this.defendantBorderQueue, getSetting("theme").getBorderColor(this.defendant.baseColor));
+	//TODO: this needs to be less magical for clearing
+	const borders = borderManager.transitionTiles(this.tiles, this.attacker?.id ?? -1, this.defendant?.id ?? -1);
+	if (this.attacker) {
+		territoryRenderingManager.paintTiles(borders.territory, getSetting("theme").getTerritoryColor(this.attacker.baseColor));
+		territoryRenderingManager.paintTiles(borders.attacker, getSetting("theme").getBorderColor(this.attacker.baseColor));
+	} else {
+		territoryRenderingManager.clearTiles(this.tiles);
 	}
 
-	if (this.attacker) {
-		territoryRenderingManager.paintTiles(this.borderQueue, getSetting("theme").getBorderColor(this.attacker.baseColor));
-		territoryRenderingManager.paintTiles(this.territoryQueue, getSetting("theme").getTerritoryColor(this.attacker.baseColor));
-	} else {
-		territoryRenderingManager.clearTiles(this.territoryQueue);
+	if (this.defendant) {
+		territoryRenderingManager.paintTiles(borders.defender, getSetting("theme").getBorderColor(this.defendant.baseColor));
 	}
 });
