@@ -61,6 +61,11 @@ export class TerritoryTransaction extends Transaction {
 		}
 	}
 
+	apply() {
+		if (this.tiles.size === 0) return;
+		super.apply();
+	}
+
 	cleanup() {
 		this.namePos = 0;
 		this.namePosSize = 0;
