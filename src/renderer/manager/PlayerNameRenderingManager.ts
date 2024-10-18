@@ -100,29 +100,28 @@ class PlayerNameRenderingManager {
 		let rowMax = Infinity;
 		let columnMax = Infinity;
 		transaction.setDefendantNamePos(tile - gameMap.width - 1, this.nameDepth[tile - gameMap.width - 1]);
-		let changed: boolean;
-		do {
-			changed = false;
-			for (let i = 0; i < rowMax; i++) {
+		while (true) {
+			if (this.nameDepth[tile] <= offset) {
+				break;
+			}
+			this.nameDepth[tile] = offset;
+			for (let i = 1; i < rowMax; i++) {
 				if (this.nameDepth[tile + i] <= offset + i) {
 					rowMax = i;
 					break;
 				}
 				this.nameDepth[tile + i] = offset + i;
-				changed = true;
 			}
-			tile += gameMap.width;
-			for (let i = 0; i < columnMax; i++) {
+			for (let i = 1; i < columnMax; i++) {
 				if (this.nameDepth[tile + i * gameMap.width] <= offset + i) {
 					columnMax = i;
 					break;
 				}
 				this.nameDepth[tile + i * gameMap.width] = offset + i;
-				changed = true;
 			}
-			tile++;
+			tile += gameMap.width + 1;
 			offset++;
-		} while (changed);
+		}
 	}
 
 	/**
