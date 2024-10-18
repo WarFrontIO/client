@@ -230,7 +230,7 @@ export class PlayerNameRenderingData {
 	 */
 	validatePosition(): void {
 		const nameDepth = playerNameRenderingManager.getNameDepth();
-		if (nameDepth[this.index] === this.size) return;
+		if (nameDepth[this.index] === this.size && territoryManager.tileOwners[this.index] === this.id) return;
 		if (nameDepth[this.index] !== 0) {
 			this.queue.push([nameDepth[this.index], this.index]);
 		}
