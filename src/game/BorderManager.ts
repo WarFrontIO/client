@@ -27,9 +27,9 @@ class BorderManager {
 	transitionTiles(tiles: Set<number>, attacker: number, defender: number): BorderTransitionResult {
 		const attackerBorder = this.borderTiles[attacker];
 		const defenderBorder = this.borderTiles[defender] || new Set();
-		const result: BorderTransitionResult = {territory: Array.from(tiles), attacker: [], defender: []};
 		const attackerName = new PlayerNameUpdate(attacker, false);
 		const defenderName = new PlayerNameUpdate(defender, true);
+		const result: BorderTransitionResult = {territory: [], attacker: [], defender: []};
 		for (const tile of tiles) {
 			defenderBorder.delete(tile);
 			onNeighbors(tile, (neighbor) => {
@@ -65,6 +65,7 @@ class BorderManager {
 				result.attacker.push(tile);
 			} else {
 				playerNameRenderingManager.addTile(tile, attackerName);
+				result.territory.push(tile);
 			}
 		}
 
