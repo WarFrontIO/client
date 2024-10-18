@@ -33,6 +33,9 @@ class BorderManager {
 		for (const tile of tiles) {
 			defenderBorder.delete(tile);
 			onNeighbors(tile, (neighbor) => {
+				if (tiles.has(neighbor)) {
+					return;
+				}
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner === defender) {
 					if (this.tileGrades[neighbor]-- === 4) {
