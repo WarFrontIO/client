@@ -1,6 +1,7 @@
 import {gameMap} from "./GameData";
 import {onNeighbors} from "../util/MathUtil";
 import {territoryManager} from "./TerritoryManager";
+import {playerNameRenderingManager, PlayerNameUpdate} from "../renderer/manager/PlayerNameRenderingManager";
 
 class BorderManager {
 	private tileGrades: Uint8Array;
@@ -27,6 +28,8 @@ class BorderManager {
 		const attackerBorder = this.borderTiles[attacker];
 		const defenderBorder = this.borderTiles[defender] || new Set();
 		const result: BorderTransitionResult = {territory: Array.from(tiles), attacker: [], defender: []};
+		const attackerName = new PlayerNameUpdate(attacker, false);
+		const defenderName = new PlayerNameUpdate(defender, true);
 		for (const tile of tiles) {
 			defenderBorder.delete(tile);
 			onNeighbors(tile, (neighbor) => {
@@ -34,11 +37,13 @@ class BorderManager {
 				if (owner === defender) {
 					if (this.tileGrades[neighbor]-- === 4) {
 						defenderBorder.add(neighbor);
+						playerNameRenderingManager.removeTile(neighbor, defenderName);
 						result.defender.push(neighbor);
 					}
 				} else if (owner === attacker) {
 					if (++this.tileGrades[neighbor] === 4) {
 						attackerBorder.delete(neighbor);
+						playerNameRenderingManager.addTile(neighbor, attackerName);
 						result.territory.push(neighbor);
 					}
 				}
@@ -56,10 +61,26 @@ class BorderManager {
 			this.tileGrades[tile] = grade;
 			if (grade < 4) {
 				attackerBorder.add(tile);
+				playerNameRenderingManager.removeTile(tile, defenderName);
 				result.attacker.push(tile);
+			} else {
+				playerNameRenderingManager.addTile(tile, attackerName);
 			}
 		}
+
+		attackerName.update();
+		defenderName.update();
+
 		return result;
+	}
+
+	/**
+	 * Gets the border tiles of a player.
+	 * @param player The player to get the border tiles of
+	 * @returns The border tiles of the player
+	 */
+	getBorderTiles(player: number): Set<number> {
+		return this.borderTiles[player];
 	}
 }
 

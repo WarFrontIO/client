@@ -5,6 +5,7 @@ import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActio
 import {attackActionHandler} from "./AttackActionHandler";
 import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
 import {gameMap, gameMode, isLocalGame} from "../GameData";
+import {borderManager} from "../BorderManager";
 
 /**
  * Filters out invalid attacks and submits the attack action.
@@ -21,7 +22,7 @@ export function preprocessAttack(attacker: number, target: number, power: number
 }
 
 export function hasBorderWith(player: Player, target: number): boolean {
-	for (const tile of player.borderTiles) {
+	for (const tile of borderManager.getBorderTiles(player.id)) {
 		const x = tile % gameMap.width;
 		const y = Math.floor(tile / gameMap.width);
 		if (x > 0 && territoryManager.isOwner(tile - 1, target)) {

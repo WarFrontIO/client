@@ -7,8 +7,8 @@ import {random} from "../../game/Random";
 import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {gameMap} from "../../game/GameData";
-import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
-import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
+import {playerManager} from "../../game/player/PlayerManager";
+import {borderManager} from "../../game/BorderManager";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];
@@ -37,7 +37,7 @@ class PlayerNameRenderingManager {
 		const canvas = document.createElement("canvas");
 		const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 		const troopLength = context.measureText("123.").width / 10;
-		this.playerData[player.id] = new PlayerNameRenderingData(player.name, troopLength, player.borderTiles, player.id);
+		this.playerData[player.id] = new PlayerNameRenderingData(player.name, troopLength, borderManager.getBorderTiles(player.id), player.id);
 	}
 
 	/**
@@ -86,7 +86,7 @@ class PlayerNameRenderingManager {
 	 * @param transaction The transaction that added the tile
 	 * @internal
 	 */
-	addTile(tile: number, transaction: TerritoryTransaction): void {
+	addTile(tile: number, transaction: PlayerNameUpdate): void {
 		this.nameDepth[tile] = 65535; // force recalculation
 		this.recalculateFrom(tile, transaction);
 	}
@@ -95,11 +95,11 @@ class PlayerNameRenderingManager {
 	 * Update the player name rendering data.
 	 * @internal
 	 */
-	removeTile(tile: number, transaction: TerritoryTransaction): void {
+	removeTile(tile: number, transaction: PlayerNameUpdate): void {
 		let offset = 0;
 		let rowMax = Infinity;
 		let columnMax = Infinity;
-		transaction.setDefendantNamePos(tile - gameMap.width - 1, this.nameDepth[tile - gameMap.width - 1]);
+		transaction.setNamePos(tile - gameMap.width - 1, this.nameDepth[tile - gameMap.width - 1]);
 		while (true) {
 			if (this.nameDepth[tile] <= offset) {
 				break;
@@ -131,7 +131,7 @@ class PlayerNameRenderingManager {
 	 * @param transaction The transaction to update the tiles in
 	 * @private
 	 */
-	private recalculateFrom(tile: number, transaction: TerritoryTransaction): void {
+	private recalculateFrom(tile: number, transaction: PlayerNameUpdate): void {
 		let currentOrigin = tile;
 		let isColumn = false;
 		let changed = true;
@@ -297,13 +297,40 @@ export class PlayerNameRenderingData {
 
 export const playerNameRenderingManager = new PlayerNameRenderingManager();
 
-registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
-	if (this.attacker && this.namePosSize > 0) {
-		playerNameRenderingManager.getPlayerData(this.attacker).addPosition(this.namePosSize, this.namePos);
+export class PlayerNameUpdate {
+	private readonly player: number;
+	private readonly validate: boolean;
+	private namePos: number = 0;
+	private namePosSize: number = 0;
+
+	constructor(player: number, validate: boolean) {
+		this.player = player;
+		this.validate = validate;
 	}
 
-	if (this.defendant && this.defendantNamePosSize > -1) {
-		playerNameRenderingManager.getPlayerData(this.defendant).addPosition(this.defendantNamePosSize, this.defendantNamePos);
-		playerNameRenderingManager.getPlayerData(this.defendant).validatePosition();
+	/**
+	 * Set the name position.
+	 * @param pos The position of the name.
+	 * @param size The size of the name.
+	 */
+	setNamePos(pos: number, size: number): void {
+		if (size > this.namePosSize) {
+			this.namePos = pos;
+			this.namePosSize = size;
+		}
 	}
-});
+
+	/**
+	 * Update the player name rendering data.
+	 */
+	update(): void {
+		const player = playerManager.getPlayer(this.player);
+		if (!player) return;
+		if (this.namePosSize > 0) {
+			playerNameRenderingManager.getPlayerData(player).addPosition(this.namePosSize, this.namePos);
+		}
+		if (this.validate) {
+			playerNameRenderingManager.getPlayerData(player).validatePosition();
+		}
+	}
+}

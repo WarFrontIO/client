@@ -10,6 +10,7 @@ import {onNeighbors} from "../../util/MathUtil";
 import {rayTraceWater} from "../../util/VoxelRayTrace";
 import {gameMap, gameMode} from "../GameData";
 import {boatManager} from "../boat/BoatManager";
+import {borderManager} from "../BorderManager";
 
 export class BotPlayer extends Player {
 	protected readonly triggers: BotTrigger[];
@@ -32,7 +33,7 @@ export class BotPlayer extends Player {
 			//TODO: Attack percentage should be configurable
 			actuallyHandleAttack(this, target, 100);
 		} else if (this.waterTiles > 0) {
-			const borderTiles = Array.from(this.borderTiles); //TODO: Check the performance hit this causes
+			const borderTiles = Array.from(borderManager.getBorderTiles(this.id)); //TODO: Check the performance hit this causes
 			const startTile = borderTiles[random.nextInt(borderTiles.length)];
 			const possibleStarts: number[] = [];
 			onNeighbors(startTile, tile => {

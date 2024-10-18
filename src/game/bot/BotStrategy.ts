@@ -4,6 +4,7 @@ import {territoryManager} from "../TerritoryManager";
 import {gameMode} from "../GameData";
 import {BotPlayer} from "./BotPlayer";
 import {playerManager} from "../player/PlayerManager";
+import {borderManager} from "../BorderManager";
 
 export class BotStrategy {
 	constructor(
@@ -19,7 +20,7 @@ export class BotStrategy {
 	getTarget(player: BotPlayer): number | null {
 		//TODO: Neighbor logic should probably be done using tile updates instead of every tick
 		let targets: number[] = [];
-		for (const border of player.borderTiles) {
+		for (const border of borderManager.getBorderTiles(player.id)) {
 			onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner !== player.id && !targets.includes(owner)) {

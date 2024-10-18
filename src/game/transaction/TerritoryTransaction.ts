@@ -7,10 +7,6 @@ export class TerritoryTransaction extends Transaction {
 	protected readonly attacker: Player | null;
 	protected readonly defendant: Player | null;
 	protected readonly tiles: Set<number> = new Set();
-	protected namePos: number = 0;
-	protected namePosSize: number = 0;
-	protected defendantNamePos: number = 0;
-	protected defendantNamePosSize: number = -1;
 
 	/**
 	 * Create a new territory transaction.
@@ -36,41 +32,12 @@ export class TerritoryTransaction extends Transaction {
 		this.tiles.add(tile);
 	}
 
-	/**
-	 * Set the name position of the player.
-	 * This will use the greatest size this transaction has seen.
-	 * @param pos The position of the name
-	 * @param size The size of the name
-	 */
-	setNamePos(pos: number, size: number) {
-		if (size > this.namePosSize) {
-			this.namePos = pos;
-			this.namePosSize = size;
-		}
-	}
-
-	/**
-	 * Set the defendant name position.
-	 * @param pos The position of the name
-	 * @param size The size of the name
-	 */
-	setDefendantNamePos(pos: number, size: number) {
-		if (size > this.defendantNamePosSize) {
-			this.defendantNamePos = pos;
-			this.defendantNamePosSize = size;
-		}
-	}
-
 	apply() {
 		if (this.tiles.size === 0) return;
 		super.apply();
 	}
 
 	cleanup() {
-		this.namePos = 0;
-		this.namePosSize = 0;
-		this.defendantNamePos = 0;
-		this.defendantNamePosSize = -1;
 		this.tiles.clear();
 	}
 }
