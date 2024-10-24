@@ -77,6 +77,15 @@ class PlayerManager {
 			this.players.forEach(player => player.income());
 		}
 	}
+
+	/**
+	 * Validate a player id.
+	 * @param player The player to validate
+	 * @returns Whether the player is valid
+	 */
+	validatePlayer(player: number) {
+		return this.players[player] && this.players[player].isAlive();
+	}
 }
 
 export const playerManager = new PlayerManager();

@@ -6,6 +6,7 @@ import {attackActionHandler} from "./AttackActionHandler";
 import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
 import {gameMap, gameMode, isLocalGame} from "../GameData";
 import {borderManager} from "../BorderManager";
+import {validatePacket} from "../../network/PacketValidator";
 
 /**
  * Filters out invalid attacks and submits the attack action.
@@ -41,23 +42,16 @@ export function hasBorderWith(player: Player, target: number): boolean {
 	return false;
 }
 
+validatePacket(AttackActionPacket, packet => {
+	//TODO: This should be used by all attack related methods
+	const realTarget = packet.attacker === packet.target ? territoryManager.OWNER_NONE : packet.target;
+	return playerManager.validatePlayer(packet.attacker) && playerManager.validatePlayer(packet.target)
+		&& gameMode.canAttack(packet.attacker, realTarget);
+});
+
 //TODO: clean this up, starting pixels should be calculated here and not in the handler itself
 packetRegistry.handle(AttackActionPacket, function (): void {
-	const target = this.target === this.attacker ? territoryManager.OWNER_NONE : this.target;
-	if (!gameMode.canAttack(this.attacker, target)) {
-		return;
-	}
-
-	//TODO: Move these into a general validation function
-	const attacker = playerManager.getPlayer(this.attacker);
-	if (!attacker || !attacker.isAlive()) {
-		return; // invalid origin player
-	}
-	if (target !== territoryManager.OWNER_NONE && !(playerManager.getPlayer(target) && playerManager.getPlayer(target).isAlive())) {
-		return; // invalid target player
-	}
-
-	actuallyHandleAttack(attacker, target, this.power);
+	actuallyHandleAttack(playerManager.getPlayer(this.attacker), this.attacker === this.target ? territoryManager.OWNER_NONE : this.target, this.power);
 });
 
 /**
