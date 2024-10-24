@@ -31,36 +31,27 @@ class BorderManager {
 		const defenderName = new PlayerNameUpdate(defender, true);
 		const result: BorderTransitionResult = {territory: [], attacker: [], defender: []};
 		for (const tile of tiles) {
-			defenderBorder.delete(tile);
+			let grade = 0;
 			onNeighbors(tile, (neighbor) => {
-				if (tiles.has(neighbor)) {
-					return;
-				}
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner === defender) {
+					//We don't need to fear handling conquered tiles here, as they should already have the attacker as owner
 					if (this.tileGrades[neighbor]-- === 4) {
 						defenderBorder.add(neighbor);
 						playerNameRenderingManager.removeTile(neighbor, defenderName);
 						result.defender.push(neighbor);
 					}
 				} else if (owner === attacker) {
-					if (++this.tileGrades[neighbor] === 4) {
+					grade++;
+					if (!tiles.has(neighbor) && ++this.tileGrades[neighbor] === 4) {
 						attackerBorder.delete(neighbor);
 						playerNameRenderingManager.addTile(neighbor, attackerName);
 						result.territory.push(neighbor);
 					}
 				}
 			});
-		}
 
-		// Recalculate grades for changed tiles, these were previously owned by a different player
-		for (const tile of tiles) {
-			let grade = 0;
-			onNeighbors(tile, (neighbor) => {
-				if (territoryManager.isOwner(neighbor, attacker)) {
-					grade++;
-				}
-			});
+			defenderBorder.delete(tile);
 			this.tileGrades[tile] = grade;
 			if (grade < 4) {
 				attackerBorder.add(tile);
