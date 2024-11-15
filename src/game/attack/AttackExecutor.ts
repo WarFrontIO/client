@@ -71,7 +71,7 @@ export class AttackExecutor {
 	 * @returns The amount of troops in the attack.
 	 */
 	getTroops(): number {
-		return this.troops;
+		return Math.max(0, Math.floor(this.troops));
 	}
 
 	/**
