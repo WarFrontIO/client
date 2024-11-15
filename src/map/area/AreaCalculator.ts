@@ -90,10 +90,8 @@ class AreaCalculator {
 			if (entranceStart !== -1) {
 				if (this.AREA_SIZE - entranceStart >= 6) {
 					this.addEdge(area, other, x + entranceStart, y, x + entranceStart, y - 1);
-					this.addEdge(area, other, x + this.AREA_SIZE - 1, y, x + this.AREA_SIZE - 1, y - 1);
-				} else {
-					this.addEdge(area, other, x + Math.floor((this.AREA_SIZE - 1 + entranceStart) / 2), y, x + Math.floor((this.AREA_SIZE - 1 + entranceStart) / 2), y - 1);
 				}
+				this.addEdge(area, other, x + this.AREA_SIZE - 1, y, x + this.AREA_SIZE - 1, y - 1);
 			}
 		} else if (area.y - otherY === 0) {
 			for (let i = 0; i < this.AREA_SIZE; i++) {
@@ -114,10 +112,8 @@ class AreaCalculator {
 			if (entranceStart !== -1) {
 				if (this.AREA_SIZE - entranceStart >= 6) {
 					this.addEdge(area, other, x, y + entranceStart, x - 1, y + entranceStart);
-					this.addEdge(area, other, x, y + this.AREA_SIZE - 1, x - 1, y + this.AREA_SIZE - 1);
-				} else {
-					this.addEdge(area, other, x, y + Math.floor((this.AREA_SIZE - 1 + entranceStart) / 2), x - 1, y + Math.floor((this.AREA_SIZE - 1 + entranceStart) / 2));
 				}
+				this.addEdge(area, other, x, y + this.AREA_SIZE - 1, x - 1, y + this.AREA_SIZE - 1);
 			}
 		}
 	}
