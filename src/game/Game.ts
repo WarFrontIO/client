@@ -21,6 +21,7 @@ import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {hideAllUIElements, showUIElement} from "../ui/UIManager";
 import {ClientPlayer} from "./player/ClientPlayer";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {borderManager} from "./BorderManager";
 
 /**
  * Start a new game with the given map.
@@ -33,9 +34,11 @@ import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
  */
 export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean) {
 	initGameData(map, mode, isLocal);
+	gameLoadRegistry.broadcast();
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	territoryManager.reset();
+	borderManager.reset(500);
 	boatManager.reset();
 	playerNameRenderingManager.reset(500);
 	attackActionHandler.init(500);
@@ -73,4 +76,5 @@ packetRegistry.handle(GameTickPacket, function () {
 	}
 });
 
+export const gameLoadRegistry = new EventHandlerRegistry<[]>();
 export const gameStartRegistry = new EventHandlerRegistry<[]>();

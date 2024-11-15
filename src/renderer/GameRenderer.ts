@@ -7,6 +7,7 @@ import {nameRenderer} from "./layer/NameRenderer";
 import {boatRenderer} from "./layer/BoatRenderer";
 import {debugRenderer} from "./layer/debug/DebugRenderer";
 import {gameStartRegistry} from "../game/Game";
+import {InvalidArgumentException} from "../util/Exceptions";
 
 /**
  * Main renderer for anything canvas related in the game.
@@ -26,10 +27,6 @@ export class GameRenderer {
 		this.canvas.style.top = "0";
 		this.canvas.style.zIndex = "-1";
 		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
-
-		this.doRenderTick();
-
-		document.body.appendChild(this.canvas);
 	}
 
 	/**
@@ -69,12 +66,27 @@ export class GameRenderer {
 		requestAnimationFrame(() => this.doRenderTick());
 	}
 
+	/**
+	 * Start rendering the game.
+	 * @throws {InvalidArgumentException} if a game renderer is already running
+	 */
+	startRendering(): void {
+		if (isRendering) {
+			throw new InvalidArgumentException("Game renderer is already running");
+		}
+		isRendering = true;
+
+		this.doRenderTick();
+		document.body.appendChild(this.canvas);
+	}
+
 	resize(this: void, width: number, height: number): void {
 		gameRenderer.canvas.width = Math.ceil(width / window.devicePixelRatio);
 		gameRenderer.canvas.height = Math.ceil(height / window.devicePixelRatio);
 	}
 }
 
+let isRendering = false;
 export const gameRenderer = new GameRenderer();
 
 windowResizeHandler.register(gameRenderer.resize);

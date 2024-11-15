@@ -2,6 +2,7 @@ import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {packetRegistry} from "../network/NetworkManager";
 import {isLocalGame} from "./GameData";
+import {doPacketValidation} from "../network/PacketValidator";
 
 class GameTicker {
 	private readonly TICK_INTERVAL = 1000 / 20; // 50ms
@@ -69,7 +70,9 @@ class GameTicker {
 				return;
 			}
 			for (const action of packet.packets) {
-				packetRegistry.getPacketHandler(action.id).call(action);
+				if (doPacketValidation(action)) {
+					packetRegistry.getPacketHandler(action.id).call(action);
+				}
 			}
 		}
 		this.registry.broadcast();

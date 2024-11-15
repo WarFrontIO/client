@@ -5,9 +5,9 @@ import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
 import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
 import {Player} from "../player/Player";
-import {onNeighbors} from "../../util/MathUtil";
-import {territoryManager} from "../TerritoryManager";
+import {bordersTile} from "../../util/MathUtil";
 import {gameMap} from "../GameData";
+import {validatePacket} from "../../network/PacketValidator";
 
 class BoatManager {
 	private readonly boats: Boat[] = [];
@@ -122,27 +122,12 @@ export const boatManager = new BoatManager();
 
 gameTicker.registry.register(boatManager.tick);
 
+validatePacket(BoatActionPacket, packet => {
+	return playerManager.validatePlayer(packet.player)
+		&& gameMap.getDistance(packet.start) === -1 && gameMap.getDistance(packet.end) === 0
+		&& bordersTile(packet.start, packet.player);
+});
+
 packetRegistry.handle(BoatActionPacket, function (this: BoatActionPacket): void {
-	const player = playerManager.getPlayer(this.player);
-	if (!player || !player.isAlive()) {
-		return;
-	}
-	if (this.start >= gameMap.width * gameMap.height || this.end >= gameMap.width * gameMap.height) {
-		return;
-	}
-	if (gameMap.getDistance(this.start) !== -1 || gameMap.getDistance(this.end) !== 0) {
-		return;
-	}
-
-	let hasBorder = false;
-	onNeighbors(this.start, neighbor => {
-		if (territoryManager.isOwner(neighbor, player.id)) {
-			hasBorder = true;
-		}
-	});
-	if (!hasBorder) {
-		return;
-	}
-
-	boatManager.addBoat(player, this.start, this.end, this.power);
+	boatManager.addBoat(playerManager.getPlayer(this.player), this.start, this.end, this.power);
 });

@@ -11,6 +11,7 @@ import {BasePacket} from "./protocol/packet/BasePacket";
 import {isLocalGame} from "../game/GameData";
 import {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
 import {NetworkException} from "../util/Exceptions";
+import {doPacketValidation} from "./PacketValidator";
 
 export const packetRegistry = new PacketRegistry<void>();
 
@@ -147,7 +148,7 @@ export function sendPacket<T extends BasePacket<T>>(packet: T, force: boolean = 
 export function submitGameAction<T extends GameActionPacket<T>>(action: T): void {
 	if (isLocalGame) {
 		packetRegistry.getPacketHandler(action.id).call(action);
-	} else {
+	} else if (doPacketValidation(action)) {
 		sendPacket(action);
 	}
 }

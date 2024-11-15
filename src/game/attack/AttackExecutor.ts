@@ -5,6 +5,7 @@ import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
 import {gameMap} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
+import {borderManager} from "../BorderManager";
 
 /**
  * This is the max amount of ticks it can take to conquer a tile.
@@ -148,7 +149,7 @@ export class AttackExecutor {
 
 		const result = [];
 		const amountCache = attackActionHandler.amountCache;
-		for (const tile of borderTiles ?? this.player.borderTiles) {
+		for (const tile of borderTiles ?? borderManager.getBorderTiles(this.player.id)) {
 			const x = tile % gameMap.width;
 			const y = Math.floor(tile / gameMap.width);
 			if (x > 0 && tileOwners[tile - 1] === target) {

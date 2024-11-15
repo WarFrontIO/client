@@ -95,9 +95,10 @@ class TerritoryManager {
 		const previousOwner = this.tileOwners[tile];
 		this.tileOwners[tile] = owner;
 		if (previousOwner !== this.OWNER_NONE) {
-			playerManager.getPlayer(previousOwner).removeTile(tile, transaction);
+			playerManager.getPlayer(previousOwner).removeTile(tile);
 		}
-		playerManager.getPlayer(owner).addTile(tile, transaction);
+		playerManager.getPlayer(owner).addTile(tile);
+		transaction.addTile(tile);
 	}
 
 	/**
@@ -110,8 +111,8 @@ class TerritoryManager {
 		const owner = this.tileOwners[tile];
 		if (owner !== this.OWNER_NONE) {
 			this.tileOwners[tile] = this.OWNER_NONE;
-			playerManager.getPlayer(owner).removeTile(tile, transaction);
-			transaction.setTerritory(tile);
+			playerManager.getPlayer(owner).removeTile(tile);
+			transaction.addTile(tile);
 		}
 	}
 }

@@ -1,5 +1,4 @@
 import {Player} from "./Player";
-import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 import {onNeighbors} from "../../util/MathUtil";
 import {HSLColor} from "../../util/HSLColor";
 import {areaCalculator} from "../../map/area/AreaCalculator";
@@ -14,8 +13,8 @@ export class ClientPlayer extends Player {
 		areaIndex = new Uint16Array(areaCalculator.preprocessMap());
 	}
 
-	addTile(tile: number, transaction: TerritoryTransaction) {
-		super.addTile(tile, transaction);
+	addTile(tile: number) {
+		super.addTile(tile);
 
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
@@ -24,8 +23,8 @@ export class ClientPlayer extends Player {
 		});
 	}
 
-	removeTile(tile: number, transaction: TerritoryTransaction) {
-		super.removeTile(tile, transaction);
+	removeTile(tile: number) {
+		super.removeTile(tile);
 
 		onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {

@@ -1,7 +1,12 @@
 import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {gameMap} from "../../game/GameData";
-import {gameStartRegistry} from "../../game/Game";
+import {gameLoadRegistry} from "../../game/Game";
+import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
+import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
+import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import {borderManager} from "../../game/BorderManager";
 
 /**
  * Territory renderer.
@@ -9,6 +14,8 @@ import {gameStartRegistry} from "../../game/Game";
  * @internal
  */
 class TerritoryRenderer extends CachedLayer {
+	readonly manager: TerritoryRenderingManager = new TerritoryRenderingManager(this.context);
+
 	init(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
 	}
@@ -27,6 +34,21 @@ export const territoryRenderer = new TerritoryRenderer();
 
 mapTransformHandler.scale.register(territoryRenderer.onMapScale);
 mapTransformHandler.move.register(territoryRenderer.onMapMove);
-gameStartRegistry.register(territoryRenderer.init.bind(territoryRenderer));
+gameLoadRegistry.register(territoryRenderer.init.bind(territoryRenderer));
 
-import("../manager/TerritoryRenderingManager");
+registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(this));
+
+registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
+	//TODO: this needs to be less magical for clearing
+	const borders = borderManager.transitionTiles(this.tiles, this.attacker?.id ?? -1, this.defendant?.id ?? -1);
+	if (this.attacker) {
+		territoryRenderer.manager.paintTiles(borders.territory, getSetting("theme").getTerritoryColor(this.attacker.baseColor));
+		territoryRenderer.manager.paintTiles(borders.attacker, getSetting("theme").getBorderColor(this.attacker.baseColor));
+	} else {
+		territoryRenderer.manager.clearTiles(this.tiles);
+	}
+
+	if (this.defendant) {
+		territoryRenderer.manager.paintTiles(borders.defender, getSetting("theme").getBorderColor(this.defendant.baseColor));
+	}
+});
