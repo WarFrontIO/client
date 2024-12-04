@@ -38,12 +38,12 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	mapNavigationHandler.enable();
 	mapActionHandler.enable();
 	territoryManager.reset();
-	borderManager.reset(500);
+	const maxPlayers = spawnManager.init(500);
+	borderManager.reset(maxPlayers);
 	boatManager.reset();
-	playerNameRenderingManager.reset(500);
-	attackActionHandler.init(500);
-	spawnManager.init(500);
-	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, 500);
+	playerNameRenderingManager.reset(maxPlayers);
+	attackActionHandler.init(maxPlayers);
+	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, maxPlayers);
 
 	random.reset(seed);
 	gameStartRegistry.broadcast();

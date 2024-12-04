@@ -23,7 +23,7 @@ class SpawnManager {
 	 * If this is the case, spawn points will be regenerated with a smaller radius until enough spawn points are available.
 	 * @param maxPlayers The maximum number of players.
 	 */
-	init(maxPlayers: number): void {
+	init(maxPlayers: number): number {
 		let radius = Math.max(5, Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2)));
 		while (radius >= 5) {
 			this.spawnPoints = this.buildSpawns(radius);
@@ -36,6 +36,7 @@ class SpawnManager {
 		this.spawnData = [];
 		this.backupPoints = [];
 		this.isSelecting = true;
+		return Math.min(this.spawnPoints.length, maxPlayers);
 	}
 
 	/**
