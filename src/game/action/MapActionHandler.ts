@@ -17,7 +17,7 @@ class MapActionHandler implements ClickEventListener {
 	 * Enables the map action handler.
 	 */
 	enable() {
-		this.setAction(tile => spawnManager.isSelecting ? spawnManager.requestSpawn(tile) : hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 200) : boatManager.requestBoat(tile, 200));
+		this.setAction(tile => territoryManager.getOwner(tile) !== territoryManager.OWNER_NONE - 1 && (spawnManager.isSelecting ? spawnManager.requestSpawn(tile) : hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 200) : boatManager.requestBoat(tile, 200)));
 		interactionManager.click.register(this, -100);
 	}
 
