@@ -15,14 +15,14 @@ module.exports = async function (theme) {
 				if (!(key in data)) data[key] = defaultTheme[key];
 			}
 
-			const obj = {};
-			for (const key of ["territory", "border", "tiles"]) {
+			const obj = {tiles: []};
+			for (const key of ["territory", "border"]) {
 				obj[key] = parseColorAction(data[key]);
 			}
 
-			const overwrites = {};
-			for (const key in data.tileOverwrite) {
-				overwrites[key] = parseColor(data.tileOverwrite[key]);
+			for (const key in data.tileColors) {
+				obj.tiles.push(`case "${key}":
+				return ${parseColorVariant(data.tileColors[key])};`);
 			}
 
 			const shaders = [];
@@ -48,8 +48,11 @@ module.exports = async function (theme) {
 					return ${obj.border};
 				},
 				getTileColor(tile: TileType): HSLColor {
-					const color = tile.baseColor;
-					return ${obj.tiles};
+					switch (tile.colorBase) {
+${obj.tiles.join("\n")}
+						default:
+							return HSLColor.fromRGB(255, 255, 0);
+					}
 				},
 				getBackgroundColor(): HSLColor {
 					return ${parseColor(data.background)};
@@ -64,12 +67,11 @@ module.exports = async function (theme) {
 
 			themes.push({
 				name: name,
-				obj: stringified,
-				overwrites: Object.keys(overwrites).map(key => `"${key}": ${overwrites[key]}`)
+				obj: stringified
 			});
 		}
 
-		theme = theme.replace(/\/\/ BUILD_THEMES_REGISTER/, themes.map(m => `registerTheme("${m.name}", ${m.obj}, {${m.overwrites.join(", ")}});`).join("\n"));
+		theme = theme.replace(/\/\/ BUILD_THEMES_REGISTER/, themes.map(m => `registerTheme("${m.name}", ${m.obj});`).join("\n"));
 	}
 	return theme;
 }
@@ -105,6 +107,16 @@ function parseColor(color) {
 		return "new HSLColor(" + hsl[0] + ", " + hsl[1] + ", " + hsl[2] + ")";
 	}
 	throw new Error("Invalid color format: " + color);
+}
+
+function parseColorVariant(variant) {
+	if (variant.match(/rgb\([\d*+\-i ]*, [\d*+\-i ]*, [\d*+\-i ]*\)/)) {
+		return "HSLColor.fromRGB(" + variant.substring(4, variant.length - 1).replace(/i/g, "tile.colorVariant") + ")";
+	}
+	if (variant.match(/hsl\([\d*+\-i ]*, [\d*+\-i ]*, [\d*+\-i ]*\)/)) {
+		return "new HSLColor(" + variant.substring(4, variant.length - 1).replace(/i/g, "tile.colorVariant") + ")";
+	}
+	throw new Error("Invalid color variant: " + variant);
 }
 
 const defaultTheme = {

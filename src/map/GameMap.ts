@@ -67,7 +67,7 @@ export class GameMap {
 	 */
 	calculateAreaMap(): void {
 		for (let i = 0; i < this.areaMap.length; i++) {
-			if (!this.areaMap[i] && this.getTile(i).isSolid) {
+			if (!this.areaMap[i] && this.getTile(i).conquerable) {
 				const stack: number[] = [i];
 				let stackPointer = 1;
 				let areaSize = 0;
@@ -76,10 +76,10 @@ export class GameMap {
 					if (this.areaMap[current]) continue;
 					this.areaMap[current] = this.areaSizes.length;
 					areaSize++;
-					if (current % this.width !== 0 && this.getTile(current - 1).isSolid) stack[stackPointer++] = current - 1;
-					if (current % this.width !== this.width - 1 && this.getTile(current + 1).isSolid) stack[stackPointer++] = current + 1;
-					if (current >= this.width && this.getTile(current - this.width).isSolid) stack[stackPointer++] = current - this.width;
-					if (current < this.tiles.length - this.width && this.getTile(current + this.width).isSolid) stack[stackPointer++] = current + this.width;
+					if (current % this.width !== 0 && this.getTile(current - 1).conquerable) stack[stackPointer++] = current - 1;
+					if (current % this.width !== this.width - 1 && this.getTile(current + 1).conquerable) stack[stackPointer++] = current + 1;
+					if (current >= this.width && this.getTile(current - this.width).conquerable) stack[stackPointer++] = current - this.width;
+					if (current < this.tiles.length - this.width && this.getTile(current + this.width).conquerable) stack[stackPointer++] = current + this.width;
 				}
 				this.areaSizes.push(areaSize);
 			}
@@ -132,7 +132,7 @@ export class GameMap {
 	 * @private
 	 */
 	private initDistanceContext(index: number): DistanceContext {
-		if (this.getTile(index).isSolid) {
+		if (this.getTile(index).conquerable) {
 			return {distance: 2 ** 15 - 1, bias: 0, lastSolid: index};
 		}
 		return {distance: -1 * 2 ** 15, bias: 0, lastSolid: index};
@@ -145,7 +145,7 @@ export class GameMap {
 	 * @private
 	 */
 	private updateDistanceContext(index: number, context: DistanceContext): void {
-		if (this.getTile(index).isSolid) {
+		if (this.getTile(index).conquerable) {
 			context.distance = Math.max(context.distance + 1, 0);
 			context.lastSolid = index;
 		} else {
