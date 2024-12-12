@@ -15,7 +15,7 @@ class TerritoryManager {
 	reset(): void {
 		this.tileOwners = new Uint16Array(gameMap.width * gameMap.height);
 		for (let i = 0; i < this.tileOwners.length; i++) {
-			this.tileOwners[i] = gameMap.getTile(i).isSolid ? this.OWNER_NONE : this.OWNER_NONE - 1;
+			this.tileOwners[i] = gameMap.getTile(i).conquerable ? this.OWNER_NONE : this.OWNER_NONE - 1;
 		}
 	}
 
