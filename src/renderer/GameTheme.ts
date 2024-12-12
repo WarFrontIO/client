@@ -1,5 +1,5 @@
 import {HSLColor} from "../util/HSLColor";
-import {TileType} from "../map/tile/TileType";
+import {TileType} from "../map/GameMap";
 
 /**
  * All colors, fonts, and other theme-related properties should be passed through a theme object.
@@ -56,16 +56,8 @@ const registry: Record<string, GameTheme> = {};
  * Registers a theme.
  * @param id the name of the theme
  * @param theme the theme
- * @param tileOverrides overrides for tile colors
  */
-export function registerTheme(id: string, theme: Omit<GameTheme, "id">, tileOverrides: Record<string, HSLColor>) {
-	const originalGetTileColor = theme.getTileColor;
-	theme.getTileColor = (tile: TileType) => {
-		if (tile.internalName in tileOverrides) {
-			return tileOverrides[tile.internalName];
-		}
-		return originalGetTileColor(tile);
-	}
+export function registerTheme(id: string, theme: Omit<GameTheme, "id">) {
 	registry[id] = {
 		id,
 		...theme,

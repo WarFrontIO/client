@@ -100,7 +100,7 @@ class SpawnManager {
 					found = true;
 					const index = x + y * gameMap.width;
 					active.push(index);
-					if (gameMap.getTile(index).isSolid) {
+					if (gameMap.getTile(index).conquerable) {
 						points.push(index);
 					}
 					grid[Math.floor(x / cellSize) + Math.floor(y / cellSize) * cols] = index;
@@ -202,7 +202,7 @@ class SpawnManager {
 				if (index < 0 || index >= gameMap.width * gameMap.height) {
 					continue;
 				}
-				if (gameMap.getTile(index).isSolid && !territoryManager.hasOwner(index)) {
+				if (gameMap.getTile(index).conquerable && !territoryManager.hasOwner(index)) {
 					result.push(index);
 				}
 			}

@@ -25,14 +25,6 @@
       "navigable": true
     },
     {
-      "color": "#777777",
-      "name": "Water",
-      "colorBase": "water",
-      "colorVariant": 14,
-      "conquerable": false,
-      "navigable": true
-    },
-    {
       "color": "#999999",
       "name": "Land",
       "colorBase": "mountain",

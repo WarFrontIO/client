@@ -1,18 +1,18 @@
 {
   "territory": [
     "saturation * 0.5",
-    "lightness = 0.75"
+    "lightness = 0.75",
+    "alpha = 0.5"
   ],
   "border": [
     "saturation * 0.5",
-    "lightness = 0.65"
+    "lightness = 0.65",
+    "alpha = 0.75"
   ],
-  "tiles": [
-    "lightness = 0.8"
-  ],
-  "tileOverwrite": {
-    "grass": "rgb(244, 243, 198)",
-    "water": "rgb(160, 203, 231)"
+  "tileColors": {
+    "grass": "rgb(238 - 2 * i, 238 - 2 * i, 190 - i)",
+    "mountain": "rgb(250 - 2 * i, 250 - 2 * i, 220 - i)",
+    "water": "rgb(172 - 2 * i, 225 - 2 * i, 249 - 3 * i)"
   },
   "shaders": [
     {
