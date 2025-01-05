@@ -8,8 +8,9 @@ export class GameMap {
 	private readonly tiles: Uint16Array;
 	readonly tileExpansionCosts: Uint8Array;
 	readonly tileExpansionTimes: Uint8Array;
-	private readonly areaMap: Uint16Array;
-	private readonly areaSizes: number[];
+	readonly areaMap: Uint16Array;
+	readonly areaSizes: number[];
+	readonly tileInfluence: Uint32Array;
 	readonly distanceMap: Int16Array;
 
 	constructor(name: string, width: number, height: number, tileTypes: TileTypeBase[]) {
@@ -21,6 +22,7 @@ export class GameMap {
 		this.tileExpansionTimes = new Uint8Array(width * height);
 		this.areaMap = new Uint16Array(width * height);
 		this.areaSizes = [width * height];
+		this.tileInfluence = new Uint32Array(width * height);
 		this.distanceMap = new Int16Array(width * height);
 		this.tileTypes = tileTypes.map((type, id) => ({...type, id}));
 	}
@@ -91,7 +93,6 @@ export class GameMap {
 	 * @internal
 	 */
 	calculateDistanceMap(): void {
-		const tileInfluence = new Uint32Array(this.width * this.height);
 		//Calculate rows first
 		for (let y = 0; y < this.height; y++) {
 			const context1 = this.initDistanceContext(y * this.width);
@@ -99,14 +100,14 @@ export class GameMap {
 			for (let x = 0; x <= this.width / 2 - 1; x++) {
 				this.updateDistanceContext(y * this.width + x, context1);
 				this.updateDistanceContext((y + 1) * this.width - 1 - x, context2);
-				this.applyDistanceContext(y * this.width + x, context1, tileInfluence);
-				this.applyDistanceContext((y + 1) * this.width - 1 - x, context2, tileInfluence);
+				this.applyDistanceContext(y * this.width + x, context1);
+				this.applyDistanceContext((y + 1) * this.width - 1 - x, context2);
 			}
 			for (let x = Math.ceil(this.width / 2); x < this.width; x++) {
 				this.updateDistanceContext(y * this.width + x, context1);
 				this.updateDistanceContext((y + 1) * this.width - 1 - x, context2);
-				if (Math.abs(context1.distance) <= Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1, tileInfluence);
-				if (Math.abs(context2.distance) <= Math.abs(this.distanceMap[(y + 1) * this.width - 1 - x])) this.applyDistanceContext((y + 1) * this.width - 1 - x, context2, tileInfluence);
+				if (Math.abs(context1.distance) <= Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1);
+				if (Math.abs(context2.distance) <= Math.abs(this.distanceMap[(y + 1) * this.width - 1 - x])) this.applyDistanceContext((y + 1) * this.width - 1 - x, context2);
 			}
 		}
 
@@ -117,10 +118,10 @@ export class GameMap {
 			for (let y = 0; y < this.height; y++) {
 				this.updateDistanceContext(y * this.width + x, context1);
 				this.updateDistanceContext((this.height - 1 - y) * this.width + x, context2);
-				if (Math.abs(context1.distance) < Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1, tileInfluence);
-				else this.restoreDistanceContext(y * this.width + x, context1, tileInfluence);
-				if (Math.abs(context2.distance) < Math.abs(this.distanceMap[(this.height - 1 - y) * this.width + x])) this.applyDistanceContext((this.height - 1 - y) * this.width + x, context2, tileInfluence);
-				else this.restoreDistanceContext((this.height - 1 - y) * this.width + x, context2, tileInfluence);
+				if (Math.abs(context1.distance) < Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1);
+				else this.restoreDistanceContext(y * this.width + x, context1);
+				if (Math.abs(context2.distance) < Math.abs(this.distanceMap[(this.height - 1 - y) * this.width + x])) this.applyDistanceContext((this.height - 1 - y) * this.width + x, context2);
+				else this.restoreDistanceContext((this.height - 1 - y) * this.width + x, context2);
 			}
 		}
 	}
@@ -162,24 +163,22 @@ export class GameMap {
 	 * Apply a distance context to a tile.
 	 * @param index The index of the tile
 	 * @param context The context of the distance calculation
-	 * @param tileInfluence The influence of the tile
 	 * @private
 	 */
-	private applyDistanceContext(index: number, context: DistanceContext, tileInfluence: Uint32Array): void {
+	private applyDistanceContext(index: number, context: DistanceContext): void {
 		this.distanceMap[index] = context.distance;
-		tileInfluence[index] = context.lastSolid;
+		this.tileInfluence[index] = context.lastSolid;
 	}
 
 	/**
 	 * Restore a distance context.
 	 * @param index The index of the tile
 	 * @param context The context of the distance calculation
-	 * @param tileInfluence The influence of the tile
 	 * @private
 	 */
-	private restoreDistanceContext(index: number, context: DistanceContext, tileInfluence: Uint32Array): void {
+	private restoreDistanceContext(index: number, context: DistanceContext): void {
 		context.distance = this.distanceMap[index];
-		context.lastSolid = tileInfluence[index];
+		context.lastSolid = this.tileInfluence[index];
 		context.bias = Math.floor(5 * Math.exp(-this.areaSizes[this.areaMap[context.lastSolid]] / 1000)) + 1;
 	}
 }
