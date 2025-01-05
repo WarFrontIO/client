@@ -97,6 +97,9 @@ function findPathInArea(start: number, end: number) {
 	});
 	while (!queue.isEmpty()) {
 		const [x, y, cost] = queue.pop();
+		if (costMap[x + y * width] < cost) {
+			continue;
+		}
 		if (x === startX && y === startY) {
 			const path = [];
 			let current = startX + startY * width;
