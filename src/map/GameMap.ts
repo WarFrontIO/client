@@ -1,4 +1,5 @@
 import {TileType as TileTypeBase} from "./codec/MapCodec";
+import {PriorityQueue} from "../util/PriorityQueue";
 
 export class GameMap {
 	private readonly name: string;
@@ -64,6 +65,20 @@ export class GameMap {
 	}
 
 	/**
+	 * Call a closure on all neighbors of a tile.
+	 * @param tile The tile to get the neighbors of
+	 * @param closure The closure to call on each neighbor
+	 */
+	onNeighbors(tile: number, closure: (tile: number) => void): void {
+		const x = tile % this.width;
+		const y = Math.floor(tile / this.width);
+		if (x > 0) closure(tile - 1);
+		if (x < this.width - 1) closure(tile + 1);
+		if (y > 0) closure(tile - this.width);
+		if (y < this.height - 1) closure(tile + this.width);
+	}
+
+	/**
 	 * Calculate the area map.
 	 * @internal
 	 */
@@ -93,95 +108,76 @@ export class GameMap {
 	 * @internal
 	 */
 	calculateDistanceMap(): void {
-		//Calculate rows first
-		for (let y = 0; y < this.height; y++) {
-			const context1 = this.initDistanceContext(y * this.width);
-			const context2 = this.initDistanceContext((y + 1) * this.width - 1);
-			for (let x = 0; x <= this.width / 2 - 1; x++) {
-				this.updateDistanceContext(y * this.width + x, context1);
-				this.updateDistanceContext((y + 1) * this.width - 1 - x, context2);
-				this.applyDistanceContext(y * this.width + x, context1);
-				this.applyDistanceContext((y + 1) * this.width - 1 - x, context2);
-			}
-			for (let x = Math.ceil(this.width / 2); x < this.width; x++) {
-				this.updateDistanceContext(y * this.width + x, context1);
-				this.updateDistanceContext((y + 1) * this.width - 1 - x, context2);
-				if (Math.abs(context1.distance) <= Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1);
-				if (Math.abs(context2.distance) <= Math.abs(this.distanceMap[(y + 1) * this.width - 1 - x])) this.applyDistanceContext((y + 1) * this.width - 1 - x, context2);
+		this.distanceMap.fill(-(2 ** 15));
+		const queue = new PriorityQueue<[number, number, number[]]>((a, b) => Math.abs(a[0]) < Math.abs(b[0]));
+		const waterCache = new Map<number, number[]>();
+		const landCache = new Map<number, number[]>();
+
+		for (let i = 0; i < this.areaMap.length; i++) {
+			if (this.getTile(i).navigable) {
+				let bias = Infinity, influence = undefined;
+				this.onNeighbors(i, neighbor => {
+					const neighborBias = this.calculateBias(neighbor);
+					if (!this.getTile(neighbor).navigable && neighborBias < bias) {
+						bias = neighborBias;
+						influence = neighbor;
+					}
+				});
+
+				if (influence) {
+					if (!waterCache.has(this.areaMap[influence])) {
+						const cache = [i, influence];
+						waterCache.set(this.areaMap[influence], cache);
+						queue.push([-1 - bias, -bias, cache]);
+					} else {
+						const cache = waterCache.get(this.areaMap[influence]) as number[];
+						cache.push(i);
+						cache.push(influence);
+					}
+					this.distanceMap[i] = -1;
+					this.tileInfluence[i] = influence;
+				}
+			} else if ((i % this.width !== 0 && this.getTile(i - 1).navigable) || (i % this.width !== this.width - 1 && this.getTile(i + 1).navigable) ||
+				(i >= this.width && this.getTile(i - this.width).navigable) || (i < this.tiles.length - this.width && this.getTile(i + this.width).navigable)) {
+				if (!landCache.has(this.areaMap[i])) {
+					const cache = [i, i];
+					landCache.set(this.areaMap[i], cache);
+					queue.push([1, 1, cache]);
+				} else {
+					const cache = landCache.get(this.areaMap[i]) as number[];
+					cache.push(i);
+					cache.push(i);
+				}
+				this.distanceMap[i] = 0;
+				this.tileInfluence[i] = i;
 			}
 		}
 
-		//Calculate columns
-		for (let x = 0; x < this.width; x++) {
-			const context1 = this.initDistanceContext(x);
-			const context2 = this.initDistanceContext((this.height - 1) * this.width + x);
-			for (let y = 0; y < this.height; y++) {
-				this.updateDistanceContext(y * this.width + x, context1);
-				this.updateDistanceContext((this.height - 1 - y) * this.width + x, context2);
-				if (Math.abs(context1.distance) < Math.abs(this.distanceMap[y * this.width + x])) this.applyDistanceContext(y * this.width + x, context1);
-				else this.restoreDistanceContext(y * this.width + x, context1);
-				if (Math.abs(context2.distance) < Math.abs(this.distanceMap[(this.height - 1 - y) * this.width + x])) this.applyDistanceContext((this.height - 1 - y) * this.width + x, context2);
-				else this.restoreDistanceContext((this.height - 1 - y) * this.width + x, context2);
+		while (!queue.isEmpty()) {
+			const [distance, bias, array] = queue.pop();
+			const newArray: number[] = [];
+			for (let i = 0; i < array.length; i += 2) {
+				this.onNeighbors(array[i], neighbor => {
+					if (this.distanceMap[neighbor] === -(2 ** 15)) {
+						this.distanceMap[neighbor] = distance;
+						this.tileInfluence[neighbor] = array[i + 1];
+						newArray.push(neighbor);
+						newArray.push(array[i + 1]);
+					}
+				});
 			}
-		}
-	}
-
-	/**
-	 * Initialize the distance context for a tile.
-	 * @param index The index of the tile
-	 * @returns The initialized context
-	 * @private
-	 */
-	private initDistanceContext(index: number): DistanceContext {
-		if (this.getTile(index).conquerable) {
-			return {distance: 2 ** 15 - 1, bias: 0, lastSolid: index};
-		}
-		return {distance: -1 * 2 ** 15, bias: 0, lastSolid: index};
-	}
-
-	/**
-	 * Update the distance to the nearest opposite tile.
-	 * @param index The index of the tile
-	 * @param context The context of the distance calculation
-	 * @private
-	 */
-	private updateDistanceContext(index: number, context: DistanceContext): void {
-		if (this.getTile(index).conquerable) {
-			context.distance = Math.max(context.distance + 1, 0);
-			context.lastSolid = index;
-		} else {
-			if (context.distance >= 0) { //Last tile was solid
-				context.bias = Math.floor(5 * Math.exp(-this.areaSizes[this.areaMap[context.lastSolid]] / 1000)) + 1;
-				context.distance = -1; //Important for coast detection
-			} else {
-				context.distance = context.distance - context.bias;
-			}
+			if (newArray.length > 0) queue.push([distance + bias, bias, newArray]);
 		}
 	}
 
 	/**
-	 * Apply a distance context to a tile.
-	 * @param index The index of the tile
-	 * @param context The context of the distance calculation
+	 * Calculate the bias for the area of the given tile.
+	 * @param tile The tile to calculate the bias for
 	 * @private
 	 */
-	private applyDistanceContext(index: number, context: DistanceContext): void {
-		this.distanceMap[index] = context.distance;
-		this.tileInfluence[index] = context.lastSolid;
-	}
-
-	/**
-	 * Restore a distance context.
-	 * @param index The index of the tile
-	 * @param context The context of the distance calculation
-	 * @private
-	 */
-	private restoreDistanceContext(index: number, context: DistanceContext): void {
-		context.distance = this.distanceMap[index];
-		context.lastSolid = this.tileInfluence[index];
-		context.bias = Math.floor(5 * Math.exp(-this.areaSizes[this.areaMap[context.lastSolid]] / 1000)) + 1;
+	private calculateBias(tile: number): number {
+		return Math.floor(5 * Math.exp(-this.areaSizes[this.areaMap[tile]] / 1000)) + 1;
 	}
 }
 
-export type TileType = TileTypeBase & {id: number};
-type DistanceContext = {distance: number, bias: number, lastSolid: number};
+export type TileType = TileTypeBase & { id: number };
