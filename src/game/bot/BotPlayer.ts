@@ -6,8 +6,6 @@ import {BotConstraints, selectBotConstraints} from "./modifier/BotConstraints";
 import {BotStrategy, selectBotStrategy} from "./BotStrategy";
 import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
-import {onNeighbors} from "../../util/MathUtil";
-import {rayTraceWater} from "../../util/VoxelRayTrace";
 import {gameMap, gameMode} from "../GameData";
 import {boatManager} from "../boat/BoatManager";
 import {borderManager} from "../BorderManager";
@@ -32,20 +30,15 @@ export class BotPlayer extends Player {
 		if (target !== null) {
 			//TODO: Attack percentage should be configurable
 			actuallyHandleAttack(this, target, 100);
-		} else if (this.waterTiles > 0) {
+		} else if (this.waterTiles > 0 && this.strategy.canSpawnBoat()) {
 			const borderTiles = Array.from(borderManager.getBorderTiles(this.id)); //TODO: Check the performance hit this causes
 			const startTile = borderTiles[random.nextInt(borderTiles.length)];
-			const possibleStarts: number[] = [];
-			onNeighbors(startTile, tile => {
-				if (territoryManager.isWater(tile)) {
-					possibleStarts.push(tile);
-				}
-			});
-			if (possibleStarts.length < 1) return;
-			const start = possibleStarts[random.nextInt(possibleStarts.length)];
-			const end = rayTraceWater(start % gameMap.width, Math.floor(start / gameMap.width), random.next() - 0.5, random.next() - 0.5);
-			if (end !== null && gameMode.canAttack(this.id, territoryManager.getOwner(end))) {
-				boatManager.addBoatInternal(this, [start, end], 100);
+			const targets = gameMap.boatTargets[startTile];
+			if (targets === undefined) return;
+			const target = targets[random.nextInt(targets.length)];
+			if (gameMode.canAttack(this.id, territoryManager.getOwner(target.tile))) {
+				//TODO: boat starts and ends on territory; Actually use proper path
+				boatManager.addBoatInternal(this, [startTile, target.tile], 100);
 			}
 		}
 	}

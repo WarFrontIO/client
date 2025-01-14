@@ -13,6 +13,7 @@ export class GameMap {
 	readonly areaSizes: number[];
 	readonly tileInfluence: Uint32Array;
 	readonly distanceMap: Int16Array;
+	readonly boatTargets: { tile: number, distance: number, midPoint: number }[][] = [];
 
 	constructor(name: string, width: number, height: number, tileTypes: TileTypeBase[]) {
 		this.name = name;
@@ -112,6 +113,7 @@ export class GameMap {
 		const queue = new PriorityQueue<[number, number, number[]]>((a, b) => Math.abs(a[0]) < Math.abs(b[0]));
 		const waterCache = new Map<number, number[]>();
 		const landCache = new Map<number, number[]>();
+		const markerCache = new Map<number, boolean[]>();
 
 		for (let i = 0; i < this.areaMap.length; i++) {
 			if (this.getTile(i).navigable) {
@@ -156,6 +158,7 @@ export class GameMap {
 		while (!queue.isEmpty()) {
 			const [distance, bias, array] = queue.pop();
 			const newArray: number[] = [];
+			const markerAlias = new Map<number, Map<number, [number, number]>>();
 			for (let i = 0; i < array.length; i += 2) {
 				this.onNeighbors(array[i], neighbor => {
 					if (this.distanceMap[neighbor] === -(2 ** 15)) {
@@ -163,6 +166,19 @@ export class GameMap {
 						this.tileInfluence[neighbor] = array[i + 1];
 						newArray.push(neighbor);
 						newArray.push(array[i + 1]);
+					} else if (distance < 0 && array[i + 1] < this.tileInfluence[neighbor] && !markerCache.get(array[i + 1])?.[this.tileInfluence[neighbor]]) {
+						const a1 = neighbor % this.width - array[i + 1] % this.width;
+						const a2 = Math.floor(neighbor / this.width) - Math.floor(array[i + 1] / this.width);
+						const b1 = neighbor % this.width - this.tileInfluence[neighbor] % this.width;
+						const b2 = Math.floor(neighbor / this.width) - Math.floor(this.tileInfluence[neighbor] / this.width);
+						const angle = Math.acos((a1 * b1 + a2 * b2) / Math.sqrt((a1 ** 2 + a2 ** 2) * (b1 ** 2 + b2 ** 2)));
+						//TODO: clean up; remove senseless markers on borders
+						// @ts-expect-error - TS doesn't know that the key exists
+						if (angle >= Math.PI / 2 && (!markerAlias.get(array[i + 1])?.has(this.tileInfluence[neighbor]) || angle > markerAlias.get(array[i + 1])?.get(this.tileInfluence[neighbor])?.[0])) {
+							if (!markerAlias.has(array[i + 1])) markerAlias.set(array[i + 1], new Map());
+							// @ts-expect-error - TS doesn't know that the key exists
+							markerAlias.get(array[i + 1]).set(this.tileInfluence[neighbor], [angle, neighbor]);
+						}
 					}
 				});
 			}

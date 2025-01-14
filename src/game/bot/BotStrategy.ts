@@ -75,6 +75,10 @@ export class BotStrategy {
 
 		return targets[random.nextInt(targets.length)];
 	}
+
+	canSpawnBoat() {
+		return random.nextInt(100) < 30; //TODO: This needs to be integrated better
+	}
 }
 
 /**
