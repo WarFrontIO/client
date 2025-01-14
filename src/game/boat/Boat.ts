@@ -137,8 +137,8 @@ export class Boat {
 			return this.MAX_SPEED;
 		}
 		const nextX = next % gameMap.width + 0.5, nextY = Math.floor(next / gameMap.width) + 0.5;
-		let angle = Math.atan2(currentY - oldY, currentX - oldX) - Math.atan2(nextY - currentY, nextX - currentX);
-		angle = Math.abs((Math.abs(angle) + Math.PI) % (2 * Math.PI) - Math.PI);
+		const a1 = currentX - oldX, a2 = currentY - oldY, b1 = currentX - nextX, b2 = currentY - nextY;
+		const angle = Math.acos((a1 * b1 + a2 * b2) / Math.sqrt((a1 ** 2 + a2 ** 2) * (b1 ** 2 + b2 ** 2)));
 
 		const distToNext = dist + Math.sqrt((nextX - currentX) * (nextX - currentX) + (nextY - currentY) * (nextY - currentY));
 
