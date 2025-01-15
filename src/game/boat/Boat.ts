@@ -8,7 +8,7 @@ import {gameMap, gameMode} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 export class Boat {
-	private readonly MAX_SPEED = 1;
+	private readonly MAX_SPEED = 0.75;
 
 	private readonly owner: Player;
 	private readonly troops: number;
@@ -143,9 +143,9 @@ export class Boat {
 		const distToNext = dist + Math.sqrt((nextX - currentX) * (nextX - currentX) + (nextY - currentY) * (nextY - currentY));
 
 		if (distToNext < 100 * this.MAX_SPEED) {
-			return Math.min(this.MAX_SPEED * Math.exp(-angle), (distToNext - dist) * 0.005 + this.calculateSpeed(currentX, currentY, nextX, nextY, distToNext, offset + 1));
+			return Math.min(this.MAX_SPEED * Math.exp(1 - angle / Math.PI), (distToNext - dist) * 0.01 + this.calculateSpeed(currentX, currentY, nextX, nextY, distToNext, offset + 1));
 		}
-		return this.MAX_SPEED * Math.exp(-angle);
+		return this.MAX_SPEED * Math.exp(1 - angle / Math.PI);
 	}
 
 	/**
