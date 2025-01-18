@@ -88,7 +88,7 @@ function findPathInArea(start: number, end: number) {
 	const startX = start % gameMap.width - minX, startY = Math.floor(start / gameMap.width) - minY;
 	const dx = [0, 1, 0, -1, 1, 1, -1, -1], dy = [-1, 0, 1, 0, -1, 1, 1, -1];
 	const queue = new PriorityQueue<[number, number, number]>((a, b) => a[2] < b[2]);
-	const costMap = new Uint16Array(width * height);
+	const costMap = new Float64Array(width * height);
 	const parentMap = new Uint16Array(width * height);
 	onNeighborWater(end, tile => {
 		queue.push([tile % gameMap.width - minX, Math.floor(tile / gameMap.width) - minY, 0]);
