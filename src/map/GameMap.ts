@@ -1,5 +1,7 @@
 import {TileType as TileTypeBase} from "./codec/MapCodec";
 import {PriorityQueue} from "../util/PriorityQueue";
+import {checkLineOfSight} from "../util/VoxelRayTrace";
+import {SafeMap} from "../util/SafeMap";
 
 export class GameMap {
 	private readonly name: string;
@@ -13,7 +15,7 @@ export class GameMap {
 	readonly areaSizes: number[];
 	readonly tileInfluence: Uint32Array;
 	readonly distanceMap: Int16Array;
-	readonly boatTargets: { tile: number, distance: number, midPoint: number }[][] = [];
+	readonly boatTargets: SafeMap<number, { tile: number, distance: number, path: number[] }[]> = new SafeMap(() => []);
 
 	constructor(name: string, width: number, height: number, tileTypes: TileTypeBase[]) {
 		this.name = name;
@@ -85,7 +87,7 @@ export class GameMap {
 	 */
 	calculateAreaMap(): void {
 		for (let i = 0; i < this.areaMap.length; i++) {
-			if (!this.areaMap[i] && this.getTile(i).conquerable) {
+			if (!this.areaMap[i] && !this.getTile(i).navigable) {
 				const stack: number[] = [i];
 				let stackPointer = 1;
 				let areaSize = 0;
@@ -94,10 +96,10 @@ export class GameMap {
 					if (this.areaMap[current]) continue;
 					this.areaMap[current] = this.areaSizes.length;
 					areaSize++;
-					if (current % this.width !== 0 && this.getTile(current - 1).conquerable) stack[stackPointer++] = current - 1;
-					if (current % this.width !== this.width - 1 && this.getTile(current + 1).conquerable) stack[stackPointer++] = current + 1;
-					if (current >= this.width && this.getTile(current - this.width).conquerable) stack[stackPointer++] = current - this.width;
-					if (current < this.tiles.length - this.width && this.getTile(current + this.width).conquerable) stack[stackPointer++] = current + this.width;
+					if (current % this.width !== 0 && !this.getTile(current - 1).navigable) stack[stackPointer++] = current - 1;
+					if (current % this.width !== this.width - 1 && !this.getTile(current + 1).navigable) stack[stackPointer++] = current + 1;
+					if (current >= this.width && !this.getTile(current - this.width).navigable) stack[stackPointer++] = current - this.width;
+					if (current < this.tiles.length - this.width && !this.getTile(current + this.width).navigable) stack[stackPointer++] = current + this.width;
 				}
 				this.areaSizes.push(areaSize);
 			}
@@ -113,7 +115,8 @@ export class GameMap {
 		const queue = new PriorityQueue<[number, number, number[]]>((a, b) => Math.abs(a[0]) < Math.abs(b[0]));
 		const waterCache = new Map<number, number[]>();
 		const landCache = new Map<number, number[]>();
-		const markerCache = new Map<number, boolean[]>();
+		const markerCache = new SafeMap<number, boolean[]>(() => []);
+		const parentCache: number[] = [];
 
 		for (let i = 0; i < this.areaMap.length; i++) {
 			if (this.getTile(i).navigable) {
@@ -158,7 +161,7 @@ export class GameMap {
 		while (!queue.isEmpty()) {
 			const [distance, bias, array] = queue.pop();
 			const newArray: number[] = [];
-			const markerAlias = new Map<number, Map<number, [number, number]>>();
+			const markerAlias = new SafeMap<number, Map<number, [number, number, number]>>(() => new Map());
 			for (let i = 0; i < array.length; i += 2) {
 				this.onNeighbors(array[i], neighbor => {
 					if (this.distanceMap[neighbor] === -(2 ** 15)) {
@@ -166,6 +169,7 @@ export class GameMap {
 						this.tileInfluence[neighbor] = array[i + 1];
 						newArray.push(neighbor);
 						newArray.push(array[i + 1]);
+						parentCache[neighbor] = array[i];
 					} else if (distance < 0 && array[i + 1] < this.tileInfluence[neighbor] && !markerCache.get(array[i + 1])?.[this.tileInfluence[neighbor]]) {
 						const a1 = neighbor % this.width - array[i + 1] % this.width;
 						const a2 = Math.floor(neighbor / this.width) - Math.floor(array[i + 1] / this.width);
@@ -175,14 +179,29 @@ export class GameMap {
 						//TODO: clean up; remove senseless markers on borders
 						// @ts-expect-error - TS doesn't know that the key exists
 						if (angle >= Math.PI / 2 && (!markerAlias.get(array[i + 1])?.has(this.tileInfluence[neighbor]) || angle > markerAlias.get(array[i + 1])?.get(this.tileInfluence[neighbor])?.[0])) {
-							if (!markerAlias.has(array[i + 1])) markerAlias.set(array[i + 1], new Map());
-							// @ts-expect-error - TS doesn't know that the key exists
-							markerAlias.get(array[i + 1]).set(this.tileInfluence[neighbor], [angle, neighbor]);
+							markerAlias.getOrSet(array[i + 1]).set(this.tileInfluence[neighbor], [angle, array[i], neighbor]);
 						}
 					}
 				});
 			}
 			if (newArray.length > 0) queue.push([distance + bias, bias, newArray]);
+
+			for (const [tile1, value] of markerAlias) {
+				for (const [tile2, data] of value) {
+					markerCache.getOrSet(tile1)[tile2] = true;
+					let left = data[1], right = data[2];
+					while (parentCache[left] && parentCache[right] && checkLineOfSight(parentCache[left] % this.width, Math.floor(parentCache[left] / this.width), parentCache[right] % this.width, Math.floor(parentCache[right] / this.width), this)) {
+						left = parentCache[left];
+						right = parentCache[right];
+					}
+					if ((parentCache[left] && !checkLineOfSight(tile1 % this.width, Math.floor(tile1 / this.width), parentCache[left] % this.width, Math.floor(parentCache[left] / this.width), this)) ||
+						(parentCache[right] && !checkLineOfSight(tile2 % this.width, Math.floor(tile2 / this.width), parentCache[right] % this.width, Math.floor(parentCache[right] / this.width), this))) {
+						continue; // These would need more complex paths, we drop them for now (only very few cases)
+					}
+					this.boatTargets.getOrSet(tile1).push({tile: tile2, distance: 2 * distance, path: [tile1, left, right, tile2]});
+					this.boatTargets.getOrSet(tile2).push({tile: tile1, distance: 2 * distance, path: [tile2, right, left, tile1]});
+				}
+			}
 		}
 	}
 

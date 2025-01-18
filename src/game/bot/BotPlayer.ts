@@ -33,12 +33,11 @@ export class BotPlayer extends Player {
 		} else if (this.waterTiles > 0 && this.strategy.canSpawnBoat()) {
 			const borderTiles = Array.from(borderManager.getBorderTiles(this.id)); //TODO: Check the performance hit this causes
 			const startTile = borderTiles[random.nextInt(borderTiles.length)];
-			const targets = gameMap.boatTargets[startTile];
+			const targets = gameMap.boatTargets.get(startTile);
 			if (targets === undefined) return;
 			const target = targets[random.nextInt(targets.length)];
 			if (gameMode.canAttack(this.id, territoryManager.getOwner(target.tile))) {
-				//TODO: boat starts and ends on territory; Actually use proper path
-				boatManager.addBoatInternal(this, [startTile, target.tile], 100);
+				boatManager.addBoatInternal(this, target.path, 100);
 			}
 		}
 	}

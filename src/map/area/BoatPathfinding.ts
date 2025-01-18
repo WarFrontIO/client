@@ -281,12 +281,12 @@ function appendSmoothed(path: number[], points: number[]) {
 	if (path.length === 0) {
 		path.push(points[0]);
 	}
-	while (path.length > 1 && checkLineOfSight(points[0] % gameMap.width, Math.floor(points[0] / gameMap.width), path[path.length - 2] % gameMap.width, Math.floor(path[path.length - 2] / gameMap.width))) {
+	while (path.length > 1 && checkLineOfSight(points[0] % gameMap.width, Math.floor(points[0] / gameMap.width), path[path.length - 2] % gameMap.width, Math.floor(path[path.length - 2] / gameMap.width), gameMap)) {
 		path.pop();
 	}
 	let last = path[path.length - 1];
 	for (let i = 0; i < points.length - 1; i++) {
-		if (!checkLineOfSight(points[i + 1] % gameMap.width, Math.floor(points[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width))) {
+		if (!checkLineOfSight(points[i + 1] % gameMap.width, Math.floor(points[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width), gameMap)) {
 			path.push(points[i]);
 			last = points[i];
 		}
@@ -305,7 +305,7 @@ function smoothPath(path: number[]): number[] {
 	let last = path[0];
 	result.push(last);
 	for (let i = 1; i < path.length - 1; i++) {
-		if (!checkLineOfSight(path[i + 1] % gameMap.width, Math.floor(path[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width))) {
+		if (!checkLineOfSight(path[i + 1] % gameMap.width, Math.floor(path[i + 1] / gameMap.width), last % gameMap.width, Math.floor(last / gameMap.width), gameMap)) {
 			result.push(path[i]);
 			last = path[i];
 		}
