@@ -90,8 +90,6 @@ export class Boat {
 	 * @private
 	 */
 	private updateWaypoint(): boolean {
-		const beforeX = this.nextX, beforeY = this.nextY;
-
 		if (++this.currentNode < this.path.length) {
 			this.nextX = this.path[this.currentNode] % gameMap.width + 0.5;
 			this.nextY = Math.floor(this.path[this.currentNode] / gameMap.width) + 0.5;
@@ -115,7 +113,7 @@ export class Boat {
 			return false;
 		}
 
-		this.targetSpeed = this.calculateSpeed(beforeX, beforeY, this.nextX, this.nextY, 0, 1);
+		this.targetSpeed = this.calculateSpeed(this.x, this.y, this.nextX, this.nextY, 0, 1);
 
 		return true;
 	}
