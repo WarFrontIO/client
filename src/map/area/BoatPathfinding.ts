@@ -231,7 +231,7 @@ function findPlayerTile(start: number): [number, number] {
 	const stack = [(start % gameMap.width) - minX, Math.floor(start / gameMap.width) - minY];
 	let stackPointer = 2, queuePointer = 0;
 	const distanceMap = new Uint16Array(width * height);
-	distanceMap[(start % gameMap.width) - minX + Math.floor(start / gameMap.width) * width] = 1;
+	distanceMap[(start % gameMap.width) - minX + (Math.floor(start / gameMap.width) - minY) * width] = 1;
 	while (queuePointer < stackPointer) {
 		const x = stack[queuePointer++];
 		const y = stack[queuePointer++];
