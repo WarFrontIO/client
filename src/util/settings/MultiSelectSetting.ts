@@ -1,11 +1,16 @@
 import {InvalidArgumentException} from "../Exceptions";
-import {ManagedSetting} from "./ManagedSetting";
+import {Setting, SettingCategory} from "./Setting";
 
-export class MultiSelectSetting<T extends Record<string, Option<unknown>>> implements ManagedSetting {
-	private options: T = {} as T;
+export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends Setting<T> {
+	readonly type = "multi-select";
+	protected initialized: boolean = true; // We pretty much always only check all options, so an empty object is fine
 
-	static init() {
-		return new MultiSelectSetting<{}>();
+	static init<T = never>(category: SettingCategory | null, version: number = 0) {
+		return new MultiSelectSetting<T, {}>(category, version);
+	}
+
+	private constructor(category: SettingCategory | null, version: number = 0) {
+		super({} as T, category, version);
 	}
 
 	/**
@@ -18,8 +23,9 @@ export class MultiSelectSetting<T extends Record<string, Option<unknown>>> imple
 	 */
 	option<K extends string, V>(key: K & Exclude<K, keyof T>, value: V, label: string, defaultStatus: boolean) {
 		if (key.includes(",")) throw new InvalidArgumentException("Key cannot contain ','");
-		(this.options as unknown as Record<K, Option<V>>)[key] = {value, label, status: defaultStatus};
-		return this as unknown as MultiSelectSetting<T & Record<K, Option<V>>>;
+		(this.value as unknown as Record<K, Option<V>>)[key] = {value, label, status: defaultStatus};
+		this.registry.broadcast(this.value, this); // Listeners need to be notified about new options
+		return this as unknown as MultiSelectSetting<S | V, T & Record<K, Option<V>>>;
 	}
 
 	/**
@@ -28,42 +34,45 @@ export class MultiSelectSetting<T extends Record<string, Option<unknown>>> imple
 	 * @returns true if the option is selected, false otherwise
 	 */
 	isSelected(key: keyof T) {
-		return this.options[key].status;
+		if (!this.value[key]) return false; // Might not be initialized yet
+		return this.value[key].status;
 	}
 
 	/**
 	 * Selects the option with the given key.
 	 * @param key The key of the option
 	 * @param status The status to set
+	 * @throws InvalidArgumentException if the option with the given key does not exist
 	 */
-	select(key: keyof T, status: boolean) {
-		this.options[key].status = status;
+	select(key: keyof T & string, status: boolean) {
+		if (!this.value[key]) throw new InvalidArgumentException(`Option with key ${key} does not exist`);
+		this.value[key].status = status;
 	}
 
 	/**
 	 * Returns the enabled options.
 	 * @returns An array of the values of the enabled options
 	 */
-	getEnabledOptions(): AnyValue<T>[] {
-		return Object.keys(this.options).filter(key => this.options[key].status).map(key => this.options[key].value);
+	getEnabledOptions(): S[] {
+		return Object.keys(this.value).filter(key => this.value[key].status).map(key => this.value[key].value);
 	}
 
 	/**
 	 * Returns all options.
 	 * @returns An array of the values of all options
 	 */
-	getAllOptions(): AnyValue<T>[] {
-		return Object.keys(this.options).map(key => this.options[key].value);
+	getAllOptions(): S[] {
+		return Object.keys(this.value).map(key => this.value[key].value);
 	}
 
 	toString() {
-		return Object.keys(this.options).filter(key => this.options[key].status).join(",");
+		return Object.keys(this.value).filter(key => this.value[key].status).join(",");
 	}
 
 	fromString(value: string) {
 		const selected = value.split(",");
-		for (const key in this.options) {
-			this.options[key].status = selected.includes(key);
+		for (const key in this.value) {
+			this.value[key].status = selected.includes(key);
 		}
 		return this;
 	}
@@ -74,7 +83,3 @@ type Option<T> = {
 	label: string;
 	status: boolean;
 }
-
-type AnyValue<T extends Record<string, Option<unknown>>> = {
-	[K in keyof T]: T[K]["value"];
-}[keyof T];

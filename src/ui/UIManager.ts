@@ -1,6 +1,6 @@
 import {UIElement} from "./UIElement";
 import {InvalidArgumentException} from "../util/Exceptions";
-import {getSetting, registerSettingListener} from "../util/settings/UserSettingManager";
+import {getSetting, getSettingObject, registerSettingListener} from "../util/settings/UserSettingManager";
 import {StaticUIRoot} from "./type/StaticUIRoot";
 
 const index: Map<string, UIElement> = new Map();
@@ -90,9 +90,8 @@ export function getUIElement(name: string): UIElement {
 	return element;
 }
 
-document.documentElement.classList.add("theme-" + getSetting("theme").id);
 registerSettingListener("theme", theme => {
-	document.documentElement.classList.remove("theme-" + getSetting("theme").id);
+	if (getSettingObject("theme").isInitialized()) document.documentElement.classList.remove("theme-" + getSetting("theme").id);
 	document.documentElement.classList.add("theme-" + theme.id);
 });
 

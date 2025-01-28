@@ -3,7 +3,6 @@ import {mapTransformHandler} from "../../../event/MapTransformHandler";
 import {gameMap} from "../../../game/GameData";
 import {registerSettingListener} from "../../../util/settings/UserSettingManager";
 import {RendererLayer} from "../RendererLayer";
-import {DebugRendererLayer} from "./DebugRendererRegistry";
 import {gameStartRegistry} from "../../../game/Game";
 
 /**
@@ -57,4 +56,8 @@ mapTransformHandler.scale.register(debugRenderer.onMapScale);
 mapTransformHandler.move.register(debugRenderer.onMapMove);
 gameStartRegistry.register(debugRenderer.init.bind(debugRenderer));
 
-registerSettingListener("debug-renderer", value => debugRenderer.updateLayers(value.getEnabledOptions()), true);
+registerSettingListener("debug-renderer", (_, obj) => debugRenderer.updateLayers(obj.getEnabledOptions()));
+
+export interface DebugRendererLayer extends RendererLayer {
+	useCache: boolean;
+}

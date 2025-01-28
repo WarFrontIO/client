@@ -91,7 +91,7 @@ export class ValidatedInput extends UIElement {
 	 * @param setting The setting
 	 */
 	linkSetting(setting: SettingKeyOf<string>): void {
-		registerSettingListener(setting, value => this.element.value = value, true);
+		registerSettingListener(setting, value => this.element.value = value);
 		this.validate();
 		this.onBlur(value => updateSetting(setting, value)); //We save even if the value is invalid
 	}
