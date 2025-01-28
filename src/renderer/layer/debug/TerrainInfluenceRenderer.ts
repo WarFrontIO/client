@@ -1,5 +1,6 @@
-import {DebugRendererLayer} from "./DebugRendererRegistry";
+import {DebugRendererLayer} from "./DebugRenderer";
 import {gameMap} from "../../../game/GameData";
+import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
 export class TerrainInfluenceRenderer implements DebugRendererLayer {
 	readonly useCache = true;
@@ -26,3 +27,6 @@ export class TerrainInfluenceRenderer implements DebugRendererLayer {
 		}
 	}
 }
+
+getSettingObject("debug-renderer").option("tile-influence-simplified", new TerrainInfluenceRenderer(true, false), "Terrain Influence", false);
+getSettingObject("debug-renderer").option("tile-influence", new TerrainInfluenceRenderer(false, false), "Terrain Influence (Detailed)", false);

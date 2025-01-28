@@ -1,6 +1,7 @@
-import {DebugRendererLayer} from "./DebugRendererRegistry";
+import {DebugRendererLayer} from "./DebugRenderer";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {gameMap} from "../../../game/GameData";
+import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
 export class BoatBotWaypointDebugRenderer implements DebugRendererLayer {
 	readonly useCache = false;
@@ -21,3 +22,5 @@ export class BoatBotWaypointDebugRenderer implements DebugRendererLayer {
 		}
 	}
 }
+
+getSettingObject("debug-renderer").option("boat-bot-waypoints", new BoatBotWaypointDebugRenderer(), "Boat Bot Waypoints", false);

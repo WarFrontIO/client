@@ -1,5 +1,6 @@
 import {HSLColor} from "../util/HSLColor";
-import {TileType} from "../map/GameMap";
+import {TileType} from "../map/codec/MapCodec";
+import {getSettingObject} from "../util/settings/UserSettingManager";
 
 /**
  * All colors, fonts, and other theme-related properties should be passed through a theme object.
@@ -83,3 +84,5 @@ export function getTheme(id: string): GameTheme {
 // The following lines are filled in by the build process
 // BUILD_THEMES_REGISTER
 // End of theme register block
+
+getSettingObject("theme").fillOptions(registry);

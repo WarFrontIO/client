@@ -1,5 +1,6 @@
-import {DebugRendererLayer} from "./DebugRendererRegistry";
+import {DebugRendererLayer} from "./DebugRenderer";
 import {gameMap} from "../../../game/GameData";
+import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
 export class TerrainDepthRenderer implements DebugRendererLayer {
 	readonly useCache = true;
@@ -16,3 +17,5 @@ export class TerrainDepthRenderer implements DebugRendererLayer {
 		}
 	}
 }
+
+getSettingObject("debug-renderer").option("terrain-depth", new TerrainDepthRenderer(), "Terrain Depth", false);

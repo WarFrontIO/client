@@ -1,6 +1,7 @@
 import {areaCalculator} from "../../../map/area/AreaCalculator";
-import {DebugRendererLayer} from "./DebugRendererRegistry";
+import {DebugRendererLayer} from "./DebugRenderer";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
+import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
 export class BoatMeshDebugRenderer implements DebugRendererLayer {
 	readonly useCache = false;
@@ -28,3 +29,5 @@ export class BoatMeshDebugRenderer implements DebugRendererLayer {
 		}
 	}
 }
+
+getSettingObject("debug-renderer").option("boat-navigation-mesh", new BoatMeshDebugRenderer(), "Boat Navigation Mesh", false);

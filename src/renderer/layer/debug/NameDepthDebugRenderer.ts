@@ -1,7 +1,8 @@
-import {DebugRendererLayer} from "./DebugRendererRegistry";
+import {DebugRendererLayer} from "./DebugRenderer";
 import {playerNameRenderingManager} from "../../manager/PlayerNameRenderingManager";
 import {gameMap} from "../../../game/GameData";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
+import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
 export class NameDepthDebugRenderer implements DebugRendererLayer {
 	readonly useCache = false;
@@ -24,3 +25,5 @@ export class NameDepthDebugRenderer implements DebugRendererLayer {
 		}
 	}
 }
+
+getSettingObject("debug-renderer").option("name-depth", new NameDepthDebugRenderer(), "Name Depth", false);
