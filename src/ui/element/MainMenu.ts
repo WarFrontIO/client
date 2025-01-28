@@ -1,5 +1,5 @@
 import {mapFromId} from "../../map/MapRegistry";
-import {getSetting, updateSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
@@ -29,9 +29,6 @@ buildValidatedInput("playerNameInput", "playerNameInputValidation")
 	.onInput((_value, valid) => {
 		//btnStartMultiplayer.disabled = !valid;
 		btnStartSingleplayer.disabled = !valid;
-	})
-	.onBlur(value => {
-		updateSetting("player-name", value); //We save even if the name is invalid
 	})
 	.mutate(value => value.trim())
 	.addRule("Name contains invalid characters.", value => playerNameValidationExp.test(value))
