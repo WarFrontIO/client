@@ -1,4 +1,4 @@
-import {InvalidArgumentException} from "./Exceptions";
+import {InvalidArgumentException} from "../Exceptions";
 import {ManagedSetting} from "./ManagedSetting";
 
 export class MultiSelectSetting<T extends Record<string, Option<unknown>>> implements ManagedSetting {

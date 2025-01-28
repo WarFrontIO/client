@@ -3,7 +3,7 @@ import {getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
 import {HandshakeResponsePacket} from "./protocol/packet/handshake/HandshakeResponsePacket";
 import {HandshakeAuthPacket} from "./protocol/packet/handshake/HandshakeAuthPacket";
-import {getSetting} from "../util/UserSettingManager";
+import {getSetting} from "../util/settings/UserSettingManager";
 import {timedPromise} from "../util/TimedPromise";
 import {SocketErrorCodes} from "./protocol/util/SocketErrorCodes";
 import {deserializePacket} from "./protocol/DataTransferContext";

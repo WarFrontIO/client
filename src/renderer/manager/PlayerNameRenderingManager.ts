@@ -2,7 +2,7 @@ import {Player} from "../../game/player/Player";
 import {formatTroops} from "../../util/StringFormatter";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../../game/TerritoryManager";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 import {random} from "../../game/Random";
 import {gameTicker} from "../../game/GameTicker";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";

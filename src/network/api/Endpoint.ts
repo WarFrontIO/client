@@ -1,5 +1,5 @@
 import {getUserToken} from "../NetworkAuthenticator";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 
 /**
  * Constructs a get endpoint function.

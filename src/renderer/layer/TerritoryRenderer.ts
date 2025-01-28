@@ -3,7 +3,7 @@ import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {gameMap} from "../../game/GameData";
 import {gameLoadRegistry} from "../../game/Game";
 import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
 import {borderManager} from "../../game/BorderManager";

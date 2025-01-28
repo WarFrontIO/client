@@ -1,6 +1,6 @@
 import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
-import {getSetting, registerSettingListener} from "../../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {GameTheme} from "../GameTheme";
 import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
 import {RGBColor} from "../../util/RGBColor";

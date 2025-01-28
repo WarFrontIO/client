@@ -1,5 +1,5 @@
 import {mapFromId} from "../../map/MapRegistry";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";

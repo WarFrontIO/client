@@ -1,5 +1,5 @@
 import {PostGenerationShader} from "./PostGenerationShader";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 import {FixedDistanceShader} from "./FixedDistanceShader";
 import {HSLColor} from "../../util/HSLColor";
 import {DynamicDistanceShader} from "./DynamicDistanceShader";

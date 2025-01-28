@@ -1,5 +1,5 @@
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
-import {InvalidArgumentException, UnsupportedDataException} from "./Exceptions";
+import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {InvalidArgumentException, UnsupportedDataException} from "../Exceptions";
 import {ManagedSetting} from "./ManagedSetting";
 
 /**

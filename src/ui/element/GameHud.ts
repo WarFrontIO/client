@@ -1,6 +1,6 @@
 import {gameTicker} from "../../game/GameTicker";
 import {formatTime} from "../../util/StringFormatter";
-import {registerSettingListener} from "../../util/UserSettingManager";
+import {registerSettingListener} from "../../util/settings/UserSettingManager";
 import {registerClickListener} from "../UIEventResolver";
 import {showUIElement} from "../UIManager";
 

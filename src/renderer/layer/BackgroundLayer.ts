@@ -1,5 +1,5 @@
 import {RendererLayer} from "./RendererLayer";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 
 /**
  * A simple background layer that fills the canvas with a color.

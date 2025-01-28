@@ -1,6 +1,6 @@
 import {UIElement} from "./UIElement";
 import {InvalidArgumentException} from "../util/Exceptions";
-import {getSetting, registerSettingListener} from "../util/UserSettingManager";
+import {getSetting, registerSettingListener} from "../util/settings/UserSettingManager";
 import {StaticUIRoot} from "./type/StaticUIRoot";
 
 const index: Map<string, UIElement> = new Map();

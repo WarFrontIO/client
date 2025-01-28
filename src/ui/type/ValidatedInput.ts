@@ -1,7 +1,7 @@
 import {ElementId, resolveElement, UIElement} from "../UIElement";
 import {InvalidArgumentException} from "../../util/Exceptions";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
-import {registerSettingListener, SettingKeyOf, updateSetting} from "../../util/UserSettingManager";
+import {registerSettingListener, SettingKeyOf, updateSetting} from "../../util/settings/UserSettingManager";
 
 /**
  * A validated input element.

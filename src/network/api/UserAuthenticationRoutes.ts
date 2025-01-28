@@ -1,5 +1,5 @@
 import {endpointPOST} from "./Endpoint";
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
 /**

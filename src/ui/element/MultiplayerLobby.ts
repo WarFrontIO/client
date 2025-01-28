@@ -1,4 +1,4 @@
-import {getSetting} from "../../util/UserSettingManager";
+import {getSetting} from "../../util/settings/UserSettingManager";
 import {connectToServer, disconnectFromServer, packetRegistry} from "../../network/NetworkManager";
 import {GameQueueUpdatePacket} from "../../network/protocol/packet/game/GameQueueUpdatePacket";
 import {hidePanel, showPanel, updatePanel} from "../type/UIPanel";

@@ -1,6 +1,6 @@
 import {SettingRegistry} from "./SettingRegistry";
-import {getTheme} from "../renderer/GameTheme";
-import {debugRendererLayers} from "../renderer/layer/debug/DebugRendererRegistry";
+import {getTheme} from "../../renderer/GameTheme";
+import {debugRendererLayers} from "../../renderer/layer/debug/DebugRendererRegistry";
 
 /**
  * Setting registry, all register calls need to be chained together
