@@ -345,6 +345,7 @@ p {
 	position: absolute;
 	height: 100vh;
 	width: 100%;
+	padding: 2em;
 }
 
 .flex-centered {
@@ -550,6 +551,122 @@ input:checked + .slider:before {
 @media screen and (max-width: 767px) {
 	.grid-2col {
 		grid-template-columns: 1fr !important;
+	}
+}
+
+/* Settings Elements */
+
+.settings-category-container {
+	flex-grow: 1;
+}
+
+.settings-tab-container {
+	margin-left: -1em;
+	margin-top: calc(1px - 1em);
+	padding-top: 1em;
+	border-right: 2px solid;
+	border-color: inherit;
+}
+
+.settings-tab-container::before {
+	content: "";
+	position: absolute;
+	width: 2em;
+	height: 2em;
+	margin-left: calc(0.375em - 3px);
+	margin-top: -1.91em;
+	transform: rotate(45deg);
+	background-color: inherit;
+	border-left: 2px solid;
+	border-color: inherit;
+	box-shadow: -1px -1px;
+	clip-path: polygon(-0.1em 0.43em, 1.47em 2em, 0.3em 2em, 0.28em 1.72em, -0.1em 1.9em);
+}
+
+.settings-tab-container::after {
+	content: "";
+	position: absolute;
+	height: 1em;
+	width: calc(2.5em + 2px);
+	bottom: 0;
+	background-color: inherit;
+	border-right: 2px solid;
+	border-color: inherit;
+}
+
+.settings-tab {
+	height: calc(2.5em + 6px);
+	width: calc(2.5em + 3px);
+	padding: 2px 0;
+	border-bottom: 2px solid;
+	border-color: inherit;
+	margin-left: -3px;
+	background-color: inherit;
+}
+
+.settings-tab::before {
+	content: "";
+	position: absolute;
+	height: 2.5em;
+	width: 2.5em;
+	margin-left: -0.875em;
+	transform: rotate(-45deg);
+	clip-path: polygon(4px 75%, 10px 93%, -1px 80.5%, -1px 46.2%, 46.2% -1px, 80.5% -1px, 93% 10px, 75% 4px);
+	border-top: 2px solid;
+	border-left: 2px solid;
+	border-color: inherit;
+	box-shadow: -1px -1px;
+	background: inherit;
+}
+
+.settings-tab::after {
+	content: "";
+	position: absolute;
+	height: calc(2.5em - 14px);
+	margin-top: 7px;
+	margin-left: calc(-2.75em - 5px);
+	border-left: 2px solid;
+	border-color: inherit;
+	box-shadow: -1px 0;
+}
+
+.settings-tab:first-child {
+	height: calc(2.5em + 8px);
+	border-top: 2px solid;
+	border-color: inherit;
+	clip-path: polygon(100% 0, 100% 100%, -100% 100%, -9px 7px, 2px 0);
+}
+
+.settings-tab > a {
+	position: relative;
+	z-index: 1;
+}
+
+@media screen and (max-width: 767px) {
+	.settings-tab-container {
+		display: none;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	.panel-body:has(.settings-category-container) {
+		overflow: visible;
+		margin-left: -1em;
+		width: calc(100% + 1em);
+	}
+
+	.settings-category-container {
+		height: 100%;
+		overflow: auto;
+		margin-left: 2em;
+	}
+
+	.settings-category {
+		display: none;
+	}
+
+	.settings-category-active {
+		display: block !important;
 	}
 }
 

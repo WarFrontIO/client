@@ -318,3 +318,11 @@ input:checked + .slider {
 input:focus + .slider {
 	box-shadow: 0 0 1px #2196F3;
 }
+
+/* Settings */
+
+.settings-tab-container {
+	border-color: var(--color-primary-light);
+	color: var(--color-primary);
+	background-color: var(--color-primary-medium);
+}
