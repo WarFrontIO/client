@@ -403,6 +403,7 @@ p {
 	max-height: 90vh;
 	overflow: auto;
 	width: 100%;
+	position: relative;
 }
 
 .panel-header + .panel-body {
@@ -417,6 +418,19 @@ p {
 	font-size: 1em;
 	margin: -0.5em -0.5em 0.5em -0.5em;
 	padding: 0.5em 0.5em 0.5em 0.5em;
+}
+
+.content-field {
+	padding: 0.5em;
+	border: 3px solid;
+	outline: 1px solid;
+	outline-offset: -1px;
+	margin-bottom: 0.5em;
+	position: relative;
+}
+
+.panel-body > .content-field:last-child {
+	margin-bottom: 0;
 }
 
 /* Form elements */

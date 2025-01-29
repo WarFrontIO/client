@@ -254,6 +254,30 @@ a:active {
 	border-bottom: 3px solid var(--color-primary-light);
 }
 
+.content-field-primary {
+	background-color: var(--color-primary-light);
+	border-color: var(--color-primary-medium);
+	outline-color: var(--color-primary);
+}
+
+.content-field-secondary {
+	background-color: var(--color-secondary-light);
+	border-color: var(--color-secondary-medium);
+	outline-color: var(--color-secondary);
+}
+
+.content-field-danger {
+	background-color: var(--color-danger-light);
+	border-color: var(--color-danger-medium);
+	outline-color: var(--color-danger);
+}
+
+.content-field-success {
+	background-color: var(--color-success-light);
+	border-color: var(--color-success-medium);
+	outline-color: var(--color-success);
+}
+
 /* Form elements */
 
 .form-label {

@@ -1,37 +1,18 @@
 import {UIElement} from "../UIElement";
 import {blockInteraction, registerClickListener} from "../UIEventResolver";
 import {hideUIElement, registerUIElement, showUIElement} from "../UIManager";
+import {ContentField} from "./ContentField";
 
 /**
  * A panel element.
  */
-export class UIPanel extends UIElement {
-	protected readonly bodyElement: HTMLElement;
+export class UIPanel extends ContentField {
 	protected readonly titleElement: HTMLElement;
 	protected closeHandler: () => void = () => {};
 
 	constructor(element: HTMLElement, bodyElement: HTMLElement, titleElement: HTMLElement) {
-		super(element);
-		this.bodyElement = bodyElement;
+		super(element, bodyElement);
 		this.titleElement = titleElement;
-	}
-
-	/**
-	 * Adds a child element to this panel.
-	 * @param child The child element to add
-	 */
-	add(child: UIElement): this {
-		this.bodyElement.appendChild(child.getElement());
-		return this;
-	}
-
-	/**
-	 * Sets the content of this panel.
-	 * @param content The content to set
-	 */
-	setContent(...content: UIElement[]): this {
-		this.bodyElement.replaceChildren(...content.map(child => child.getElement()));
-		return this;
 	}
 
 	/**
