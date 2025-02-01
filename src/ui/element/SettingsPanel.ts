@@ -4,7 +4,9 @@ import {SettingCategory} from "../../util/settings/Setting";
 import {buildIcon, buildSectionHeader} from "../type/TextNode";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
-import {SettingKeyOf} from "../../util/settings/UserSettingManager";
+import {SettingKeyOf, SettingKeyTyped} from "../../util/settings/UserSettingManager";
+import {buildSingleSelect} from "../type/SingleSelectElement";
+import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
@@ -39,6 +41,9 @@ settingAddRegistry.register((setting, key) => {
 	switch (setting.type) {
 		case "boolean":
 			content.add(buildCheckboxInput(key).linkSetting(key as SettingKeyOf<boolean>)); //TODO: This won't work for other setting registries
+			break;
+		case "single-select":
+			content.add(buildSingleSelect(key).linkSetting(key as SettingKeyTyped<SingleSelectSetting<unknown>>));
 			break;
 		default:
 			console.warn(`Setting type ${setting.type} cannot be displayed`);

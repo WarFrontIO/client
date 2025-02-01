@@ -504,6 +504,14 @@ input:checked + .slider:before {
 	border-radius: 50%;
 }
 
+.single-select {
+	border: 3px solid;
+	outline: 1px solid;
+	outline-offset: -1px;
+	padding: 0.1em 0.4em;
+	margin-right: 1em;
+}
+
 /* General elements */
 
 .footer {

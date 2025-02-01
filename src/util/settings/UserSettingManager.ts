@@ -63,3 +63,6 @@ export type SettingKeyOf<T> = {
 	[K in SettingKey]: SettingType<K> extends T ? K : never
 }[SettingKey];
 export type SettingType<K extends SettingKey> = typeof registry["registry"][K] extends Setting<infer T> ? T : never;
+export type SettingKeyTyped<T> = {
+	[K in SettingKey]: typeof registry["registry"][K] extends T ? K : never
+}[SettingKey];

@@ -319,6 +319,13 @@ input:focus + .slider {
 	box-shadow: 0 0 1px #2196F3;
 }
 
+.single-select {
+	background-color: var(--color-primary-medium);
+	border-color: var(--color-primary-light);
+	outline-color: var(--color-primary);
+	color: white;
+}
+
 /* Settings */
 
 .settings-tab-container {
