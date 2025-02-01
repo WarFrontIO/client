@@ -23,31 +23,33 @@ class InteractionManager {
 	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for hover event listeners. */
 	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
+	draggable: Set<EventTarget> = new Set();
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
 	pressY: number = 0;
+	pressTarget: EventTarget | null = null;
 	touchPoints: Map<number, { x: number, y: number }> = new Map();
 
 	constructor() {
-		document.addEventListener("pointerdown", this.onPointerDown);
-		document.addEventListener("pointerup", this.onPointerUp);
-		document.addEventListener("pointerout", this.onPointerUp);
-		document.addEventListener("pointerleave", this.onPointerUp);
-		document.addEventListener("pointercancel", this.onPointerUp);
-		document.addEventListener("pointermove", this.onHover);
+		document.addEventListener("pointerdown", this.onPointerDown, {passive: true});
+		document.addEventListener("pointerup", this.onPointerUp, {passive: true});
+		document.addEventListener("pointerleave", this.onPointerUp, {passive: true});
+		document.addEventListener("pointercancel", this.onPointerUp, {passive: true});
+		document.addEventListener("pointermove", this.onHover, {passive: true});
 		document.addEventListener("wheel", this.onScroll, {passive: false});
 	}
 
 	private onPointerDown(this: void, event: PointerEvent) {
 		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
 		if (interactionManager.touchPoints.size > 1) return;
+
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
-		interactionManager.dragTimeout = setTimeout(() => {
-			interactionManager.dragTimeout = null;
-			interactionManager.drag.choose(event.x, event.y, event.target);
-			interactionManager.drag.call(l => l.onDragStart(event.x, event.y));
-		}, 1000);
+		interactionManager.pressTarget = event.target;
+
+		if (event.target && interactionManager.draggable.has(event.target)) {
+			interactionManager.dragTimeout = setTimeout(interactionManager.startDrag, 1000);
+		}
 	}
 
 	private onPointerUp(this: void, event: PointerEvent) {
@@ -60,14 +62,18 @@ class InteractionManager {
 			}
 			return;
 		}
+
 		if (interactionManager.dragTimeout) {
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
-			interactionManager.click.choose(event.x, event.y, event.target);
-			interactionManager.click.call(l => l.onClick(event.x, event.y));
-		} else {
+		}
+
+		if (interactionManager.drag.has()) {
 			interactionManager.drag.call(l => l.onDragEnd(event.x, event.y));
 			interactionManager.drag.reset();
+		} else if (event.target === interactionManager.pressTarget) {
+			interactionManager.click.choose(event.x, event.y, event.target);
+			interactionManager.click.call(l => l.onClick(event.x, event.y));
 		}
 	}
 
@@ -75,19 +81,25 @@ class InteractionManager {
 		if (interactionManager.dragTimeout) {
 			if (Math.abs(event.x - interactionManager.pressX) + Math.abs(event.y - interactionManager.pressY) < 10) return;
 			clearTimeout(interactionManager.dragTimeout);
-			interactionManager.dragTimeout = null;
-			interactionManager.drag.choose(interactionManager.pressX, interactionManager.pressY, event.target);
-			interactionManager.drag.call(l => l.onDragStart(interactionManager.pressX, interactionManager.pressY));
+			interactionManager.startDrag();
 		}
+
 		if (interactionManager.touchPoints.size > 1) {
 			interactionManager.checkMobileGesture(event);
 			return;
 		}
+
 		interactionManager.drag.call(l => l.onDragMove(event.x, event.y, event.x - interactionManager.pressX, event.y - interactionManager.pressY));
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
 		interactionManager.hover.choose(event.x, event.y, event.target);
 		interactionManager.hover.call(l => l.onHover(event.x, event.y));
+	}
+
+	private startDrag(this: void) {
+		interactionManager.dragTimeout = null;
+		interactionManager.drag.choose(interactionManager.pressX, interactionManager.pressY, interactionManager.pressTarget);
+		interactionManager.drag.call(l => l.onDragStart(interactionManager.pressX, interactionManager.pressY));
 	}
 
 	private onScroll(this: void, event: WheelEvent) {
