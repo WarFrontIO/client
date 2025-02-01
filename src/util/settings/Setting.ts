@@ -1,6 +1,7 @@
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
 import {IllegalStateException, UnsupportedDataException} from "../Exceptions";
 import {SettingRegistry} from "./SettingRegistry";
+import {PassUnknown, StripUnknown} from "../UnsafeTypes";
 
 export abstract class Setting<T> {
 	readonly abstract type: string;
@@ -10,7 +11,7 @@ export abstract class Setting<T> {
 	private readonly category: SettingCategory | null;
 	private readonly version: number;
 
-	protected registry: EventHandlerRegistry<[T, Setting<T>]> = new EventHandlerRegistry();
+	protected registry: EventHandlerRegistry<[T, PassUnknown<T, Setting<T>>]> = new EventHandlerRegistry();
 	protected readonly updaters: Record<string, (value: string) => string> = {};
 
 	constructor(defaultValue: T, category: SettingCategory | null = null, version: number = 0) {
@@ -31,8 +32,8 @@ export abstract class Setting<T> {
 	/**
 	 * Sets the value of this setting.
 	 */
-	set(value: T): void {
-		this.registry.broadcast(value, this);
+	set(value: StripUnknown<T>): void {
+		this.registry.broadcast(value, this as unknown as StripUnknown<PassUnknown<T, Setting<T>>>);
 		this.value = value;
 		this.initialized = true;
 	}
@@ -63,9 +64,9 @@ export abstract class Setting<T> {
 	 * Registers a listener for this setting.
 	 * @param callback The callback to register, called before the value is updated with the new value
 	 */
-	registerListener(callback: (value: T, obj: Setting<T>) => void): void {
+	registerListener(callback: (value: T, obj: PassUnknown<T, Setting<T>>) => void): void {
 		this.registry.register(callback);
-		if (this.initialized) callback(this.value, this);
+		if (this.initialized) callback(this.value, this as unknown as StripUnknown<PassUnknown<T, Setting<T>>>);
 	}
 
 	/**
@@ -133,7 +134,7 @@ export abstract class Setting<T> {
 	 * @internal This should only be called once after the setting has been loaded
 	 */
 	callListeners(): void {
-		if (this.initialized) this.registry.broadcast(this.value, this);
+		if (this.initialized) this.registry.broadcast(this.value as StripUnknown<T>, this as unknown as StripUnknown<PassUnknown<T, Setting<T>>>);
 	}
 }
 

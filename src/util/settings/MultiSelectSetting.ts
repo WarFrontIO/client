@@ -24,7 +24,7 @@ export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends 
 	option<K extends string, V>(key: K & Exclude<K, keyof T>, value: V, label: string, defaultStatus: boolean) {
 		if (key.includes(",")) throw new InvalidArgumentException("Key cannot contain ','");
 		(this.value as unknown as Record<K, Option<V>>)[key] = {value, label, status: defaultStatus};
-		this.registry.broadcast(this.value, this); // Listeners need to be notified about new options
+		this.callListeners(); // Listeners need to be notified about new options
 		return this as unknown as MultiSelectSetting<S | V, T & Record<K, Option<V>>>;
 	}
 

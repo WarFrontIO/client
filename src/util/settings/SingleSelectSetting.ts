@@ -1,4 +1,5 @@
 import {Setting, SettingCategory} from "./Setting";
+import {StripUnknown} from "../UnsafeTypes";
 
 export class SingleSelectSetting<T> extends Setting<T> {
 	readonly type = "single-select";
@@ -6,7 +7,7 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	private options: Record<string, Option<T>> = {};
 	private selected: string;
 
-	static init<T = never>(defaultId: string, category: SettingCategory | null, version: number = 0) {
+	static init<T = never>(defaultId: string, category: SettingCategory | null, version: number = 0): SingleSelectSetting<T> & Setting<T> {
 		return new SingleSelectSetting<T>(defaultId, category, version);
 	}
 
@@ -22,7 +23,7 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	 * @param label The label of the option, displayed in the UI
 	 * @throws InvalidArgumentException if the key contains ','
 	 */
-	option<S>(key: string, value: S, label: string): SingleSelectSetting<T | S> {
+	option<S extends StripUnknown<T>>(key: string, value: S, label: string): SingleSelectSetting<T | S> {
 		(this.options as Record<string, Option<T | S>>)[key] = {value, label};
 		if (key === this.selected) (this as SingleSelectSetting<T | S>).set(value);
 		return this as SingleSelectSetting<T | S>;
@@ -32,7 +33,7 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	 * Fills the given options into this setting.
 	 * @param options The options to fill into this setting
 	 */
-	fillOptions(options: Record<string, T>) {
+	fillOptions(options: Record<string, StripUnknown<T>>) {
 		for (const key in options) {
 			this.option(key, options[key], key);
 		}
@@ -45,7 +46,7 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	select(key: string) {
 		if (!this.options[key]) throw new Error(`Option with key ${key} does not exist`);
 		this.selected = key;
-		this.set(this.options[key].value);
+		this.set(this.options[key].value as StripUnknown<T>);
 	}
 
 	toString() {
