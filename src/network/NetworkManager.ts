@@ -17,7 +17,7 @@ export const packetRegistry = new PacketRegistry<void>();
 
 let openSocket: WebSocket | null = null;
 let socketReady = false;
-let socketTimeout: number | undefined;
+let socketTimeout: ReturnType<typeof setTimeout> | undefined;
 
 /**
  * Connects to the server at the given host
@@ -87,8 +87,7 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 		};
 		openSocket.addEventListener("ping", () => {
 			clearTimeout(socketTimeout);
-			// window is needed here as typescript assumes the global object is NodeJS (which has a different return type)
-			socketTimeout = window.setTimeout(() => {
+			socketTimeout = setTimeout(() => {
 				openSocket?.close(SocketErrorCodes.NO_ERROR);
 			}, 30 * 1000);
 		});
