@@ -1,4 +1,3 @@
-import {BasicInteractionListener} from "./InteractionManager";
 import {PriorityList} from "../util/PriorityList";
 
 /**
@@ -7,7 +6,7 @@ import {PriorityList} from "../util/PriorityList";
  * The first handler that returns true for the test method is chosen.
  * Use this for non-propagating event handling (e.g. click events).
  */
-export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener> {
+export class PrioritizedEventHandlerRegistry<T extends {test: (...args: never[]) => boolean}> {
 	protected listeners = new PriorityList<T>();
 	private currentListener: T | undefined;
 
@@ -38,14 +37,19 @@ export class PrioritizedEventHandlerRegistry<T extends BasicInteractionListener>
 	}
 
 	/**
+	 * Returns whether a listener has been chosen.
+	 */
+	has() {
+		return this.currentListener !== undefined;
+	}
+
+	/**
 	 * Chooses the listener to receive events.
 	 * The first listener that returns true for the test method is chosen.
-	 * @param x The x coordinate of the event.
-	 * @param y The y coordinate of the event.
-	 * @param element The element that received the event.
+	 * @param args The arguments to pass to the test
 	 */
-	choose(x: number, y: number, element: EventTarget | null): void {
-		this.currentListener = this.listeners.find(l => l.test(x, y, element));
+	choose(...args: Parameters<T["test"]>): void {
+		this.currentListener = this.listeners.find(l => l.test(...args));
 	}
 
 	/**

@@ -23,6 +23,10 @@ class InteractionManager {
 	multitouch: PrioritizedEventHandlerRegistry<MultiTouchEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for hover event listeners. */
 	hover: PrioritizedEventHandlerRegistry<HoverEventListener> = new PrioritizedEventHandlerRegistry();
+	/**
+	 * Registry for keyboard event listeners.
+	 */
+	keyboard: PrioritizedEventHandlerRegistry<KeyboardEventListener> = new PrioritizedEventHandlerRegistry();
 	draggable: Set<EventTarget> = new Set();
 	dragTimeout: NodeJS.Timeout | null = null;
 	pressX: number = 0;
@@ -37,6 +41,8 @@ class InteractionManager {
 		document.addEventListener("pointercancel", this.onPointerUp, {passive: true});
 		document.addEventListener("pointermove", this.onHover, {passive: true});
 		document.addEventListener("wheel", this.onScroll, {passive: false});
+		document.addEventListener("keydown", this.onKeyDown, {passive: false});
+		document.addEventListener("keyup", this.onKeyUp, {passive: true});
 	}
 
 	private onPointerDown(this: void, event: PointerEvent) {
@@ -127,6 +133,21 @@ class InteractionManager {
 		//TODO: Why are we choosing the multitouch listeners here?
 		interactionManager.multitouch.choose(newCenterX, newCenterY, event.target);
 		interactionManager.multitouch.call(l => l.onMultiTouch(oldCenterX, oldCenterY, newCenterX, newCenterY, zoomFactor));
+	}
+
+	private onKeyDown(this: void, event: KeyboardEvent) {
+		const keys: Set<string> = new Set();
+		if (event.altKey) keys.add("Alt");
+		if (event.ctrlKey) keys.add("Control");
+		if (event.metaKey) keys.add("Meta");
+		if (event.shiftKey) keys.add("Shift");
+		keys.add(event.key === event.key.toLowerCase() ? event.key.toUpperCase() : event.key); // This might be wrong for some keys
+		interactionManager.keyboard.choose(interactionManager.pressX, interactionManager.pressY, event.target, keys);
+		interactionManager.keyboard.call(l => l.onKeyDown(keys, interactionManager.pressX, interactionManager.pressY));
+	}
+
+	private onKeyUp(this: void, event: KeyboardEvent) {
+		interactionManager.keyboard.call(l => l.onKeyUp(event.key === event.key.toLowerCase() ? event.key.toUpperCase() : event.key, interactionManager.pressX, interactionManager.pressY));
 	}
 }
 
@@ -246,12 +267,41 @@ export interface HoverEventListener extends BasicInteractionListener {
 	onHover(x: number, y: number): void;
 }
 
+export interface KeyboardEventListener {
+	/**
+	 * Tests if the listener should receive events at the given position.
+	 * @param x The screen x-coordinate of the event.
+	 * @param y The screen y-coordinate of the event.
+	 * @param element The element that received the event.
+	 * @param keys The keys that were pressed (one key + modifiers)
+	 * @returns True if the listener should receive events at the given position.
+	 */
+	test(x: number, y: number, element: EventTarget | null, keys: Set<string>): boolean;
+
+	/**
+	 * Called when the user presses a key at the given position.
+	 * @param keys The keys that were pressed (one key + modifiers)
+	 * @param x The screen x-coordinate of the key press
+	 * @param y The screen y-coordinate of the key press
+	 */
+	onKeyDown(keys: Set<string>, x: number, y: number): void;
+
+	/**
+	 * Called when the user releases a key at the given position.
+	 * @param key The key that was released
+	 * @param x The screen x-coordinate of the key release
+	 * @param y The screen y-coordinate of the key release
+	 */
+	onKeyUp(key: string, x: number, y: number): void;
+}
+
 export enum InteractionType {
 	CLICK,
 	DRAG,
 	SCROLL,
 	MULTITOUCH,
-	HOVER
+	HOVER,
+	KEYBOARD
 }
 
 export type InteractionListeners = {
@@ -259,7 +309,8 @@ export type InteractionListeners = {
 	[InteractionType.DRAG]: DragEventListener,
 	[InteractionType.SCROLL]: ScrollEventListener,
 	[InteractionType.MULTITOUCH]: MultiTouchEventListener,
-	[InteractionType.HOVER]: HoverEventListener
+	[InteractionType.HOVER]: HoverEventListener,
+	[InteractionType.KEYBOARD]: KeyboardEventListener
 }
 
 export const interactionManager = new InteractionManager();
