@@ -25,6 +25,16 @@ export abstract class UIElement {
 	}
 
 	/**
+	 * Sets the text content of this UI element.
+	 * @param name The attribute name
+	 * @param value The value to set
+	 */
+	setAttribute(name: string, value: string): this {
+		this.element.setAttribute(name, value);
+		return this;
+	}
+
+	/**
 	 * Adds a listener for the show event.
 	 * @param callback The callback to invoke when the show event is triggered
 	 */

@@ -62,6 +62,7 @@ export function buildPanel(name: string) {
 	const close = document.createElement("a");
 	close.classList.add("icon-fixed", "icon-close");
 	close.id = name + "Close";
+	close.tabIndex = 0;
 	inner.appendChild(close);
 
 	const titleElement = document.createElement("h2");

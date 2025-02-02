@@ -72,9 +72,14 @@ interactionManager.keyboard.register(buildListener(InteractionType.KEYBOARD));
  * For non-UI elements {@link InteractionManager.click} should be used instead.
  * @param element The element to register the listener for
  * @param handler The handler to call when the element is clicked
+ * @param bindKeyboard Whether to bind keyboard events to the element
  */
-export function registerClickListener(element: HTMLElement | string, handler: (x: number, y: number) => void): void {
+export function registerClickListener(element: HTMLElement | string, handler: (x: number, y: number) => void, bindKeyboard: boolean = true): void {
 	subscribers[InteractionType.CLICK].set(resolveElement(element).id, {onClick: handler});
+	if (bindKeyboard) {
+		registerKeyboardListener(element, "Enter", handler);
+		registerKeyboardListener(element, " ", handler);
+	}
 }
 
 /**

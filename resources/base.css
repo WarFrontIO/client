@@ -300,6 +300,7 @@ p {
 }
 
 .icon-fixed:hover,
+.icon-fixed:focus,
 .icon-fixed:active {
 	transform: scale(1.05);
 }

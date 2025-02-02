@@ -58,6 +58,7 @@ a:active {
 }
 
 .icon-fixed:hover,
+.icon-fixed:focus,
 .icon-fixed:active {
 	background-color: #FFFFFF !important;
 }
@@ -135,7 +136,8 @@ a:active {
 	outline: 1px solid #444444;
 }
 
-.btn:hover {
+.btn:hover,
+.btn:focus {
 	background-color: #888888;
 	border: 2px solid #AAAAAA;
 	outline: 1px solid #666666;
@@ -157,7 +159,8 @@ a:active {
 	outline-color: var(--color-primary-dark);
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:focus {
 	background-color: var(--color-primary-medium);
 	border-color: var(--color-primary-light);
 	outline-color: var(--color-primary);
@@ -182,7 +185,8 @@ a:active {
 	outline-color: var(--color-secondary-dark);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover,
+.btn-secondary:focus {
 	background-color: var(--color-secondary-medium);
 	border-color: var(--color-secondary-light);
 	outline-color: var(--color-secondary);
@@ -200,7 +204,8 @@ a:active {
 	outline: 1px solid var(--color-danger-dark);
 }
 
-.btn-danger:hover {
+.btn-danger:hover,
+.btn-danger:focus{
 	background-color: var(--color-danger-medium);
 	border-color: var(--color-danger-light);
 	outline-color: var(--color-danger);
@@ -218,7 +223,8 @@ a:active {
 	outline: 1px solid var(--color-success-dark);
 }
 
-.btn-success:hover {
+.btn-success:hover,
+.btn-success:focus {
 	background-color: var(--color-success-medium);
 	border-color: var(--color-success-light);
 	outline-color: var(--color-success);
