@@ -642,12 +642,16 @@ input:checked + .slider:before {
 	height: calc(2.5em + 8px);
 	border-top: 2px solid;
 	border-color: inherit;
-	clip-path: polygon(100% 0, 100% 100%, -100% 100%, -9px 7px, 2px 0);
+	clip-path: polygon(100% 0, 100% 100%, -100% 100%, -9px -2px, 1px 1px, 2px 0);
 }
 
 .settings-tab > a {
 	position: relative;
 	z-index: 1;
+}
+
+.settings-tab:hover > a {
+	transform: scale(1.05);
 }
 
 @media screen and (max-width: 767px) {

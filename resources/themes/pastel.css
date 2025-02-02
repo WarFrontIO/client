@@ -333,3 +333,11 @@ input:focus + .slider {
 	color: var(--color-primary);
 	background-color: var(--color-primary-medium);
 }
+
+.settings-tab:hover > a {
+	background-color: #FFFFFF !important;
+}
+
+.settings-tab-active {
+	background-color: var(--color-primary);
+}

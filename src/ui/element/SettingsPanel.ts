@@ -11,6 +11,7 @@ import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
 const categories = new Map<SettingCategory, ContentField>();
+const categoryTabs = new Map<SettingCategory, ContentField>();
 
 let currentCategory: SettingCategory | null = null;
 
@@ -24,16 +25,23 @@ settingAddRegistry.register((setting, key) => {
 		content = buildContainer("settings-category", "grid", "grid-2col").add(buildSectionHeader(category.name));
 		contentContainer.add(content);
 
-		tabContainer.add(buildContainer("settings-tab").add(buildIcon(category.icon ?? "close")).onClick(() => {
-			if (currentCategory) categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
+		const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close")).onClick(() => {
+			if (currentCategory) {
+				categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
+				categoryTabs.get(currentCategory)?.getElement().classList.remove("settings-tab-active");
+			}
 			content?.getElement().classList.add("settings-category-active");
+			tab.getElement().classList.add("settings-tab-active");
 			currentCategory = category
-		}));
+		});
+		tabContainer.add(tab);
 
 		categories.set(category, content);
+		categoryTabs.set(category, tab);
 		if (!currentCategory) {
 			currentCategory = category;
 			content.getElement().classList.add("settings-category-active");
+			tab.getElement().classList.add("settings-tab-active");
 		}
 	}
 
