@@ -1,5 +1,4 @@
 import {EventHandlerRegistry} from "./EventHandlerRegistry";
-import {StripUnknownParams} from "../util/UnsafeTypes";
 
 export class CachedEventHandlerRegistry<T extends unknown[]> extends EventHandlerRegistry<T> {
 	private cache: T[] = [];
@@ -10,7 +9,7 @@ export class CachedEventHandlerRegistry<T extends unknown[]> extends EventHandle
 	 * @param args The arguments to broadcast
 	 * @internal Only call this method if you are the event source
 	 */
-	broadcast(...args: StripUnknownParams<T>): void {
+	broadcast(...args: T): void {
 		super.broadcast(...args);
 		this.cache.push(args);
 	}

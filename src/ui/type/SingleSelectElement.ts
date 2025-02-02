@@ -1,6 +1,5 @@
 import {UIElement} from "../UIElement";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
-import {getSettingObject, registerSettingListener, SettingKeyTyped, updateSetting} from "../../util/settings/UserSettingManager";
 import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 
 /**
@@ -60,10 +59,10 @@ export class SingleSelectElement extends UIElement {
 	 * Links the single select element to a setting.
 	 * @param setting The setting to link
 	 */
-	linkSetting(setting: SettingKeyTyped<SingleSelectSetting<unknown>>): this {
-		registerSettingListener(setting, (_, obj) => this.setValue(obj.getSelectedOption()));
-		getSettingObject(setting).registerOptionListener(option => this.addOption(option, option));
-		this.onChanged(value => getSettingObject(setting).select(value));
+	linkSetting(setting: SingleSelectSetting<unknown>): this {
+		setting.registerListener((_, obj) => this.setValue(obj.getSelectedOption()));
+		setting.registerOptionListener(option => this.addOption(option, option));
+		this.onChanged(value => setting.select(value).save());
 		return this;
 	}
 }

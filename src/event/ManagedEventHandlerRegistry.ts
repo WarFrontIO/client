@@ -1,5 +1,4 @@
 import {EventHandlerRegistry} from "./EventHandlerRegistry";
-import {StripUnknownParams} from "../util/UnsafeTypes";
 
 /**
  * Simple event handler registry for managing event listeners.
@@ -13,7 +12,7 @@ export class ManagedEventHandlerRegistry<T extends unknown[]> extends EventHandl
 	 */
 	constructor(
 		private readonly callImmediately: boolean = false,
-		private readonly handleListener: (listener: (this: void, ...args: StripUnknownParams<T>) => void) => void
+		private readonly handleListener: (listener: (this: void, ...args: T) => void) => void
 	) {
 		super();
 	}

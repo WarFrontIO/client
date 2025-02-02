@@ -1,7 +1,7 @@
 import {ElementId, resolveElement, UIElement} from "../UIElement";
 import {InvalidArgumentException} from "../../util/Exceptions";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
-import {registerSettingListener, SettingKeyOf, updateSetting} from "../../util/settings/UserSettingManager";
+import {Setting} from "../../util/settings/Setting";
 
 /**
  * A validated input element.
@@ -90,10 +90,10 @@ export class ValidatedInput extends UIElement {
 	 * Links the input element to a setting.
 	 * @param setting The setting
 	 */
-	linkSetting(setting: SettingKeyOf<string>): void {
-		registerSettingListener(setting, value => this.element.value = value);
+	linkSetting(setting: Setting<string>): void {
+		setting.registerListener(value => this.element.value = value);
 		this.validate();
-		this.onBlur(value => updateSetting(setting, value)); //We save even if the value is invalid
+		this.onBlur(value => setting.set(value).save()); //We save even if the value is invalid
 	}
 }
 

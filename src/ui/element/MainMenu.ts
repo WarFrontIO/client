@@ -1,5 +1,5 @@
 import {mapFromId} from "../../map/MapRegistry";
-import {getSetting} from "../../util/settings/UserSettingManager";
+import {getSetting, getSettingObject} from "../../util/settings/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
@@ -34,4 +34,4 @@ buildValidatedInput("playerNameInput", "playerNameInputValidation")
 	.addRule("Name contains invalid characters.", value => playerNameValidationExp.test(value))
 	.addRule("Name is too short (must be at least 3 characters).", value => value.length >= 3)
 	.addRule("Name is too long (32 characters maximum).", value => value.length <= 32)
-	.linkSetting("player-name");
+	.linkSetting(getSettingObject("player-name"));

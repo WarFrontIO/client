@@ -13,14 +13,12 @@ export const categoryAdvanced = {name: "Advanced"} as SettingCategory;
  * Setting registry, all register calls need to be chained together
  */
 const registry = SettingRegistry.init("wf")
-	.register("theme", SingleSelectSetting.init<GameTheme>("pastel", categoryGeneral))
+	.register("theme", new SingleSelectSetting<GameTheme>("pastel", categoryGeneral))
 	.registerString("player-name", "Unknown Player", null)
 	.registerBoolean("hud-clock", true, interfaceGeneral)
 	.registerString("api-location", "https://warfront.io/api", categoryAdvanced) //This needs to enforce no trailing slash, no query parameters and a protocol
 	.registerString("game-server", "warfront.io", categoryAdvanced)
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
-
-registry.load();
 
 /**
  * Get a setting value
@@ -45,8 +43,7 @@ export function getSettingObject<K extends SettingKey>(key: K): typeof registry[
  * @param value new value
  */
 export function updateSetting<K extends SettingKey>(key: K, value: SettingType<K>) {
-	registry.get(key).set(value as never);
-	registry.saveSetting(key);
+	registry.get(key).set(value as never).save();
 }
 
 /**
@@ -59,10 +56,4 @@ export function registerSettingListener<K extends SettingKey>(key: K, listener: 
 }
 
 export type SettingKey = keyof typeof registry["registry"];
-export type SettingKeyOf<T> = {
-	[K in SettingKey]: SettingType<K> extends T ? K : never
-}[SettingKey];
 export type SettingType<K extends SettingKey> = typeof registry["registry"][K] extends Setting<infer T> ? T : never;
-export type SettingKeyTyped<T> = {
-	[K in SettingKey]: typeof registry["registry"][K] extends T ? K : never
-}[SettingKey];

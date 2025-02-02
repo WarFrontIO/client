@@ -1,11 +1,9 @@
-import {StripUnknownParams} from "../util/UnsafeTypes";
-
 /**
  * Simple event handler registry for managing event listeners.
  * Mainly used to manage game event listeners.
  */
 export class EventHandlerRegistry<T extends unknown[]> {
-	protected listeners: ((this: void, ...args: StripUnknownParams<T>) => void)[] = [];
+	protected listeners: ((this: void, ...args: T) => void)[] = [];
 
 	/**
 	 * Registers a listener to receive events.
@@ -29,7 +27,7 @@ export class EventHandlerRegistry<T extends unknown[]> {
 	 * @param args The arguments to pass to the listeners.
 	 * @internal Only call this method if you are the event source.
 	 */
-	broadcast(...args: StripUnknownParams<T>) {
+	broadcast(...args: T) {
 		this.listeners.forEach(listener => listener(...args));
 	}
 }

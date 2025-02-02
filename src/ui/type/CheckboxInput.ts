@@ -1,6 +1,6 @@
 import {UIElement} from "../UIElement";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
-import {registerSettingListener, SettingKeyOf, updateSetting} from "../../util/settings/UserSettingManager";
+import {Setting} from "../../util/settings/Setting";
 
 export class CheckboxInput extends UIElement {
 	private readonly inputElement: HTMLInputElement;
@@ -27,9 +27,9 @@ export class CheckboxInput extends UIElement {
 	 * Links the checkbox to a setting.
 	 * @param setting The setting
 	 */
-	linkSetting(setting: SettingKeyOf<boolean>): this {
-		registerSettingListener(setting, value => this.inputElement.checked = value);
-		this.onChanged(value => updateSetting(setting, value));
+	linkSetting(setting: Setting<boolean>): this {
+		setting.registerListener(value => this.setChecked(value));
+		this.onChanged(value => setting.set(value).save());
 		return this;
 	}
 }
