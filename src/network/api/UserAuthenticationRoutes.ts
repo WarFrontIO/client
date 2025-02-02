@@ -1,5 +1,4 @@
-import {endpointPOST} from "./Endpoint";
-import {getSetting} from "../../util/settings/UserSettingManager";
+import {apiURL, endpointPOST} from "./Endpoint";
 import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
 /**
@@ -9,7 +8,7 @@ import {APIUserAccount} from "../protocol/util/ProtocolUtils";
  * @internal Use {@link login} instead
  */
 export function loginUser(service: "discord", state: string) {
-	window.location.href = getSetting("api-location") + "/login/" + service + "/?state=" + state;
+	window.location.href = apiURL + "/login/" + service + "/?state=" + state;
 }
 
 /**

@@ -16,7 +16,6 @@ const registry = SettingRegistry.init("wf")
 	.register("theme", new SingleSelectSetting<GameTheme>("pastel", categoryGeneral))
 	.registerString("player-name", "Unknown Player", null)
 	.registerBoolean("hud-clock", true, interfaceGeneral)
-	.registerString("api-location", "https://warfront.io/api", categoryAdvanced) //This needs to enforce no trailing slash, no query parameters and a protocol
 	.registerString("game-server", "warfront.io", categoryAdvanced)
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
 

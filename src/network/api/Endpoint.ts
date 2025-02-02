@@ -1,5 +1,6 @@
 import {getUserToken} from "../NetworkAuthenticator";
-import {getSetting} from "../../util/settings/UserSettingManager";
+
+export const apiURL = "https://warfront.io/api";
 
 /**
  * Constructs a get endpoint function.
@@ -48,7 +49,7 @@ class APIResponse<T extends { [key: number]: unknown }, E extends keyof T> {
 
 	constructor(url: string, options: Promise<RequestInit>) {
 		options.then(options => {
-			fetch(getSetting("api-location") + url, options).then(response => {
+			fetch(apiURL + url, options).then(response => {
 				if (response.headers.get("Content-Type") === "application/json") {
 					response.json().then(data => {
 						this.handleResponse(response.status as keyof T, data as T[keyof T]);
