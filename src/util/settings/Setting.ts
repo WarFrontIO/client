@@ -5,6 +5,7 @@ export abstract class Setting<T> {
 	readonly abstract type: string;
 	protected initialized = false;
 
+	protected readonly defaultValue: T;
 	protected value: T;
 	private saveId: string;
 	private readonly category: SettingCategory | null;
@@ -14,6 +15,7 @@ export abstract class Setting<T> {
 	protected readonly updaters: Record<string, (value: string) => string> = {};
 
 	constructor(defaultValue: T, category: SettingCategory | null = null, version: number = 0) {
+		this.defaultValue = defaultValue;
 		this.value = defaultValue;
 		this.category = category;
 		this.version = version;
@@ -45,6 +47,13 @@ export abstract class Setting<T> {
 	 */
 	isInitialized(): boolean {
 		return this.initialized;
+	}
+
+	/**
+	 * Returns the default value of this setting.
+	 */
+	getDefaultValue(): T {
+		return this.defaultValue;
 	}
 
 	/**

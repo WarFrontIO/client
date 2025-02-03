@@ -1,29 +1,30 @@
 import {ElementId, resolveElement, UIElement} from "../UIElement";
 import {InvalidArgumentException} from "../../util/Exceptions";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
-import {Setting} from "../../util/settings/Setting";
+import {StringSetting} from "../../util/settings/StringSetting";
 
 /**
  * A validated input element.
  */
 export class ValidatedInput extends UIElement {
-	protected readonly element: HTMLInputElement;
+	protected readonly input: HTMLInputElement;
 	protected readonly errorElement: HTMLElement;
 	private readonly mutators: ((value: string) => string)[] = [];
 	private readonly rules: ((value: string) => boolean)[] = [];
 	private readonly inputListeners: EventHandlerRegistry<[string, boolean]> = new EventHandlerRegistry();
 	private readonly blurListeners: EventHandlerRegistry<[string, boolean]> = new EventHandlerRegistry();
 
-	constructor(element: HTMLInputElement, errorElement: HTMLElement) {
+	constructor(element: HTMLElement, input: HTMLInputElement, errorElement: HTMLElement) {
 		super(element);
-		this.element.addEventListener("input", () => this.validate());
-		this.element.addEventListener("blur", () => {
-			const value = this.mutators.reduce((value, mutator) => mutator(value), this.element.value);
-			this.blurListeners.broadcast(value, this.element.checkValidity());
+		this.input = input;
+		this.input.addEventListener("input", () => this.validate());
+		this.input.addEventListener("blur", () => {
+			const value = this.mutators.reduce((value, mutator) => mutator(value), this.input.value);
+			this.blurListeners.broadcast(value, this.input.checkValidity());
 		});
-		this.element.addEventListener("invalid", () => {
-			this.element.classList.add("form-control-error");
-			this.errorElement.textContent = this.element.validationMessage;
+		this.input.addEventListener("invalid", () => {
+			this.input.classList.add("form-control-error");
+			this.errorElement.textContent = this.input.validationMessage;
 			this.errorElement.style.display = "block";
 		});
 		this.errorElement = errorElement;
@@ -47,7 +48,7 @@ export class ValidatedInput extends UIElement {
 	addRule(errorMessage: string, rule: (value: string) => boolean): this {
 		this.rules.push((value: string) => {
 			if (!rule(value)) {
-				this.element.setCustomValidity(errorMessage);
+				this.input.setCustomValidity(errorMessage);
 				return false;
 			}
 			return true;
@@ -77,37 +78,76 @@ export class ValidatedInput extends UIElement {
 	 * Validates the input element.
 	 */
 	validate(): void {
-		const value = this.mutators.reduce((value, mutator) => mutator(value), this.element.value);
+		const value = this.mutators.reduce((value, mutator) => mutator(value), this.input.value);
 		if (this.rules.every(rule => rule(value))) {
-			this.element.setCustomValidity("");
-			this.element.classList.remove("form-control-error");
+			this.input.setCustomValidity("");
+			this.input.classList.remove("form-control-error");
 			this.errorElement.style.display = "none";
 		}
-		this.inputListeners.broadcast(value, this.element.checkValidity());
+		this.inputListeners.broadcast(value, this.input.checkValidity());
 	}
 
 	/**
 	 * Links the input element to a setting.
 	 * @param setting The setting
+	 * @param resetOnInvalid Whether to reset the setting to its default value if the input is invalid
 	 */
-	linkSetting(setting: Setting<string>): void {
-		setting.registerListener(value => this.element.value = value);
+	linkSetting(setting: StringSetting, resetOnInvalid: boolean = true): this {
+		setting.registerListener(value => this.input.value = value);
+		this.onBlur((value, valid) => {
+			if (valid || !resetOnInvalid) {
+				setting.set(value).save();
+			} else {
+				setting.set(setting.getDefaultValue()).save();
+				this.validate();
+			}
+		});
+		for (const mutator of setting.getMutators()) {
+			this.mutate(mutator);
+		}
+		for (const rule of setting.getRules()) {
+			this.addRule(rule.errorMessage, rule.rule);
+		}
 		this.validate();
-		this.onBlur(value => setting.set(value).save()); //We save even if the value is invalid
+		return this;
 	}
 }
 
 /**
- * Builds a validated input element.
+ * Loads a validated input element.
  * @param id The id of the input element
  * @param errorId The id of the error element
  * @returns The validated input element
  * @throws InvalidArgumentException if the element is not an input element
  */
-export function buildValidatedInput(id: ElementId, errorId: ElementId): ValidatedInput {
+export function loadValidatedInput(id: ElementId, errorId: ElementId): ValidatedInput {
 	const element = resolveElement(id);
 	if (!(element instanceof HTMLInputElement)) {
 		throw new InvalidArgumentException("Element must be an input element");
 	}
-	return new ValidatedInput(element, resolveElement(errorId));
+	return new ValidatedInput(element, element, resolveElement(errorId));
+}
+
+/**
+ * Builds a validated input element.
+ * @param placeholder The placeholder of the input element
+ * @param description The description of the input element
+ * @returns The validated input element
+ */
+export function buildValidatedInput(placeholder: string, description: string): ValidatedInput {
+	const div = document.createElement("div");
+
+	const label = document.createElement("label");
+	const input = document.createElement("input");
+	input.classList.add("form-control", "mr-1");
+	input.placeholder = placeholder;
+	label.appendChild(input);
+	label.appendChild(document.createTextNode(description));
+	div.appendChild(label);
+
+	const error = document.createElement("span");
+	error.classList.add("form-label", "form-label-danger");
+	div.appendChild(error);
+
+	return new ValidatedInput(div, input, error);
 }

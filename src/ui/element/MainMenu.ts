@@ -4,7 +4,7 @@ import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 import {registerClickListener} from "../UIEventResolver";
-import {buildValidatedInput} from "../type/ValidatedInput";
+import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, showUIElement} from "../UIManager";
 //import {openMultiplayerLobby} from "./MultiplayerLobby";
@@ -25,7 +25,7 @@ registerClickListener("btnStartSingleplayer", () => {
 registerClickListener("linkImprint", () => showPanel("Site Notice"));
 registerClickListener("linkPrivacy", () => showPanel("Privacy Policy"));
 
-buildValidatedInput("playerNameInput", "playerNameInputValidation")
+loadValidatedInput("playerNameInput", "playerNameInputValidation")
 	.onInput((_value, valid) => {
 		//btnStartMultiplayer.disabled = !valid;
 		btnStartSingleplayer.disabled = !valid;
@@ -34,4 +34,4 @@ buildValidatedInput("playerNameInput", "playerNameInputValidation")
 	.addRule("Name contains invalid characters.", value => playerNameValidationExp.test(value))
 	.addRule("Name is too short (must be at least 3 characters).", value => value.length >= 3)
 	.addRule("Name is too long (32 characters maximum).", value => value.length <= 32)
-	.linkSetting(getSettingObject("player-name"));
+	.linkSetting(getSettingObject("player-name"), false);

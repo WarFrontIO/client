@@ -9,6 +9,8 @@ import {BooleanSetting} from "../../util/settings/BooleanSetting";
 import {UIElement} from "../UIElement";
 import {AssertionFailedException} from "../../util/Exceptions";
 import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
+import {StringSetting} from "../../util/settings/StringSetting";
+import {buildValidatedInput} from "../type/ValidatedInput";
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
@@ -84,5 +86,6 @@ settingAddRegistry.register(setting => {
 
 registerSettingType(BooleanSetting, setting => buildCheckboxInput("description").linkSetting(setting));
 registerSettingType(SingleSelectSetting, setting => buildSingleSelect("description").linkSetting(setting));
+registerSettingType(StringSetting, setting => buildValidatedInput("placeholder", "description").linkSetting(setting));
 
 type Annotated<T> = T & { settingMagicRendererId: number };

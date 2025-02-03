@@ -443,7 +443,7 @@ p {
 }
 
 input.form-control {
-	display: block;
+	display: inline-block;
 	border: none;
 	padding: 0.375em;
 	line-height: 1em;

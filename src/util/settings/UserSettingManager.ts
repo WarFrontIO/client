@@ -4,6 +4,7 @@ import {Setting, SettingCategory} from "./Setting";
 import {SingleSelectSetting} from "./SingleSelectSetting";
 import {GameTheme} from "../../renderer/GameTheme";
 import {DebugRendererLayer} from "../../renderer/layer/debug/DebugRenderer";
+import {StringSetting} from "./StringSetting";
 
 export const categoryGeneral = {name: "General"} as SettingCategory;
 export const interfaceGeneral = {name: "Game Interface"} as SettingCategory;
@@ -16,7 +17,7 @@ const registry = SettingRegistry.init("wf")
 	.register("theme", new SingleSelectSetting<GameTheme>("pastel", categoryGeneral))
 	.registerString("player-name", "Unknown Player", null)
 	.registerBoolean("hud-clock", true, interfaceGeneral)
-	.registerString("game-server", "warfront.io", categoryAdvanced)
+	.register("game-server", StringSetting.asAddress("https://warfront.io", categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
 
 /**
