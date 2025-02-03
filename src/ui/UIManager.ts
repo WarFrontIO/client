@@ -27,14 +27,14 @@ export function registerUIElement(name: string, element: UIElement) {
  * @throws InvalidArgumentException if the child element is not attached to a registered UI element
  */
 export function registerChildElement(child: UIElement) {
-	let current = child.getElement().parentElement;
+	let current: HTMLElement | null = child.getElement();
 	while (current && !index.has(current.id)) {
 		current = current.parentElement;
 	}
 	if (!current) {
 		throw new InvalidArgumentException("Child element is not attached to a registered UI element");
 	}
-	children.get(current.id)?.add(child);
+	if (current !== child.getElement()) children.get(current.id)?.add(child);
 }
 
 /**
