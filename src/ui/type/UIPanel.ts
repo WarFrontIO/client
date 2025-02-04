@@ -7,12 +7,18 @@ import {ContentField} from "./ContentField";
  * A panel element.
  */
 export class UIPanel extends ContentField {
+	protected readonly element: HTMLDialogElement;
 	protected readonly titleElement: HTMLElement;
 	protected closeHandler: () => void = () => {};
 
 	constructor(element: HTMLElement, bodyElement: HTMLElement, titleElement: HTMLElement) {
 		super(element, bodyElement);
 		this.titleElement = titleElement;
+	}
+
+	initDefaultListeners() {
+		this.showListeners.register(() => this.element.showModal());
+		this.hideListeners.register(() => this.element.close());
 	}
 
 	/**
@@ -49,11 +55,10 @@ export class UIPanel extends ContentField {
  * @returns The panel element
  */
 export function buildPanel(name: string) {
-	const outer = document.createElement("div");
+	const outer = document.createElement("dialog");
 	outer.id = name;
 	outer.classList.add("layout-window", "flex-centered", "background-blur");
 	outer.style.zIndex = "100";
-	outer.style.display = "none";
 
 	const inner = document.createElement("div");
 	inner.classList.add("panel", "w-100");
@@ -63,6 +68,7 @@ export function buildPanel(name: string) {
 	close.classList.add("icon-fixed", "icon-close");
 	close.id = name + "Close";
 	close.tabIndex = 0;
+	close.autofocus = true;
 	inner.appendChild(close);
 
 	const titleElement = document.createElement("h2");
@@ -77,9 +83,14 @@ export function buildPanel(name: string) {
 	document.body.appendChild(outer);
 
 	const panel = new UIPanel(outer, body, titleElement);
+	registerUIElement(name, panel);
+	panel.setCloseHandler(() => hideUIElement(name));
+	outer.addEventListener("cancel", event => {
+		event.preventDefault();
+		panel.getCloseHandler()();
+	});
 	registerClickListener(close, () => panel.getCloseHandler()());
 	blockInteraction(outer);
-	registerUIElement(name, panel);
 	return panel;
 }
 
@@ -93,7 +104,6 @@ const defaultPanel = buildPanel("defaultPanel");
 export function showPanel(title: string, ...content: UIElement[]): UIPanel {
 	defaultPanel.setTitle(title).setContent(...content);
 	showUIElement("defaultPanel");
-	defaultPanel.setCloseHandler(() => hidePanel());
 	return defaultPanel;
 }
 

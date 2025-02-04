@@ -44,7 +44,7 @@ export function registerChildElement(child: UIElement) {
 export function showUIElement(name: string) {
 	const element = index.get(name);
 	if (element) {
-		element.getElement().style.display = "";
+		if (openElements.has(name)) return;
 		element.showListeners.broadcast();
 		children.get(name)?.forEach(child => child.showListeners.broadcast());
 		openElements.add(name);
@@ -60,7 +60,7 @@ export function showUIElement(name: string) {
 export function hideUIElement(name: string) {
 	const element = index.get(name);
 	if (element) {
-		element.getElement().style.display = "none";
+		if (!openElements.has(name)) return;
 		element.hideListeners.broadcast();
 		children.get(name)?.forEach(child => child.hideListeners.broadcast());
 		openElements.delete(name);
@@ -88,6 +88,15 @@ export function getUIElement(name: string): UIElement {
 		throw new InvalidArgumentException(`UI element with name ${name} is not registered`);
 	}
 	return element;
+}
+
+/**
+ * Gets the top UI element.
+ * @returns The top UI element or null if none are open
+ */
+export function getTopUIElement(): UIElement | null {
+	const element = Array.from(openElements).pop();
+	return element ? getUIElement(element) : null;
 }
 
 registerSettingListener("theme", theme => {

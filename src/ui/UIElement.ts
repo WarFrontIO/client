@@ -14,6 +14,12 @@ export abstract class UIElement {
 	 */
 	constructor(element: ElementId) {
 		this.element = resolveElement(element);
+		this.initDefaultListeners();
+	}
+
+	protected initDefaultListeners() {
+		this.showListeners.register(() => this.element.style.display = "");
+		this.hideListeners.register(() => this.element.style.display = "none");
 	}
 
 	/**
