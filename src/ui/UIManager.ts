@@ -1,7 +1,7 @@
 import {UIElement} from "./UIElement";
 import {InvalidArgumentException} from "../util/Exceptions";
 import {getSetting, getSettingObject, registerSettingListener} from "../util/settings/UserSettingManager";
-import {StaticUIRoot} from "./type/StaticUIRoot";
+import {ContentField} from "./type/ContentField";
 
 const index: Map<string, UIElement> = new Map();
 const children: Map<string, Set<UIElement>> = new Map();
@@ -119,7 +119,7 @@ function loadStaticElement(id: string) {
 	element.style.position = "absolute";
 	element.style.width = "100%";
 	element.style.height = "100%";
-	registerUIElement(id, new StaticUIRoot(element));
+	registerUIElement(id, new ContentField(element, element));
 }
 
 // The following lines are filled in by the build process

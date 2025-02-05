@@ -1,4 +1,4 @@
-import {Anchor, UIElement} from "../UIElement";
+import {Anchor, Attachment, UIElement} from "../UIElement";
 
 export class ContentField extends UIElement {
 	protected readonly bodyElement: HTMLElement;
@@ -26,6 +26,20 @@ export class ContentField extends UIElement {
 	 */
 	anchor(child: UIElement, anchor: Anchor): this {
 		child.getElement().classList.add("anchor-" + Anchor[anchor].toLowerCase().replace("_", "-"));
+		return this.add(child);
+	}
+
+	/**
+	 * Attaches the given child element to this element.
+	 * This aligns the child element to the given attachment relative to this element.
+	 * Note that the attachment is relative to the parent element.
+	 * Also note, that if an element is already attached to the given attachment, they will overlap.
+	 * @param child The child element to attach
+	 * @param attachment The attachment of the child element
+	 */
+	attach(child: UIElement, attachment: Attachment): this {
+		const className = "attach-" + Attachment[attachment].toLowerCase();
+		child.getElement().classList.add(className);
 		return this.add(child);
 	}
 
