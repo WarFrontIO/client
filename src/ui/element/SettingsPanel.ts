@@ -1,7 +1,7 @@
-import {buildPanel} from "../type/UIPanel";
+import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, ContentField} from "../type/ContentField";
 import {Setting, SettingCategory} from "../../util/settings/Setting";
-import {buildIcon, buildSectionHeader} from "../type/TextNode";
+import {buildButton, buildIcon, buildSectionHeader} from "../type/TextNode";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
@@ -11,6 +11,7 @@ import {AssertionFailedException} from "../../util/Exceptions";
 import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 import {StringSetting} from "../../util/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
+import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
@@ -87,5 +88,18 @@ settingAddRegistry.register(setting => {
 registerSettingType(BooleanSetting, setting => buildCheckboxInput("description").linkSetting(setting));
 registerSettingType(SingleSelectSetting, setting => buildSingleSelect("description").linkSetting(setting));
 registerSettingType(StringSetting, setting => buildValidatedInput("placeholder", "description").linkSetting(setting));
+registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildButton("description").onClick(() => showMultiSelectPanel(setting)));
+
+/**
+ * Shows a multi-select panel.
+ * @param setting The setting to show the panel for
+ */
+export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) {
+	const content = [];
+	for (const [key, option] of Object.entries(setting.get())) {
+		content.push(buildCheckboxInput(option.label).linkMultiSetting(setting, key));
+	}
+	showPanel("title", ...content);
+}
 
 type Annotated<T> = T & { settingMagicRendererId: number };

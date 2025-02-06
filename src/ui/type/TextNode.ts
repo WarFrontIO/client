@@ -87,3 +87,14 @@ export function buildIcon(icon: string, ...classes: string[]): TextNode {
 	element.classList.add("icon-fixed", "icon-" + icon, ...classes);
 	return new TextNode(element);
 }
+
+/**
+ * Builds a button element.
+ * @param text The text of the button
+ * @returns The button element
+ */
+export function buildButton(text: string): TextNode {
+	const element = document.createElement("button");
+	element.classList.add("btn", "btn-primary");
+	return new TextNode(element).setText(text);
+}

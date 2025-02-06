@@ -1,6 +1,7 @@
 import {UIElement} from "../UIElement";
 import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
 import {Setting} from "../../util/settings/Setting";
+import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
 
 export class CheckboxInput extends UIElement {
 	private readonly inputElement: HTMLInputElement;
@@ -30,6 +31,17 @@ export class CheckboxInput extends UIElement {
 	linkSetting(setting: Setting<boolean>): this {
 		this.handleRegistry(setting.getRegistry(), value => this.setChecked(value));
 		this.onChanged(value => setting.set(value).save());
+		return this;
+	}
+
+	/**
+	 * Links the checkbox to a multi-select setting.
+	 * @param setting The multi-select setting
+	 * @param key The key of the option to link
+	 */
+	linkMultiSetting<T extends string>(setting: MultiSelectSetting<unknown, { [K in T]: Option<unknown> }>, key: T): this {
+		this.handleRegistry(setting.getRegistry(), (_, obj) => this.setChecked(obj.isSelected(key)));
+		this.onChanged(checked => setting.select(key, checked).save());
 		return this;
 	}
 }

@@ -80,7 +80,7 @@ export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends 
 	}
 }
 
-type Option<T> = {
+export type Option<T> = {
 	value: T;
 	label: string;
 	status: boolean;
