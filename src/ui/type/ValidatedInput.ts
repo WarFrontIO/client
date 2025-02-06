@@ -93,7 +93,7 @@ export class ValidatedInput extends UIElement {
 	 * @param resetOnInvalid Whether to reset the setting to its default value if the input is invalid
 	 */
 	linkSetting(setting: StringSetting, resetOnInvalid: boolean = true): this {
-		setting.registerListener(value => this.input.value = value);
+		this.handleRegistry(setting.getRegistry(), value => this.input.value = value);
 		this.onBlur((value, valid) => {
 			if (valid || !resetOnInvalid) {
 				setting.set(value).save();

@@ -4,7 +4,6 @@ import {getSetting, getSettingObject, registerSettingListener} from "../util/set
 import {ContentField} from "./type/ContentField";
 
 const index: Map<string, UIElement> = new Map();
-const children: Map<string, Set<UIElement>> = new Map();
 const openElements: Set<string> = new Set();
 
 /**
@@ -17,24 +16,6 @@ export function registerUIElement(name: string, element: UIElement) {
 		throw new InvalidArgumentException(`UI element with name ${name} is already registered`);
 	}
 	index.set(name, element);
-	children.set(name, new Set());
-}
-
-/**
- * Registers a child element.
- * This is needed to propagate events upwards.
- * @param child The child element
- * @throws InvalidArgumentException if the child element is not attached to a registered UI element
- */
-export function registerChildElement(child: UIElement) {
-	let current: HTMLElement | null = child.getElement();
-	while (current && !index.has(current.id)) {
-		current = current.parentElement;
-	}
-	if (!current) {
-		throw new InvalidArgumentException("Child element is not attached to a registered UI element");
-	}
-	if (current !== child.getElement()) children.get(current.id)?.add(child);
 }
 
 /**
@@ -46,7 +27,6 @@ export function showUIElement(name: string) {
 	if (element) {
 		if (openElements.has(name)) return;
 		element.showListeners.broadcast();
-		children.get(name)?.forEach(child => child.showListeners.broadcast());
 		openElements.add(name);
 	} else {
 		console.warn(`UI element with name ${name} is not registered`);
@@ -62,7 +42,6 @@ export function hideUIElement(name: string) {
 	if (element) {
 		if (!openElements.has(name)) return;
 		element.hideListeners.broadcast();
-		children.get(name)?.forEach(child => child.hideListeners.broadcast());
 		openElements.delete(name);
 	} else {
 		console.warn(`UI element with name ${name} is not registered`);

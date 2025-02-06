@@ -8,5 +8,5 @@ import {ManagedEventHandlerRegistry} from "./ManagedEventHandlerRegistry";
  * @param width The new width of the window in pixels.
  * @param height The new height of the window in pixels.
  */
-export const windowResizeHandler: ManagedEventHandlerRegistry<[number, number]> = new ManagedEventHandlerRegistry(true, listener => listener(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio));
+export const windowResizeHandler: ManagedEventHandlerRegistry<[number, number]> = new ManagedEventHandlerRegistry(listener => listener(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio));
 window.addEventListener("resize", () => windowResizeHandler.broadcast());

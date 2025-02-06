@@ -1,5 +1,5 @@
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
 import {IllegalStateException, UnsupportedDataException} from "../Exceptions";
+import {AsymmetricEventHandlerRegistry, ManagedEventHandlerRegistry} from "../../event/ManagedEventHandlerRegistry";
 
 export abstract class Setting<T> {
 	readonly abstract type: string;
@@ -11,7 +11,7 @@ export abstract class Setting<T> {
 	private readonly category: SettingCategory | null;
 	private readonly version: number;
 
-	protected registry: EventHandlerRegistry<[T, Setting<T>]> = new EventHandlerRegistry();
+	protected registry: AsymmetricEventHandlerRegistry<[T], [Setting<T>]> = new AsymmetricEventHandlerRegistry((listener, value) => listener(value ?? this.value, this), listener => this.initialized && listener(this.value, this));
 	protected readonly updaters: Record<string, (value: string) => string> = {};
 
 	constructor(defaultValue: T, category: SettingCategory | null = null, version: number = 0) {
@@ -35,7 +35,7 @@ export abstract class Setting<T> {
 	 * @param value The value to set
 	 */
 	set(value: T) {
-		this.registry.broadcast(value, this);
+		this.registry.broadcast(value);
 		this.value = value;
 		this.initialized = true;
 		return this;
@@ -76,7 +76,13 @@ export abstract class Setting<T> {
 	 */
 	registerListener(callback: (value: T, obj: this) => void): void {
 		this.registry.register(callback as (value: T, obj: Setting<T>) => void);
-		if (this.initialized) callback(this.value, this);
+	}
+
+	/**
+	 * @returns the registry for this setting
+	 */
+	getRegistry<R extends Setting<T> = this>(this: R) {
+		return this.registry as unknown as ManagedEventHandlerRegistry<[T, R]>;
 	}
 
 	/**
@@ -108,7 +114,7 @@ export abstract class Setting<T> {
 	 */
 	parse(value: string, version: number): void {
 		this.fromString(this.applyUpdaters(value, version));
-		if (this.initialized) this.registry.broadcast(this.value, this);
+		if (this.initialized) this.registry.broadcast(this.value);
 	}
 
 	/**

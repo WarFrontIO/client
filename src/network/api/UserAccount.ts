@@ -24,4 +24,4 @@ export function getUserAccount(): UserAccount | null {
 	return userAccount;
 }
 
-export const accountSwitchHandler: ManagedEventHandlerRegistry<[UserAccount | null]> = new ManagedEventHandlerRegistry(true, listener => listener(userAccount));
+export const accountSwitchHandler: ManagedEventHandlerRegistry<[UserAccount | null]> = new ManagedEventHandlerRegistry(listener => listener(userAccount));

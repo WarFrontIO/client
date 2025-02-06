@@ -28,7 +28,7 @@ export class CheckboxInput extends UIElement {
 	 * @param setting The setting
 	 */
 	linkSetting(setting: Setting<boolean>): this {
-		setting.registerListener(value => this.setChecked(value));
+		this.handleRegistry(setting.getRegistry(), value => this.setChecked(value));
 		this.onChanged(value => setting.set(value).save());
 		return this;
 	}

@@ -2,10 +2,13 @@ import {Anchor, Attachment, UIElement} from "../UIElement";
 
 export class ContentField extends UIElement {
 	protected readonly bodyElement: HTMLElement;
+	protected children: UIElement[] = [];
 
 	constructor(element: HTMLElement, bodyElement: HTMLElement) {
 		super(element);
 		this.bodyElement = bodyElement;
+		this.showListeners.register(() => this.children.forEach(child => child.showListeners.broadcast()));
+		this.hideListeners.register(() => this.children.forEach(child => child.hideListeners.broadcast()));
 	}
 
 	/**
@@ -14,6 +17,7 @@ export class ContentField extends UIElement {
 	 */
 	add(child: UIElement): this {
 		this.bodyElement.appendChild(child.getElement());
+		this.children.push(child);
 		return this;
 	}
 
@@ -49,6 +53,8 @@ export class ContentField extends UIElement {
 	 */
 	setContent(...content: UIElement[]): this {
 		this.bodyElement.replaceChildren(...content.map(child => child.getElement()));
+		this.children.forEach(child => child.destroy());
+		this.children = content;
 		return this;
 	}
 
@@ -60,6 +66,11 @@ export class ContentField extends UIElement {
 	addBodyClass(...classes: string[]): this {
 		this.bodyElement.classList.add(...classes);
 		return this;
+	}
+
+	destroy() {
+		super.destroy();
+		this.children.forEach(child => child.destroy());
 	}
 }
 

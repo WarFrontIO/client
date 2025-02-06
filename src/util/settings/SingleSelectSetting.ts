@@ -1,11 +1,11 @@
 import {Setting, SettingCategory} from "./Setting";
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {AsymmetricEventHandlerRegistry} from "../../event/ManagedEventHandlerRegistry";
 
 export class SingleSelectSetting<T> extends Setting<T> {
 	readonly type = "single-select";
 
 	private options: Record<string, Option<T>> = {};
-	private optionRegistry: EventHandlerRegistry<[string, Option<T>]> = new EventHandlerRegistry();
+	private optionRegistry: AsymmetricEventHandlerRegistry<[string, Option<T>], never[]> = new AsymmetricEventHandlerRegistry((listener, key, option) => listener(key, option), listener => Object.entries(this.options).forEach(([key, option]) => listener(key, option)));
 	private selected: string;
 
 	constructor(defaultId: string, category: SettingCategory | null, version: number = 0) {
@@ -44,9 +44,14 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	 */
 	registerOptionListener(callback: (key: string, option: Option<T>) => void) {
 		this.optionRegistry.register(callback);
-		for (const key in this.options) {
-			callback(key, this.options[key]);
-		}
+	}
+
+	/**
+	 * Returns the registry for option listeners.
+	 * @returns The registry for option listeners
+	 */
+	getOptionRegistry() {
+		return this.optionRegistry;
 	}
 
 	/**

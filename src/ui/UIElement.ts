@@ -1,12 +1,12 @@
 import {InvalidArgumentException} from "../util/Exceptions";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
-import {registerClickListener, registerDragListener, registerHoverListener, registerMultiTouchListener, registerScrollListener} from "./UIEventResolver";
-import {registerChildElement} from "./UIManager";
+import {registerClickListener, registerDragListener, registerHoverListener, registerMultiTouchListener, registerScrollListener, removeInteractionListeners} from "./UIEventResolver";
 
 export abstract class UIElement {
 	protected readonly element: HTMLElement;
 	readonly showListeners: EventHandlerRegistry<[]> = new EventHandlerRegistry();
 	readonly hideListeners: EventHandlerRegistry<[]> = new EventHandlerRegistry();
+	private readonly destroyList: (() => void)[] = [];
 
 	/**
 	 * Creates a new UI element.
@@ -47,7 +47,6 @@ export abstract class UIElement {
 	onShow(callback: () => void): this {
 		this.makeResolvable();
 		this.showListeners.register(callback);
-		registerChildElement(this);
 		return this;
 	}
 
@@ -101,6 +100,25 @@ export abstract class UIElement {
 		this.makeResolvable();
 		registerHoverListener(this.element, callback);
 		return this;
+	}
+
+	/**
+	 * Calls a register function and an unregister function after the element is destroyed.
+	 * @param registry The registry to handle
+	 * @param callback The callback to register
+	 */
+	protected handleRegistry<T extends unknown[]>(registry: EventHandlerRegistry<T>, callback: (...args: T) => unknown) {
+		registry.register(callback);
+		this.destroyList.push(() => registry.unregister(callback));
+	}
+
+	/**
+	 * Removes all listeners from this UI element.
+	 * Call this method when the element is no longer needed to prevent memory leaks.
+	 */
+	destroy() {
+		removeInteractionListeners(this.element.id);
+		this.destroyList.forEach(destroy => destroy());
 	}
 
 	/**

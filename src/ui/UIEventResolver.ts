@@ -199,3 +199,18 @@ export function blockInteraction(element: HTMLElement | string): void {
 	subscribers[InteractionType.HOVER].set(resolved.id, {onHover: () => {}});
 	subscribers[InteractionType.KEYBOARD].set(resolved.id, {onKeyDown: () => {}, onKeyUp: () => {}});
 }
+
+/**
+ * Destroys the interaction listeners for the given element.
+ * @param element The element to destroy the listeners for
+ */
+export function removeInteractionListeners(element: string): void {
+	subscribers[InteractionType.CLICK].delete(element);
+	subscribers[InteractionType.DRAG].delete(element);
+	subscribers[InteractionType.SCROLL].delete(element);
+	subscribers[InteractionType.MULTITOUCH].delete(element);
+	subscribers[InteractionType.HOVER].delete(element);
+	subscribers[InteractionType.KEYBOARD].delete(element);
+	keyDownMap.delete(element);
+	keyUpMap.delete(element);
+}
