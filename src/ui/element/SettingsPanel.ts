@@ -12,6 +12,7 @@ import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 import {StringSetting} from "../../util/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
 import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
+import {getUIElement} from "../UIManager";
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
@@ -53,7 +54,7 @@ settingAddRegistry.register(setting => {
 	if (!category) return; // Settings without a category are not displayed
 	let content = categories.get(category);
 	if (!content) {
-		content = buildContainer("settings-category", "grid", "grid-2col").add(buildSectionHeader(category.name));
+		content = buildContainer("settings-category").add(buildSectionHeader(category.name));
 		contentContainer.add(content);
 
 		const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
@@ -88,7 +89,7 @@ settingAddRegistry.register(setting => {
 registerSettingType(BooleanSetting, setting => buildCheckboxInput("description").linkSetting(setting));
 registerSettingType(SingleSelectSetting, setting => buildSingleSelect("description").linkSetting(setting));
 registerSettingType(StringSetting, setting => buildValidatedInput("placeholder", "description").linkSetting(setting));
-registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildButton("description").onClick(() => showMultiSelectPanel(setting)));
+registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildContainer().add(buildButton("description").onClick(() => showMultiSelectPanel(setting))));
 
 /**
  * Shows a multi-select panel.
@@ -101,5 +102,17 @@ export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record
 	}
 	showPanel("title", ...content);
 }
+
+const observer = new MutationObserver(() => {
+	if (!currentCategory) return;
+	const category = categories.get(currentCategory);
+	if (!category || !category.getElement().checkVisibility()) return;
+
+	const rowGap = parseFloat(getComputedStyle(category.getElement()).rowGap);
+	const height = category.getChildren().reduce((sum, child) => sum + child.getClientHeight() + rowGap, 0);
+	const halfHeight = category.getChildren().reduce((sum, child) => sum > height / 2 ? sum : sum + child.getClientHeight() + rowGap, 0);
+	category.getElement().style.maxHeight = `${halfHeight + 5}px`;
+});
+observer.observe(getUIElement("SettingsPanel").getElement(), {childList: true, subtree: true, attributes: true, characterData: true});
 
 type Annotated<T> = T & { settingMagicRendererId: number };

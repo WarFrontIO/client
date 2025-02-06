@@ -659,6 +659,10 @@ input:checked + .slider:before {
 	.settings-tab-container {
 		display: none;
 	}
+
+	.settings-category {
+		max-height: none !important;
+	}
 }
 
 @media screen and (min-width: 768px) {
@@ -669,7 +673,7 @@ input:checked + .slider:before {
 	}
 
 	.settings-category-container {
-		height: 100%;
+		width: 100%;
 		overflow: auto;
 		margin-left: 2em;
 	}
@@ -679,7 +683,16 @@ input:checked + .slider:before {
 	}
 
 	.settings-category-active {
-		display: block !important;
+		display: flex !important;
+		flex-direction: column;
+		flex-wrap: wrap;
+		gap: 0.25em 0;
+		width: 100%;
+		min-height: 100%;
+	}
+
+	.settings-category > * {
+		width: 50%;
 	}
 }
 

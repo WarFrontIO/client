@@ -113,6 +113,23 @@ export abstract class UIElement {
 	}
 
 	/**
+	 * @returns The height of this UI element
+	 */
+	getClientHeight(): number {
+		return this.element.getBoundingClientRect().height + parseFloat(getComputedStyle(this.element).marginTop) + parseFloat(getComputedStyle(this.element).marginBottom);
+	}
+
+	/**
+	 * Adds a class to this UI element.
+	 * @param classes The classes
+	 * @returns This UI element
+	 */
+	addBodyClass(...classes: string[]): this {
+		this.element.classList.add(...classes);
+		return this;
+	}
+
+	/**
 	 * Removes all listeners from this UI element.
 	 * Call this method when the element is no longer needed to prevent memory leaks.
 	 */

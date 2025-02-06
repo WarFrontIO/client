@@ -87,6 +87,10 @@ export class ValidatedInput extends UIElement {
 		this.inputListeners.broadcast(value, this.input.checkValidity());
 	}
 
+	getClientHeight(): number {
+		return this.errorElement.checkVisibility() ? super.getClientHeight() : super.getClientHeight() + this.errorElement.clientHeight;
+	}
+
 	/**
 	 * Links the input element to a setting.
 	 * @param setting The setting

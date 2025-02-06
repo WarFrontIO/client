@@ -59,6 +59,15 @@ export class ContentField extends UIElement {
 	}
 
 	/**
+	 * Gets the children of this panel.
+	 * For elements that frequently change their size, this should return the maximum size.
+	 * @returns The children of this panel
+	 */
+	getChildren(): UIElement[] {
+		return this.children;
+	}
+
+	/**
 	 * Adds a class to the body of this panel.
 	 * @param classes The classes
 	 * @returns This panel
