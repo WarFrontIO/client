@@ -36,7 +36,7 @@ mapTransformHandler.scale.register(territoryRenderer.onMapScale);
 mapTransformHandler.move.register(territoryRenderer.onMapMove);
 gameLoadRegistry.register(territoryRenderer.init.bind(territoryRenderer));
 
-registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(this));
+registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(territoryRenderer.manager));
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
 	//TODO: this needs to be less magical for clearing
