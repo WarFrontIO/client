@@ -29,7 +29,7 @@ export function mapFromId(id: number): GameMap {
 		throw new InvalidArgumentException(`Map with id ${id} not found`);
 	}
 	const decoded = decodeMap(data.data);
-	const map = new GameMap(data.name, decoded.width, decoded.height, decoded.types);
+	const map = new GameMap(data.name, id, decoded.width, decoded.height, decoded.types);
 	for (let i = 0; i < decoded.tiles.length; i++) {
 		map.setTileId(i, decoded.tiles[i]);
 	}

@@ -332,6 +332,41 @@ input:focus + .slider {
 	color: white;
 }
 
+.data-copy-title {
+	border-color: var(--color-secondary);
+}
+
+.data-copy-content {
+	background-color: var(--color-secondary-medium);
+	border-color: var(--color-secondary);
+}
+
+/* Tooltips */
+
+.tooltip-primary {
+	background-color: var(--color-primary);
+	color: white;
+	border-color: var(--color-primary-light);
+}
+
+.tooltip-secondary {
+	background-color: var(--color-secondary);
+	color: black;
+	border-color: var(--color-secondary-light);
+}
+
+.tooltip-danger {
+	background-color: var(--color-danger);
+	color: white;
+	border-color: var(--color-danger-light);
+}
+
+.tooltip-success {
+	background-color: var(--color-success);
+	color: white;
+	border-color: var(--color-success-light);
+}
+
 /* Settings */
 
 .settings-tab-container {

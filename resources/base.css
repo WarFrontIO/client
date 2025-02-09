@@ -513,6 +513,53 @@ input:checked + .slider:before {
 	margin-right: 1em;
 }
 
+.data-copy-title {
+	border: 1px solid;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+}
+
+.data-copy-content {
+	border: 1px solid;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+	margin-right: 1em;
+	cursor: pointer;
+}
+
+.data-copy-title + .data-copy-content {
+	border-left: none;
+}
+
+/* Tooltips */
+
+.tooltip {
+	z-index: 100;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 145%;
+	padding: 0.5em;
+	border-radius: 2em;
+	border: 1px solid;
+	width: max-content;
+	max-width: 35vw;
+}
+
+.tooltip::after {
+	content: "";
+	position: absolute;
+	top: calc(100% - 0.32em);
+	height: 0.75em;
+	width: 0.75em;
+	background: inherit;
+	transform: translateX(-50%) rotate(45deg);
+	left: 50%;
+	border-bottom: inherit;
+	border-right: inherit;
+	clip-path: polygon(100% 0, 100% 100%, 0 100%, 0 75%, 75% 0);
+}
+
 /* General elements */
 
 .footer {

@@ -49,6 +49,14 @@ export function registerSettingType<T>(type: T extends Setting<infer _> ? { prot
 	}
 }
 
+/**
+ * Get the tab for a setting category.
+ * @param category The category
+ */
+export function getSettingTab(category: SettingCategory) {
+	return categories.get(category);
+}
+
 settingAddRegistry.register(setting => {
 	const category = setting.getCategory();
 	if (!category) return; // Settings without a category are not displayed

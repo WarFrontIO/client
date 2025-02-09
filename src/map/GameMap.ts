@@ -5,6 +5,7 @@ import {SafeMap} from "../util/SafeMap";
 
 export class GameMap {
 	private readonly name: string;
+	readonly id: number;
 	readonly width: number;
 	readonly height: number;
 	private readonly tileTypes: TileType[];
@@ -17,8 +18,9 @@ export class GameMap {
 	readonly distanceMap: Int16Array;
 	readonly boatTargets: SafeMap<number, { tile: number, distance: number, path: number[] }[]> = new SafeMap(() => []);
 
-	constructor(name: string, width: number, height: number, tileTypes: TileTypeBase[]) {
+	constructor(name: string, id: number, width: number, height: number, tileTypes: TileTypeBase[]) {
 		this.name = name;
+		this.id = id;
 		this.width = width;
 		this.height = height;
 		this.tiles = new Uint16Array(width * height);
