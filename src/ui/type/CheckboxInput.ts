@@ -9,15 +9,29 @@ export class CheckboxInput extends UIElement {
 
 	constructor(element: HTMLElement, inputElement: HTMLInputElement) {
 		super(element);
-		inputElement.addEventListener("change", () => {
-			this.changeListeners.broadcast(this.inputElement.checked);
-		});
+		inputElement.addEventListener("change", () => this.changeListeners.broadcast(this.inputElement.checked));
 		this.inputElement = inputElement;
 	}
 
 	/**
+	 * Sets the value of the checkbox.
+	 * @param checked The value to set
+	 */
+	setChecked(checked: boolean): this {
+		this.inputElement.checked = checked;
+		return this;
+	}
+
+	/**
 	 * Returns whether the checkbox is checked.
-	 * @param callback
+	 */
+	isChecked(): boolean {
+		return this.inputElement.checked;
+	}
+
+	/**
+	 * Adds a listener for the change event.
+	 * @param callback The callback to invoke when the change event is triggered
 	 */
 	onChanged(callback: (checked: boolean) => void): this {
 		this.changeListeners.register(callback);
