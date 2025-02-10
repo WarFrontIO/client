@@ -26,24 +26,25 @@ let socketTimeout: ReturnType<typeof setTimeout> | undefined;
  */
 export function connectToServer(host: string, abortSignal: AbortSignal | undefined = undefined): Promise<void> {
 	return new Promise((resolve, reject) => {
-		const secure = !host.startsWith("http://");
-		const baseHost = host.replace(/^https?:\/\/|\/$/g, "");
+		const url = new URL(host);
 		let authPromise: Promise<string | undefined>;
-		if (baseHost === "warfront.io") {
-			host = "wss://gateway.warfront.io/";
+		if (url.hostname === "warfront.io" || url.hostname === "gateway.warfront.io") {
+			url.protocol = "wss:";
+			url.hostname = "gateway.warfront.io";
 			authPromise = getUserToken().refresh().then(token => token.getRawToken());
 		} else {
-			host = (secure ? "wss://" : "ws://") + baseHost + "/";
+			url.protocol = url.protocol === "http:" || url.protocol === "ws:" ? "ws:" : "wss:";
 			authPromise = new Promise((resolve) => {
-				requestTokenExternal({host: baseHost})
+				requestTokenExternal({host: url.hostname})
 					.on(200, token => resolve(token))
 					.catch(() => resolve(undefined));
 			});
 		}
+		url.searchParams.set("v", PROTOCOL_VERSION.toString());
 		if (openSocket !== null) {
 			openSocket.close();
 		}
-		openSocket = new WebSocket(`${host}?v=${PROTOCOL_VERSION}`);
+		openSocket = new WebSocket(url.href);
 		openSocket.binaryType = "arraybuffer";
 		openSocket.onopen = () => {
 			console.log("Socket opened");
