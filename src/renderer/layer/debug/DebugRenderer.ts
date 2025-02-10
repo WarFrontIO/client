@@ -21,9 +21,11 @@ class DebugRenderer extends CachedLayer {
 	updateLayers(layers: DebugRendererLayer[]): void {
 		this.mapLayers.length = 0;
 		this.liveLayers.length = 0;
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		for (const layer of layers) {
 			if (layer.useCache) {
 				this.mapLayers.push(layer);
+				layer.render(this.context);
 			} else {
 				this.liveLayers.push(layer);
 			}
