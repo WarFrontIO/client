@@ -4,6 +4,7 @@ import {Setting, SettingCategory} from "./Setting";
 export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends Setting<T> {
 	readonly type = "multi-select";
 	protected initialized: boolean = true; // We pretty much always only check all options, so an empty object is fine
+	protected initialEnabled: null | string[] = null;
 
 	static init<T = never>(category: SettingCategory | null, version: number = 0) {
 		return new MultiSelectSetting<T, {}>(category, version);
@@ -18,12 +19,12 @@ export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends 
 	 * @param key The key of the option. Must be unique, not contain ',' and shouldn't change in the future
 	 * @param value The value of the option
 	 * @param label The label of the option, displayed in the UI
-	 * @param defaultStatus The default status of the option
+	 * @param defaultStatus The default status of the option, only has an effect when the setting wasn't saved before. Adding additional default options at a later point should be handled using an updater instead
 	 * @throws InvalidArgumentException if the key contains ','
 	 */
 	option<K extends string, V>(key: K & Exclude<K, keyof T>, value: V, label: string, defaultStatus: boolean) {
 		if (key.includes(",")) throw new InvalidArgumentException("Key cannot contain ','");
-		(this.value as unknown as Record<K, Option<V>>)[key] = {value, label, status: defaultStatus};
+		(this.value as unknown as Record<K, Option<V>>)[key] = {value, label, status: this.initialEnabled ? this.initialEnabled.includes(key) : defaultStatus};
 		this.registry.broadcast(this.value); // Listeners need to be notified about new options
 		return this as unknown as MultiSelectSetting<S | V, T & Record<K, Option<V>>>;
 	}
@@ -76,6 +77,7 @@ export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends 
 		for (const key in this.value) {
 			this.value[key].status = selected.includes(key);
 		}
+		this.initialEnabled = selected;
 		return this;
 	}
 }
