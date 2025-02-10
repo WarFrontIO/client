@@ -382,3 +382,7 @@ input:focus + .slider {
 .settings-tab-active {
 	background-color: var(--color-primary);
 }
+
+.settings-category {
+	border-color: var(--color-primary-medium);
+}
