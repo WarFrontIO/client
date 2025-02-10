@@ -1,5 +1,4 @@
 import {gameMap} from "./GameData";
-import {onNeighbors} from "../util/MathUtil";
 import {territoryManager} from "./TerritoryManager";
 import {playerNameRenderingManager, PlayerNameUpdate} from "../renderer/manager/PlayerNameRenderingManager";
 
@@ -32,7 +31,7 @@ class BorderManager {
 		const result: BorderTransitionResult = {territory: [], attacker: [], defender: []};
 		for (const tile of tiles) {
 			let grade = 0;
-			onNeighbors(tile, (neighbor) => {
+			gameMap.onNeighbors(tile, (neighbor) => {
 				const owner = territoryManager.getOwner(neighbor);
 				if (owner === defender) {
 					//We don't need to fear handling conquered tiles here, as they should already have the attacker as owner

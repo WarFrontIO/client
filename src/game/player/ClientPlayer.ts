@@ -1,8 +1,8 @@
 import {Player} from "./Player";
-import {onNeighbors} from "../../util/MathUtil";
 import {HSLColor} from "../../util/HSLColor";
 import {areaCalculator} from "../../map/area/AreaCalculator";
 import {territoryManager} from "../TerritoryManager";
+import {gameMap} from "../GameData";
 
 let areaIndex: Uint16Array;
 
@@ -16,7 +16,7 @@ export class ClientPlayer extends Player {
 	addTile(tile: number) {
 		super.addTile(tile);
 
-		onNeighbors(tile, neighbor => {
+		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				areaIndex[areaCalculator.areaIndex[neighbor]]++;
 			}
@@ -26,7 +26,7 @@ export class ClientPlayer extends Player {
 	removeTile(tile: number) {
 		super.removeTile(tile);
 
-		onNeighbors(tile, neighbor => {
+		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				areaIndex[areaCalculator.areaIndex[neighbor]]--;
 			}

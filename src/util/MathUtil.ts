@@ -2,28 +2,6 @@ import {territoryManager} from "../game/TerritoryManager";
 import {gameMap} from "../game/GameData";
 
 /**
- * Call a closure on all neighbors of a tile.
- * @param tile The tile to get the neighbors of.
- * @param closure The closure to call on each neighbor.
- */
-export function onNeighbors(tile: number, closure: (tile: number) => void): void {
-	const x = tile % gameMap.width;
-	const y = Math.floor(tile / gameMap.width);
-	if (x > 0) {
-		closure(tile - 1);
-	}
-	if (x < gameMap.width - 1) {
-		closure(tile + 1);
-	}
-	if (y > 0) {
-		closure(tile - gameMap.width);
-	}
-	if (y < gameMap.height - 1) {
-		closure(tile + gameMap.width);
-	}
-}
-
-/**
  * Check if a tile borders a tile owned by a player.
  * @param tile The tile to check.
  * @param player The player to check for.

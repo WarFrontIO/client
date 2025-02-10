@@ -1,6 +1,6 @@
 import {Player} from "../player/Player";
 import {territoryManager} from "../TerritoryManager";
-import {bordersTile, onNeighbors} from "../../util/MathUtil";
+import {bordersTile} from "../../util/MathUtil";
 import {random} from "../Random";
 import {attackActionHandler} from "./AttackActionHandler";
 import {gameMap} from "../GameData";
@@ -114,7 +114,7 @@ export class AttackExecutor {
 	 * @param tile The tile that was added.
 	 */
 	handlePlayerTileAdd(tile: number) {
-		onNeighbors(tile, neighbor => {
+		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
 				const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor;
 				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(neighbor);

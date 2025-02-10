@@ -7,8 +7,6 @@ import {buildContainer, buildContentField} from "../type/ContentField";
 import {buildCopyableTextContainer} from "../type/CopyableTextContainer";
 import {Anchor} from "../UIElement";
 
-console.log("DebugList loaded");
-
 const tab = getSettingTab(categoryAdvanced);
 if (!tab) throw new Error("Settings tab not found");
 tab.add(buildContainer().add(buildButton("Debug Events").onClick(() => {

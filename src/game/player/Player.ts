@@ -1,8 +1,7 @@
 import {territoryManager} from "../TerritoryManager";
-import {onNeighbors} from "../../util/MathUtil";
 import {attackActionHandler} from "../attack/AttackActionHandler";
 import {HSLColor} from "../../util/HSLColor";
-import {gameMode} from "../GameData";
+import {gameMap, gameMode} from "../GameData";
 import {spawnManager} from "./SpawnManager";
 
 export class Player {
@@ -28,7 +27,7 @@ export class Player {
 	 */
 	addTile(tile: number): void {
 		this.territorySize++;
-		onNeighbors(tile, neighbor => {
+		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				this.waterTiles++;
 			}
@@ -45,7 +44,7 @@ export class Player {
 	 */
 	removeTile(tile: number): void {
 		this.territorySize--;
-		onNeighbors(tile, neighbor => {
+		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isWater(neighbor)) {
 				this.waterTiles--;
 			}
