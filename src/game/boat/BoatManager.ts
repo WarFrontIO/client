@@ -8,6 +8,7 @@ import {Player} from "../player/Player";
 import {bordersTile} from "../../util/MathUtil";
 import {gameMap} from "../GameData";
 import {validatePacket} from "../../network/PacketValidator";
+import {triggerDebugEvent} from "../../util/DebugData";
 
 class BoatManager {
 	private readonly boats: Boat[] = [];
@@ -75,6 +76,11 @@ class BoatManager {
 	 */
 	addBoat(owner: Player, start: number, end: number, power: number): void {
 		const path = calculateBoatWaypoints(start, end);
+
+		if ((path as (number | undefined)[]).includes(undefined)) {
+			triggerDebugEvent("Boat pathfinding invalid", `boat-path-undefined-${owner.id}`,
+				{name: "Map Id", type: "number", value: gameMap.id}, {name: "Start position", type: "number", value: start}, {name: "End position", type: "number", value: end});
+		}
 
 		if (path.length > 0) {
 			this.addBoatInternal(owner, path, power);
