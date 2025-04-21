@@ -2,6 +2,8 @@ import {DebugRendererLayer} from "./DebugRenderer";
 import {gameMap} from "../../../game/GameData";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
+//@module renderer-debug
+
 export class TerrainInfluenceRenderer implements DebugRendererLayer {
 	readonly useCache = true;
 

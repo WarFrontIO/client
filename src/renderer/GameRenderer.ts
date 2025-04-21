@@ -8,6 +8,8 @@ import {boatRenderer} from "./layer/BoatRenderer";
 import {debugRenderer} from "./layer/debug/DebugRenderer";
 import {gameStartRegistry} from "../game/Game";
 
+//@module renderer
+
 /**
  * Main renderer for anything canvas related in the game.
  * Paints images on multiple layers (in order) to the canvas.

@@ -4,6 +4,8 @@ import {GameQueueUpdatePacket} from "../../network/protocol/packet/game/GameQueu
 import {hidePanel, showPanel, updatePanel} from "../type/UIPanel";
 import {buildTextNode} from "../type/TextNode";
 
+//@module ui
+
 let abortController: AbortController | null = null;
 
 export function openMultiplayerLobby() {

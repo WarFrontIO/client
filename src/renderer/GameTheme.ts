@@ -2,6 +2,8 @@ import {HSLColor} from "../util/HSLColor";
 import {TileType} from "../map/codec/MapCodec";
 import {getSettingObject} from "../util/settings/UserSettingManager";
 
+//@module ui
+
 /**
  * All colors, fonts, and other theme-related properties should be passed through a theme object.
  * This allows for easy customization of the game's appearance.

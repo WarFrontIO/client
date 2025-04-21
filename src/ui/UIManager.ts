@@ -89,8 +89,7 @@ registerSettingListener("theme", theme => {
  * @param id The id of the static UI element
  * @throws InvalidArgumentException if the id is not a valid static UI element
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function loadStaticElement(id: string) {
+export function loadStaticElement(id: string) {
 	const element = document.getElementById(id);
 	if (!element) {
 		throw new InvalidArgumentException(`Element with id ${id} is not a valid static UI element`);
@@ -100,7 +99,3 @@ function loadStaticElement(id: string) {
 	element.style.height = "100%";
 	registerUIElement(id, new ContentField(element, element));
 }
-
-// The following lines are filled in by the build process
-// BUILD_MODULE_REGISTER
-// End of module register block

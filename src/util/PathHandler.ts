@@ -1,6 +1,8 @@
 import {handleAuthCallback} from "../network/NetworkAuthenticator";
 import {showUIElement} from "../ui/UIManager";
 
+//@module ui 1
+
 const paths: Record<string, (params: URLSearchParams, path: string[]) => void> = {
 	auth: handleAuthCallback
 };
@@ -24,3 +26,5 @@ export function handlePath(): void {
 		showUIElement("MainMenu");
 	}
 }
+
+handlePath();

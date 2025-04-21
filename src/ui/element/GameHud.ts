@@ -2,9 +2,13 @@ import {gameTicker} from "../../game/GameTicker";
 import {formatTime} from "../../util/StringFormatter";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
 import {registerClickListener} from "../UIEventResolver";
-import {showUIElement} from "../UIManager";
+import {loadStaticElement, showUIElement} from "../UIManager";
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
+
+//@module ui
+
+loadStaticElement("GameHud");
 
 registerClickListener("openSettings", () => showUIElement("SettingsPanel"));
 registerClickListener("exitGame", () => window.location.reload());

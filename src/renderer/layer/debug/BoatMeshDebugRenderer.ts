@@ -3,6 +3,8 @@ import {DebugRendererLayer} from "./DebugRenderer";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
+//@module renderer-debug
+
 export class BoatMeshDebugRenderer implements DebugRendererLayer {
 	readonly useCache = false;
 

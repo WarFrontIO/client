@@ -6,8 +6,12 @@ import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
-import {hideAllUIElements, showUIElement} from "../UIManager";
+import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
 //import {openMultiplayerLobby} from "./MultiplayerLobby";
+
+//@module ui
+
+loadStaticElement("MainMenu")
 
 //const btnStartMultiplayer: HTMLButtonElement = (window.document.getElementById("btnStartMultiplayer") as HTMLButtonElement);
 const btnStartSingleplayer: HTMLButtonElement = (window.document.getElementById("btnStartSingleplayer") as HTMLButtonElement);

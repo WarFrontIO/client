@@ -14,6 +14,8 @@ import {buildValidatedInput} from "../type/ValidatedInput";
 import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
 import {getUIElement} from "../UIManager";
 
+//@module ui
+
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
 const categories = new Map<SettingCategory, ContentField>();

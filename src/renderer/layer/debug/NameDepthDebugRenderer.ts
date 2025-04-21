@@ -4,6 +4,8 @@ import {gameMap} from "../../../game/GameData";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
 
+//@module renderer-debug
+
 export class NameDepthDebugRenderer implements DebugRendererLayer {
 	readonly useCache = false;
 

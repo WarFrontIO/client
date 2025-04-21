@@ -5,6 +5,8 @@ import {registerSettingListener} from "../../../util/settings/UserSettingManager
 import {RendererLayer} from "../RendererLayer";
 import {gameStartRegistry} from "../../../game/Game";
 
+//@module renderer-debug
+
 /**
  * Debug renderer.
  * Renders debug information on the map if toggled.
