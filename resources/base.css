@@ -765,6 +765,80 @@ input:checked + .slider:before {
 	}
 }
 
+/* Alerts */
+
+@keyframes alert-dismiss {
+	from {
+		width: 100%;
+	}
+	to {
+		width: 0;
+	}
+}
+
+.alert {
+	position: relative;
+	width: fit-content;
+	top: 10px;
+	margin: 0 10px 10px auto;
+	border: 3px solid;
+	border-bottom: 5px solid;
+	outline: 1px solid;
+	outline-offset: -1px;
+	padding: 0.5em 1em 0.5em 2.5em;
+}
+
+.alert::after {
+	content: "";
+	display: block;
+	position: absolute;
+	right: 0;
+	bottom: -2px;
+	height: 2px;
+	background: inherit;
+	animation-name: alert-dismiss;
+	animation-timing-function: linear;
+}
+
+.alert-fast::after {
+	animation-duration: 3s;
+}
+
+.alert-normal::after {
+	animation-duration: 5s;
+}
+
+.alert-slow::after {
+	animation-duration: 10s;
+}
+
+.alert::before {
+	position: absolute;
+	top: .175em;
+	left: 10px;
+	width: 22px;
+	font-size: 1.5em;
+	font-weight: bold;
+	text-align: center;
+}
+
+.alert-primary::before {
+	content: "!";
+}
+
+.alert-secondary::before {
+	content: "?";
+}
+
+.alert-danger::before {
+	content: "\26A0";
+}
+
+.alert-success::before {
+	content: "\1F5F8";
+	top: .225em;
+}
+
 /* UI Attachments */
 
 .attach-north {

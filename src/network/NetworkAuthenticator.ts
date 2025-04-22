@@ -4,6 +4,7 @@ import {updateUserAccount} from "./api/UserAccount";
 import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
 import {InvalidArgumentException} from "../util/Exceptions";
 import {showUIElement} from "../ui/UIManager";
+import {displayAlert} from "../ui/type/TextNode";
 
 type UserToken = {
 	/**
@@ -174,6 +175,6 @@ export function handleAuthCallback(params: URLSearchParams, _path: string[]) {
 	refreshTokenCookie.forceSet(token, 29);
 	sessionStorage.removeItem("authState");
 	window.history.replaceState(null, "", "/");
-	//TODO: Show a tooltip that the user was logged in
+	displayAlert("success", "Successfully logged in");
 	showUIElement("MainMenu");
 }

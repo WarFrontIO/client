@@ -98,3 +98,32 @@ export function buildButton(text: string): TextNode {
 	element.classList.add("btn", "btn-primary");
 	return new TextNode(element).setText(text);
 }
+
+/**
+ * Builds an alert element.
+ * @param type The type of the alert
+ * @param text The text of the alert
+ * @param duration The duration of the alert
+ * @returns The alert element
+ */
+export function buildAlert(type: "primary" | "secondary" | "danger" | "success", text: string, duration: "fast" | "normal" | "slow" = "normal"): TextNode {
+	const element = document.createElement("div");
+	element.classList.add("alert", "alert-" + type, "alert-" + duration);
+	return new TextNode(element).setText(text);
+}
+
+/**
+ * Displays an alert.
+ * After the alert expires, it will be removed from the DOM.
+ * @param type The type of the alert
+ * @param text The text of the alert
+ * @param duration The duration of the alert, defaults to "normal"
+ */
+export function displayAlert(type: "primary" | "secondary" | "danger" | "success", text: string, duration: "fast" | "normal" | "slow" = "normal") {
+	const node = buildAlert(type, text, duration);
+	setTimeout(() => {
+		node.destroy();
+		document.body.removeChild(node.getElement());
+	}, duration === "fast" ? 3000 : duration === "slow" ? 10000 : 5000);
+	document.body.appendChild(node.getElement());
+}

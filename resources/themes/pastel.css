@@ -386,3 +386,49 @@ input:focus + .slider {
 .settings-category {
 	border-color: var(--color-primary-medium);
 }
+
+/* Alerts */
+
+.alert {
+	color: var(--color-copy);
+}
+
+.alert-primary {
+	background-color: var(--color-primary-light);
+	border-color: var(--color-primary-medium);
+	outline-color: var(--color-primary-dark);
+}
+
+.alert-primary::before {
+	color: var(--color-primary);
+}
+
+.alert-secondary {
+	background-color: var(--color-secondary-light);
+	border-color: var(--color-secondary-medium);
+	outline-color: var(--color-secondary-dark);
+}
+
+.alert-secondary::before {
+	color: var(--color-secondary);
+}
+
+.alert-danger {
+	background-color: var(--color-danger-light);
+	border-color: var(--color-danger-medium);
+	outline-color: var(--color-danger-dark);
+}
+
+.alert-danger::before {
+	color: var(--color-danger);
+}
+
+.alert-success {
+	background-color: var(--color-success-light);
+	border-color: var(--color-success-medium);
+	outline-color: var(--color-success-dark);
+}
+
+.alert-success::before {
+	color: var(--color-success);
+}

@@ -1,5 +1,5 @@
 import {PacketRegistry, PROTOCOL_VERSION} from "./protocol/PacketRegistry";
-import {getUserToken} from "./NetworkAuthenticator";
+import {awaitSafeForward, getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
 import {HandshakeResponsePacket} from "./protocol/packet/handshake/HandshakeResponsePacket";
 import {HandshakeAuthPacket} from "./protocol/packet/handshake/HandshakeAuthPacket";
@@ -12,6 +12,7 @@ import {isLocalGame} from "../game/GameData";
 import {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
 import {NetworkException} from "../util/Exceptions";
 import {doPacketValidation} from "./PacketValidator";
+import {displayAlert} from "../ui/type/TextNode";
 
 export const packetRegistry = new PacketRegistry<void>();
 
@@ -66,7 +67,23 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 			socketReady = false;
 			reject(new NetworkException("Socket closed"));
 			if (e.code !== SocketErrorCodes.NO_ERROR as number) {
-				//TODO: Show error message to user
+				//TODO: Mark connection as dead, and try to reconnect
+				switch (e.code) {
+					case SocketErrorCodes.SERVER_OUT_OF_DATE as number:
+						displayAlert("secondary", "This third party server is out of date, ask the server administrator to update it");
+						break;
+					case SocketErrorCodes.OUT_OF_DATE as number:
+						displayAlert("secondary", "Server is for a newer version of the game, reloading the page...")
+						setTimeout(() => {
+							awaitSafeForward().then(() => window.location.reload()).catch(() => {});
+						}, 5000);
+						break;
+					case SocketErrorCodes.NO_GAME_SERVER as number:
+						displayAlert("secondary", "No game server is available, please try again later");
+						break;
+					default:
+						displayAlert("danger", "Connection to server lost");
+				}
 				console.error(`Socket closed with code ${e.code}`);
 			}
 		}
