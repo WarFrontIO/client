@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const UiModuleLoader = require("./scripts/WebpackUIModuleLoader");
 const SourceMapFixer = require("./scripts/SourceMapFixer");
+const Watchpack = require("watchpack");
 
 function findModules(dir) {
 	const modules = [];
@@ -71,6 +72,29 @@ module.exports = {
 	devServer: {
 		hot: false,
 		static: false,
-		historyApiFallback: true
+		historyApiFallback: true,
+		setupMiddlewares: (middlewares, devServer) => {
+			const watcher = new Watchpack({aggregateTimeout: 1000});
+			watcher.watch({directories: ["resources", "src/ui/element/static"], startTime: Date.now()});
+			let forceNext = false;
+			watcher.on("change", (file) => {
+				const goal = path.resolve(__dirname, file.startsWith("resources\\maps") ? "src\\map\\MapRegistry.ts" : "src\\renderer\\GameTheme.ts");
+				const watcher = devServer.compiler.watchFileSystem.watcher.fileWatchers.get(goal).watcher;
+				if (watcher) {
+					watcher.directoryWatcher.setFileTime(goal, Date.now());
+					devServer.compiler.watchFileSystem.watcher.emit("change", goal, Date.now(), "dependency");
+					devServer.compiler.watchFileSystem.watcher.emit("aggregated", new Set([goal]), new Set());
+					forceNext = true;
+				}
+			});
+			devServer.compiler.hooks.done.tap("extended-watcher", () => {
+				if (forceNext && devServer.webSocketServer) {
+					devServer.sendMessage(devServer.webSocketServer.clients, "static-changed", "index.html");
+					forceNext = false;
+				}
+			});
+			devServer.staticWatchers.push(watcher);
+			return middlewares;
+		},
 	}
 };
