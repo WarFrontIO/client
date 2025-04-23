@@ -75,7 +75,7 @@ export function buildCheckboxInput(description: string): CheckboxInput {
 	label.appendChild(input);
 
 	const slider = document.createElement("span");
-	slider.classList.add("slider", "slider-round");
+	slider.classList.add("slider", "slider-round", "slider-primary");
 	label.appendChild(slider);
 	div.appendChild(label);
 	div.appendChild(document.createTextNode(description));
