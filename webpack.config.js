@@ -101,5 +101,10 @@ module.exports = {
 			devServer.staticWatchers.push(watcher);
 			return middlewares;
 		},
+		proxy: [{
+			context: ["/api"],
+			target: process.env.API_SERVER || "https://warfront.io",
+			changeOrigin: true
+		}]
 	}
 };

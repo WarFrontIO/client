@@ -1,4 +1,4 @@
-import {apiURL, endpointPOST} from "./Endpoint";
+import {endpointPOST} from "./Endpoint";
 import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
 /**
@@ -8,7 +8,10 @@ import {APIUserAccount} from "../protocol/util/ProtocolUtils";
  * @internal Use {@link login} instead
  */
 export function loginUser(service: "discord", state: string) {
-	window.location.href = apiURL + "/login/" + service + "/?state=" + state;
+	const url = new URL("/api/login/" + service, window.location.origin);
+	url.searchParams.append("redirect", new URL("auth", window.location.origin).toString());
+	url.searchParams.append("state", state);
+	window.location.href = url.toString();
 }
 
 /**

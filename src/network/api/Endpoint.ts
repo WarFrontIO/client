@@ -49,7 +49,7 @@ class APIResponse<T extends { [key: number]: unknown }, E extends keyof T> {
 
 	constructor(url: string, options: Promise<RequestInit>) {
 		options.then(options => {
-			fetch(apiURL + url, options).then(response => {
+			fetch(new URL("/api" + url, document.location.origin), options).then(response => {
 				if (response.headers.get("Content-Type") === "application/json") {
 					response.json().then(data => {
 						this.handleResponse(response.status as keyof T, data as T[keyof T]);
