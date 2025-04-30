@@ -5,6 +5,8 @@ const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const UiModuleLoader = require("./scripts/WebpackUIModuleLoader");
 const SourceMapFixer = require("./scripts/SourceMapFixer");
 const Watchpack = require("watchpack");
+const {DefinePlugin} = require("webpack");
+const {execSync} = require("child_process");
 
 function findModules(dir) {
 	const modules = [];
@@ -68,7 +70,10 @@ module.exports = {
 	plugins: [new HtmlWebpackPlugin({
 		template: "./src/template.html",
 		cache: false
-	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer()],
+	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer(), new DefinePlugin({
+		"process.env.BUILD_CLIENT_HASH": `"${execSync("git describe --always --long --tags --abbrev=10 --dirty --broken").toString().replace(/\n/g, "")}"`,
+		"process.env.BUILD_GAME_SERVER": `"${process.env.GAME_SERVER || "https://warfront.io"}"`
+	})],
 	devServer: {
 		hot: false,
 		static: false,
