@@ -20,22 +20,23 @@ export class SettingRegistry<T extends Record<string, Setting<unknown>>> {
 	/**
 	 * Create a new setting registry
 	 * Warning: The prefix parameter has to be unique for each setting registry
-	 * @param prefix the prefix of the setting keys, must not contain '@'
-	 * @throws InvalidArgumentException if the prefix contains '@'
+	 * @param prefix the prefix of the setting keys, must not contain '@' or '.'
+	 * @throws InvalidArgumentException if the prefix contains '@' or '.'
 	 * @internal
 	 */
 	static init(prefix: string) {
-		if (prefix.includes("@")) throw new InvalidArgumentException("Prefix cannot contain '@'");
+		if (prefix.includes("@") || prefix.includes(".")) throw new InvalidArgumentException("Prefix cannot contain '@' or '.'");
 		return new SettingRegistry<{}>(prefix);
 	}
 
 	/**
 	 * Register a setting
-	 * @param key stringy id of the setting
+	 * @param key stringy id of the setting, must not contain '.'
 	 * @param setting the setting object
 	 * @see Setting
 	 */
 	register<K extends string, R>(key: K & Exclude<K, keyof T>, setting: R extends Setting<infer _> ? R : never): SettingRegistry<T & Record<K, R>> {
+		if (key.includes(".")) throw new InvalidArgumentException("Key cannot contain '.'");
 		setting.load(`${this.prefix}@${key}`);
 		settingAddRegistry.broadcast(setting);
 		(this.registry as unknown as Record<K, R>)[key] = setting;

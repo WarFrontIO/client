@@ -13,6 +13,7 @@ import {StringSetting} from "../../util/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
 import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
 import {getUIElement} from "../UIManager";
+import {tUnsafe} from "../../util/Lang";
 
 //@module ui
 
@@ -96,10 +97,10 @@ settingAddRegistry.register(setting => {
 	}
 });
 
-registerSettingType(BooleanSetting, setting => buildCheckboxInput("description").linkSetting(setting));
-registerSettingType(SingleSelectSetting, setting => buildSingleSelect("description").linkSetting(setting));
-registerSettingType(StringSetting, setting => buildValidatedInput("placeholder", "description").linkSetting(setting));
-registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildContainer().add(buildButton("description").onClick(() => showMultiSelectPanel(setting))));
+registerSettingType(BooleanSetting, setting => buildCheckboxInput(tUnsafe(`setting.boolean.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(SingleSelectSetting, setting => buildSingleSelect(tUnsafe(`setting.select.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(StringSetting, setting => buildValidatedInput(tUnsafe(`setting.string.${setting.getSaveId()}.placeholder`), tUnsafe(`setting.string.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildContainer().add(buildButton(tUnsafe(`setting.select.${setting.getSaveId()}`)).onClick(() => showMultiSelectPanel(setting))));
 
 /**
  * Shows a multi-select panel.
@@ -110,7 +111,7 @@ export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record
 	for (const [key, option] of Object.entries(setting.get())) {
 		content.push(buildCheckboxInput(option.label).linkMultiSetting(setting, key));
 	}
-	showPanel("title", ...content);
+	showPanel(tUnsafe(`setting.select.${setting.getSaveId()}.title`), ...content);
 }
 
 const observer = new MutationObserver(() => {

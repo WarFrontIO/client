@@ -140,6 +140,13 @@ export abstract class Setting<T> {
 	}
 
 	/**
+	 * Returns the save id of this setting
+	 */
+	getSaveId(): string {
+		return this.saveId;
+	}
+
+	/**
 	 * Loads the setting from local storage.
 	 * @param saveId The id to load the setting from, will later be saved to the same id
 	 */
