@@ -450,7 +450,7 @@ dialog:not([open]) {
 
 .layout-window {
 	position: absolute;
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	padding: 2em;
 }
