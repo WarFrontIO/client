@@ -14,10 +14,11 @@ import {borderManager} from "../../game/BorderManager";
  * @internal
  */
 class TerritoryRenderer extends CachedLayer {
-	readonly manager: TerritoryRenderingManager = new TerritoryRenderingManager(this.context);
+	readonly manager: TerritoryRenderingManager = new TerritoryRenderingManager();
 
 	init(): void {
 		this.resizeCanvas(gameMap.width, gameMap.height);
+		this.manager.init(this.context);
 	}
 
 	onMapMove(this: void, x: number, y: number): void {
@@ -27,6 +28,14 @@ class TerritoryRenderer extends CachedLayer {
 
 	onMapScale(this: void, scale: number): void {
 		territoryRenderer.scale = scale;
+	}
+
+	render(context: CanvasRenderingContext2D) {
+		for (const area of this.manager.dirty) {
+			this.context.putImageData(this.manager.imageData, 0, 0, area.x1, area.y1, area.x2 - area.x1 + 1, area.y2 - area.y1 + 1);
+		}
+		this.manager.dirty = [];
+		super.render(context);
 	}
 }
 
