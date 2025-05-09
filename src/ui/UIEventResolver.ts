@@ -8,6 +8,7 @@ const subscribers: {
 	[T in InteractionType]: Map<string, Omit<InteractionListeners[T], "test">>
 } = {
 	[InteractionType.CLICK]: new Map(),
+	[InteractionType.PRESS]: new Map(),
 	[InteractionType.DRAG]: new Map(),
 	[InteractionType.SCROLL]: new Map(),
 	[InteractionType.MULTITOUCH]: new Map(),
@@ -61,6 +62,7 @@ function buildListener<T extends InteractionType>(type: T): InteractionListeners
 }
 
 interactionManager.click.register(buildListener(InteractionType.CLICK));
+interactionManager.press.register(buildListener(InteractionType.PRESS));
 interactionManager.drag.register(buildListener(InteractionType.DRAG));
 interactionManager.scroll.register(buildListener(InteractionType.SCROLL));
 interactionManager.multitouch.register(buildListener(InteractionType.MULTITOUCH));
@@ -73,9 +75,10 @@ interactionManager.keyboard.register(buildListener(InteractionType.KEYBOARD));
  * @param element The element to register the listener for
  * @param handler The handler to call when the element is clicked
  * @param bindKeyboard Whether to bind keyboard events to the element
+ * @param press Whether to call the handler early when the element is pressed, instead of when it is released
  */
-export function registerClickListener(element: HTMLElement | string, handler: (x: number, y: number) => void, bindKeyboard: boolean = true): void {
-	subscribers[InteractionType.CLICK].set(resolveElement(element).id, {onClick: handler});
+export function registerClickListener(element: HTMLElement | string, handler: (x: number, y: number) => void, bindKeyboard: boolean = true, press: boolean = false): void {
+	subscribers[press ? InteractionType.PRESS : InteractionType.CLICK].set(resolveElement(element).id, {onClick: handler});
 	if (bindKeyboard) {
 		registerKeyboardListener(element, "Enter", handler);
 		registerKeyboardListener(element, " ", handler);

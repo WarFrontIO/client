@@ -1,5 +1,6 @@
 import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
 
+//TODO: Refactor this mess
 /**
  * Manages interactions with the user.
  * This includes click, drag, scroll and hover events.
@@ -15,6 +16,10 @@ import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry
 class InteractionManager {
 	/** Registry for click event listeners. */
 	click: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
+	/**
+	 * Registry for press event listeners.
+	 */
+	press: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for drag event listeners. */
 	drag: PrioritizedEventHandlerRegistry<DragEventListener> = new PrioritizedEventHandlerRegistry();
 	/** Registry for scroll event listeners. */
@@ -56,6 +61,8 @@ class InteractionManager {
 		if (event.target && interactionManager.draggable.has(event.target)) {
 			interactionManager.dragTimeout = setTimeout(interactionManager.startDrag, 1000);
 		}
+		interactionManager.press.choose(event.x, event.y, event.target);
+		interactionManager.press.call(l => l.onClick(event.x, event.y));
 	}
 
 	private onPointerUp(this: void, event: PointerEvent) {
@@ -297,6 +304,7 @@ export interface KeyboardEventListener {
 
 export enum InteractionType {
 	CLICK,
+	PRESS,
 	DRAG,
 	SCROLL,
 	MULTITOUCH,
@@ -306,6 +314,7 @@ export enum InteractionType {
 
 export type InteractionListeners = {
 	[InteractionType.CLICK]: ClickEventListener,
+	[InteractionType.PRESS]: ClickEventListener,
 	[InteractionType.DRAG]: DragEventListener,
 	[InteractionType.SCROLL]: ScrollEventListener,
 	[InteractionType.MULTITOUCH]: MultiTouchEventListener,
