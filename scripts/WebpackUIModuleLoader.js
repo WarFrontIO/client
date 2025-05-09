@@ -46,29 +46,11 @@ class WebpackUIModuleLoader {
 
 function processCssFiles(files) {
 	let variableCounter = 0;
-	const globalRemapped = new Set();
 
 	for (let i = 0; i < files.length; i++) {
 		const root = findBlock(files[i], ":root");
 		for (let j = 0; j < root.length; j++) {
 			files[i] = files[i].replace(root[j], extractInner(root[j]));
-		}
-
-		const rootVars = files[i].match(/--[^:)]+/g);
-
-		if (rootVars) {
-			for (const rootVar of new Set(rootVars)) {
-				if (i === 0) {
-					for (let k = 0; k < files.length; k++) {
-						files[k] = files[k].replace(new RegExp(`--${variableCounter}(?=\\s*[:)])`, "g"), `--g-${variableCounter}`);
-						files[k] = files[k].replace(new RegExp(`${rootVar}(?=\\s*[:)])`, "g"), `--${variableCounter}`);
-					}
-					globalRemapped.add(`--${variableCounter}`);
-					variableCounter++;
-				} else if (!globalRemapped.has(rootVar)) {
-					files[i] = files[i].replace(new RegExp(`${rootVar}(?=\\s*[:)])`, "g"), `--${variableCounter++}`);
-				}
-			}
 		}
 	}
 
