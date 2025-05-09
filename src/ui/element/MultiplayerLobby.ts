@@ -9,23 +9,28 @@ import {buildTextNode} from "../type/TextNode";
 let abortController: AbortController | null = null;
 
 export function openMultiplayerLobby() {
-	showPanel("Connecting to Multiplayer Lobby", buildTextNode("Connecting to server..."))
-		.setCloseHandler(() => {
-			if (abortController) {
-				abortController.abort();
-				abortController = null;
-			} else {
-				disconnectFromServer();
-			}
-			hidePanel();
-		});
 	abortController = new AbortController();
+	let error = false;
 	connectToServer(getSetting("game-server"), abortController.signal).then(() => {
 		abortController = null;
 	}).catch(() => {
-		//TODO: Show error message
 		hidePanel();
+		error = true;
 	});
+
+	setTimeout(() => {
+		if (error) return;
+		showPanel("Connecting to Multiplayer Lobby", buildTextNode("Connecting to server..."))
+			.setCloseHandler(() => {
+				if (abortController) {
+					abortController.abort();
+					abortController = null;
+				} else {
+					disconnectFromServer();
+				}
+				hidePanel();
+			});
+	}, 500);
 }
 
 packetRegistry.handle(GameQueueUpdatePacket, function () {
