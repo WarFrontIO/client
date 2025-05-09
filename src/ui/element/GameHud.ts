@@ -1,7 +1,7 @@
 import {gameTicker} from "../../game/GameTicker";
 import {formatTime, formatTroops} from "../../util/StringFormatter";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
-import {registerClickListener, registerDragListener} from "../UIEventResolver";
+import {blockInteraction, registerClickListener, registerDragListener} from "../UIEventResolver";
 import {loadStaticElement, showUIElement} from "../UIManager";
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
@@ -64,3 +64,6 @@ gameStartRegistry.register(() => {
 	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
 	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";
 });
+
+blockInteraction(gameClock);
+blockInteraction(resolveElement("selectorContainer"));

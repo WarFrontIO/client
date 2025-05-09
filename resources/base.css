@@ -741,6 +741,7 @@ input:checked + .slider {
 	color: var(--color-light);
 	background-color: var(--color-primary-dark);
 	border-color: var(--color-primary-medium);
+	pointer-events: auto;
 }
 
 .selector-container {
@@ -770,6 +771,7 @@ input:checked + .slider {
 	border-right: 2px solid var(--local-color-light);
 	box-shadow: 1px -1px var(--local-color);
 	background-color: var(--local-color-medium);
+	pointer-events: auto;
 }
 
 .selector-stat {
@@ -782,6 +784,7 @@ input:checked + .slider {
 	--border-thickness: 1px;
 	direction: ltr;
 	z-index: -1;
+	pointer-events: auto;
 }
 
 .selector-stat::before {
