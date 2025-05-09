@@ -743,6 +743,170 @@ input:checked + .slider {
 	border-color: var(--color-primary-medium);
 }
 
+.selector-stats-container {
+	width: 100%;
+	display: flex;
+	flex-flow: row;
+	direction: rtl;
+	--local-color-light: var(--color-primary-medium);
+	--local-color: var(--color-primary-dark);
+	--local-color-medium: var(--color-primary);
+	--cutoff: 2em;
+}
+
+.selector-stats-container::before {
+	content: "";
+	position: absolute;
+	width: calc(100% + 40px);
+	height: 15px;
+	margin-right: -26px;
+	margin-top: calc(1.5em - 4px);
+	border-top: 2px solid var(--local-color-light);
+	border-right: 2px solid var(--local-color-light);
+	box-shadow: 1px -1px var(--local-color);
+	background-color: var(--local-color-medium);
+}
+
+.selector-stat {
+	font-size: 0.8em;
+	position: relative;
+	color: var(--color-light);
+	border-color: var(--local-color-medium);
+	--local-color: var(--local-color);
+	background-color: var(--local-color-dark);
+	--border-thickness: 1px;
+	direction: ltr;
+	z-index: -1;
+}
+
+.selector-stat::before {
+	content: "";
+	position: absolute;
+	height: 0;
+	width: 240%;
+	padding-bottom: 240%;
+	margin-left: -70%;
+	transform: rotate(45deg);
+	clip-path: polygon(-1px calc(29.3% - var(--border-thickness) - 6px), -1px calc(29.3% + 1.8em), 5px calc(29.3% + 2em), calc(29.3% + 1.3em) 5px, calc(29.3% + var(--cutoff)) -1px, calc(29.3% - var(--border-thickness) - 6px) -1px);
+	border-top: var(--border-thickness) solid;
+	border-left: var(--border-thickness) solid;
+	border-color: inherit;
+	box-shadow: -1px -1px var(--local-color);
+	background: inherit;
+	left: 0;
+	z-index: -1;
+}
+
+.selector-stat::after {
+	content: "";
+	position: absolute;
+	width: calc(99.9% + var(--border-thickness) - 13px);
+	margin-left: calc(0.2% + 6px);
+	margin-top: calc(var(--border-thickness) - 7px);
+	border-top: var(--border-thickness) solid;
+	border-color: inherit;
+	box-shadow: 0 -1px var(--local-color);
+	left: 0;
+	z-index: -1;
+}
+
+.selector-stat:last-of-type {
+	font-size: 1.5em;
+	border-color: var(--color-primary-medium);
+	--local-color: var(--color-primary-dark);
+	background-color: var(--color-primary);
+	--border-thickness: 2px;
+	--cutoff: 1.1em;
+	z-index: 0;
+}
+
+.selector-stat:not(:last-of-type) {
+	padding-left: 30px;
+	padding-right: 5px;
+	margin-top: 4px;
+	line-height: 12px;
+	margin-left: -15px;
+}
+
+.selector-stat:nth-last-child(2) {
+	padding-left: 33px;
+}
+
+.selector-stat:first-of-type {
+	margin-right: auto;
+}
+
+.selector-slider {
+	position: relative;
+	display: inline-block;
+	width: 500px;
+	height: 30px;
+	margin-left: -30px;
+	margin-right: -52px;
+	border-left: 2px solid var(--color-primary-medium);
+	border-right: 2px solid var(--color-primary-medium);
+	box-shadow: -1px 0 var(--color-primary-dark), 1px 0 var(--color-primary-dark), 0 0 1px 2px var(--color-primary-dark) inset;
+	background-color: var(--panel-contrast);
+	--value: 0.5;
+	--local-color: var(--color-secondary-dark);
+	pointer-events: all;
+	cursor: pointer;
+}
+
+.selector-slider::before {
+	content: "";
+	position: absolute;
+	height: calc(100% - 4px);
+	width: calc(var(--value) * 100% - 3px);
+	left: 1px;
+	top: 2px;
+	background-color: var(--color-secondary-medium);
+	border: 2px solid var(--color-secondary);
+	border-right: none;
+	box-shadow: 2px 0 var(--local-color);
+	z-index: 1;
+}
+
+.selector-slider::after {
+	content: "";
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	left: calc(var(--value) * 100% - 9px);
+	margin-top: -16px;
+	transform: rotate(45deg);
+	background-color: var(--local-color);
+	clip-path: polygon(70% 20%, 100% 50%, 100% 100%, 50% 100%, 20% 70%);
+}
+
+.selector-slider:has(input:focus) {
+	--local-color: var(--color-secondary);
+}
+
+.selector-slider:has(input:focus)::before {
+	background-color: var(--color-secondary-light);
+}
+
+.selector-number {
+	font-size: 0.8em;
+	position: absolute;
+	width: 40px;
+	margin-top: 7px;
+	margin-left: 5px;
+	left: calc(var(--value) * 100%);
+}
+
+.selector-number-reversed {
+	margin-left: -46px;
+	z-index: 1;
+}
+
+.selector-slider > input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
 /* Layout elements */
 
 .grid {

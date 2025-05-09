@@ -12,12 +12,13 @@ import {hasBorderWith, preprocessAttack} from "../attack/AttackActionValidator";
  */
 class MapActionHandler implements ClickEventListener {
 	private action: (tile: number) => void;
+	private power: number;
 
 	/**
 	 * Enables the map action handler.
 	 */
 	enable() {
-		this.setAction(tile => territoryManager.getOwner(tile) !== territoryManager.OWNER_NONE - 1 && (spawnManager.isSelecting ? spawnManager.requestSpawn(tile) : hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), 200) : boatManager.requestBoat(tile, 200)));
+		this.setAction(tile => territoryManager.getOwner(tile) !== territoryManager.OWNER_NONE - 1 && (spawnManager.isSelecting ? spawnManager.requestSpawn(tile) : hasBorderWith(clientPlayer, territoryManager.getOwner(tile)) ? preprocessAttack(clientPlayer.id, territoryManager.getOwner(tile), this.power) : boatManager.requestBoat(tile, this.power)));
 		interactionManager.click.register(this, -100);
 	}
 
@@ -34,6 +35,14 @@ class MapActionHandler implements ClickEventListener {
 	 */
 	setAction(action: (tile: number) => void) {
 		this.action = action;
+	}
+
+	/**
+	 * Set the power to attack with
+	 * @param power The power to attack with
+	 */
+	setPower(power: number) {
+		this.power = power;
 	}
 
 	onClick(x: number, y: number): void {
