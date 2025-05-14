@@ -1,12 +1,8 @@
 import {RendererLayer} from "./layer/RendererLayer";
-import {mapRenderer} from "./layer/MapRenderer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
-import {backgroundLayer} from "./layer/BackgroundLayer";
-import {territoryRenderer} from "./layer/TerritoryRenderer";
-import {nameRenderer} from "./layer/NameRenderer";
-import {boatRenderer} from "./layer/BoatRenderer";
-import {debugRenderer} from "./layer/debug/DebugRenderer";
 import {gameStartRegistry} from "../game/Game";
+import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {GameGLContext} from "./GameGLContext";
 
 //@module renderer
 
@@ -17,7 +13,7 @@ import {gameStartRegistry} from "../game/Game";
  */
 export class GameRenderer {
 	private readonly canvas: HTMLCanvasElement;
-	private readonly context: CanvasRenderingContext2D;
+	private readonly context: GameGLContext;
 	private layers: RendererLayer[] = [];
 
 	constructor() {
@@ -27,7 +23,8 @@ export class GameRenderer {
 		this.canvas.style.left = "0";
 		this.canvas.style.top = "0";
 		this.canvas.style.zIndex = "-1";
-		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+		//TODO: Notify user if webgl is not supported (can't play this game...)
+		this.context = new GameGLContext(this.canvas.getContext("webgl2") as WebGL2RenderingContext);
 
 		this.doRenderTick();
 
@@ -35,17 +32,13 @@ export class GameRenderer {
 	}
 
 	/**
-	 * Register necessary layers for in-game rendering.
+	 * Changes rendering context, allows relevant layers to be added.
+	 * Note: Choose large unique ids for third party contexts to avoid conflicts.
 	 * @internal
 	 */
-	initGameplayLayers(): void {
+	switchContext(context: number) {
 		this.layers = [];
-		this.registerLayer(backgroundLayer);
-		this.registerLayer(mapRenderer);
-		this.registerLayer(territoryRenderer);
-		this.registerLayer(nameRenderer);
-		this.registerLayer(boatRenderer);
-		this.registerLayer(debugRenderer);
+		renderingContextInit.broadcast(this.context, context);
 	}
 
 	/**
@@ -57,14 +50,19 @@ export class GameRenderer {
 	 * @param layer the layer to be rendered.
 	 */
 	registerLayer(layer: RendererLayer): void {
-		this.layers.push(layer);
+		try {
+			layer.init(this.context);
+			this.layers.push(layer);
+		} catch (e) {
+			//TODO: warn user
+			console.error(e);
+		}
 	}
 
 	/**
 	 * Tick layers and render them to the canvas.
 	 */
 	private doRenderTick(): void {
-		this.context.imageSmoothingEnabled = false;
 		this.layers.forEach(layer => {
 			layer.render(this.context);
 		});
@@ -74,10 +72,14 @@ export class GameRenderer {
 	resize(this: void, width: number, height: number): void {
 		gameRenderer.canvas.width = Math.ceil(width / window.devicePixelRatio);
 		gameRenderer.canvas.height = Math.ceil(height / window.devicePixelRatio);
+		gameRenderer.context.viewport();
 	}
 }
 
+export const rendererContextGameplay = 1;
+
 export const gameRenderer = new GameRenderer();
+export const renderingContextInit = new EventHandlerRegistry<[GameGLContext, number]>();
 
 windowResizeHandler.register(gameRenderer.resize);
-gameStartRegistry.register(gameRenderer.initGameplayLayers.bind(gameRenderer));
+gameStartRegistry.register(() => gameRenderer.switchContext(rendererContextGameplay));
