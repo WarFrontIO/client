@@ -2,10 +2,13 @@ import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {GameTheme} from "../GameTheme";
-import {applyPostGenerationShaders, loadShaders} from "../shader/ShaderManager";
-import {RGBColor} from "../../util/RGBColor";
+import {mapRenderingFragmentShader, flippedTextureVertexShader} from "../shader/ShaderManager";
 import {gameMap, isPlaying} from "../../game/GameData";
 import {gameStartRegistry} from "../../game/Game";
+import {gameRenderer} from "../GameRenderer";
+import {GameGLContext, WebGLUniforms} from "../GameGLContext";
+
+//@module renderer
 
 /**
  * Map background renderer.
@@ -13,24 +16,53 @@ import {gameStartRegistry} from "../../game/Game";
  * @internal
  */
 class MapRenderer extends CachedLayer {
-	init(): void {
+	private program: WebGLProgram;
+	private vao: WebGLVertexArrayObject;
+	private uniforms: WebGLUniforms<"texture_data" | "palette_data">;
+
+	setup(context: GameGLContext) {
+		super.setup(context);
+		this.program = context.requireProgram(flippedTextureVertexShader, mapRenderingFragmentShader, "Map renderer failed to init");
+		this.vao = context.createVertexArray(this.program, GameGLContext.positionAttribute());
+		this.uniforms = context.loadUniforms(this.program, "texture_data", "palette_data");
+	}
+
+	init(context: GameGLContext): void {
+		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height);
-		loadShaders();
 		this.forceRepaint(getSetting("theme"));
 	}
 
 	forceRepaint(theme: GameTheme): void {
-		const imageData = this.context.getImageData(0, 0, gameMap.width, gameMap.height);
-		const tileColors: RGBColor[] = [];
-		for (let i = 0; i < gameMap.width * gameMap.height; i++) {
-			const tile = gameMap.getTile(i);
-			if (!tileColors[tile.id]) {
-				tileColors[tile.id] = theme.getTileColor(tile).toRGB();
-			}
-			tileColors[tile.id].writeToBuffer(imageData.data, i * 4);
+		this.context.bind(this.program, this.vao, this.framebuffer);
+		this.context.viewport(gameMap.width, gameMap.height);
+
+		const palette = this.createPalette(theme);
+		const mapData = this.context.createTexture(gameMap.width, gameMap.height, gameMap.tiles, {type: WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5});
+
+		this.context.bindTexture(palette, 1);
+		this.context.bindTexture(mapData, 0);
+
+		this.uniforms.set1i("palette_data", 1);
+		this.uniforms.set1i("texture_data", 0);
+
+		this.context.drawTriangles(2);
+
+		this.context.deleteTexture(palette);
+		this.context.deleteTexture(mapData);
+		this.context.resetFramebuffer();
+		this.context.viewport();
+	}
+
+	private createPalette(theme: GameTheme): WebGLTexture {
+		const colors = new Uint8Array(2048 * 32 * 3);
+		for (const tileType of gameMap.tileTypes) {
+			const color = theme.getTileColor(tileType).toRGB();
+			colors[tileType.id * 3] = color.r;
+			colors[tileType.id * 3 + 1] = color.g;
+			colors[tileType.id * 3 + 2] = color.b;
 		}
-		applyPostGenerationShaders(imageData.data);
-		this.context.putImageData(imageData, 0, 0);
+		return this.context.createTexture(2048, 32, colors);
 	}
 
 	onMapMove(this: void, x: number, y: number): void {
@@ -47,6 +79,6 @@ export const mapRenderer = new MapRenderer();
 
 mapTransformHandler.scale.register(mapRenderer.onMapScale);
 mapTransformHandler.move.register(mapRenderer.onMapMove);
-gameStartRegistry.register(mapRenderer.init.bind(mapRenderer));
+gameStartRegistry.register(() => gameRenderer.registerLayer(mapRenderer));
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

@@ -3,6 +3,7 @@ import {getSetting} from "../../util/settings/UserSettingManager";
 import {FixedDistanceShader} from "./FixedDistanceShader";
 import {HSLColor} from "../../util/HSLColor";
 import {DynamicDistanceShader} from "./DynamicDistanceShader";
+import {GameGLContext} from "../GameGLContext";
 
 const shaderList = {
 	"territory-outline": {type: "post-generation", build: (args: { color: HSLColor, thickness: number }) => new FixedDistanceShader(args.color, -args.thickness, 0)},
@@ -49,3 +50,10 @@ export function applyPostGenerationShaders(pixels: Uint8ClampedArray): void {
 		shader.apply(pixels);
 	}
 }
+
+// Shaders are inlined by the build process
+export const compositeVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("CompositeShader.vert");
+export const flippedTextureVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("FlippedTextureShader.vert");
+
+export const simpleTextureFragmentShader = (ctx: GameGLContext) => ctx.loadFragmentShader("SimpleTextureShader.frag");
+export const mapRenderingFragmentShader = (ctx: GameGLContext) => ctx.loadFragmentShader("MapRenderingShader.frag");

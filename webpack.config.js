@@ -58,13 +58,19 @@ module.exports = {
 				test: /\.ts$/,
 				use: ["theme-loader"],
 				include: path.resolve(__dirname, "./src/renderer/GameTheme.ts")
+			},
+			{
+				test: /\.ts$/,
+				use: ["shader-loader"],
+				include: path.resolve(__dirname, "./src/renderer/shader/ShaderManager.ts")
 			}
 		]
 	},
 	resolveLoader: {
 		alias: {
 			"map-loader": path.resolve(__dirname, "./scripts/map-loader.js"),
-			"theme-loader": path.resolve(__dirname, "./scripts/theme-loader.js")
+			"theme-loader": path.resolve(__dirname, "./scripts/theme-loader.js"),
+			"shader-loader": path.resolve(__dirname, "./scripts/shader-loader.js"),
 		}
 	},
 	plugins: [new HtmlWebpackPlugin({
@@ -80,10 +86,10 @@ module.exports = {
 		historyApiFallback: true,
 		setupMiddlewares: (middlewares, devServer) => {
 			const watcher = new Watchpack({aggregateTimeout: 1000});
-			watcher.watch({directories: ["resources", "src/ui/element/static"], startTime: Date.now()});
+			watcher.watch({directories: ["resources", "src/ui/element/static", "src/renderer/shader"], startTime: Date.now()});
 			let forceNext = false;
 			watcher.on("change", (file) => {
-				const goal = path.resolve(__dirname, file.startsWith("resources\\maps") ? "src\\map\\MapRegistry.ts" : "src\\renderer\\GameTheme.ts");
+				const goal = path.resolve(__dirname, file.startsWith("resources\\maps") ? "src\\map\\MapRegistry.ts" : file.startsWith("src\\ui\\element\\static") ? "src\\renderer\\GameTheme.ts" : "src\\renderer\\shader\\ShaderManager.ts");
 				const watcher = devServer.compiler.watchFileSystem.watcher.fileWatchers.get(goal).watcher;
 				if (watcher) {
 					watcher.directoryWatcher.setFileTime(goal, Date.now());

@@ -8,8 +8,8 @@ export class GameMap {
 	readonly id: number;
 	readonly width: number;
 	readonly height: number;
-	private readonly tileTypes: TileType[];
-	private readonly tiles: Uint16Array;
+	readonly tileTypes: TileType[];
+	readonly tiles: Uint16Array;
 	readonly tileExpansionCosts: Uint8Array;
 	readonly tileExpansionTimes: Uint8Array;
 	readonly areaMap: Uint16Array;
