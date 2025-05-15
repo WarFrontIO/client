@@ -14,8 +14,8 @@ export abstract class BaseRendererLayer implements RendererLayer {
 	init(context: GameGLContext) {
 		if (!this.initialized) {
 			this.initialized = true;
-			this.setup(context);
 			this.context = context;
+			this.setup(context);
 		}
 	}
 }

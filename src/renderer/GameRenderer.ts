@@ -3,6 +3,7 @@ import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {gameStartRegistry} from "../game/Game";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
+import {SortedArray} from "../util/SortedArray";
 
 //@module renderer
 
@@ -14,7 +15,7 @@ import {GameGLContext} from "./GameGLContext";
 export class GameRenderer {
 	private readonly canvas: HTMLCanvasElement;
 	private readonly context: GameGLContext;
-	private layers: RendererLayer[] = [];
+	private layers: SortedArray<RendererLayer> = new SortedArray();
 
 	constructor() {
 		this.canvas = document.createElement("canvas");
@@ -24,7 +25,8 @@ export class GameRenderer {
 		this.canvas.style.top = "0";
 		this.canvas.style.zIndex = "-1";
 		//TODO: Notify user if webgl is not supported (can't play this game...)
-		this.context = new GameGLContext(this.canvas.getContext("webgl2") as WebGL2RenderingContext);
+		this.context = new GameGLContext(this.canvas.getContext("webgl2", {premultipliedAlpha: false}) as WebGL2RenderingContext);
+		this.context.startBlend(WebGL2RenderingContext.SRC_ALPHA, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA)
 
 		this.doRenderTick();
 
@@ -37,8 +39,8 @@ export class GameRenderer {
 	 * @internal
 	 */
 	switchContext(context: number) {
-		this.layers = [];
-		renderingContextInit.broadcast(this.context, context);
+		this.layers.clear();
+		renderingContextInit.broadcast(context, this.context);
 	}
 
 	/**
@@ -48,11 +50,12 @@ export class GameRenderer {
 	 * Note that you will have to re-register every time the renderer is changed (e.g. when a game is started).
 	 *
 	 * @param layer the layer to be rendered.
+	 * @param zIndex the z-index of the layer. Layers with higher z-index will be rendered on top of layers with lower z-index.
 	 */
-	registerLayer(layer: RendererLayer): void {
+	registerLayer(layer: RendererLayer, zIndex: number): void {
 		try {
 			layer.init(this.context);
-			this.layers.push(layer);
+			this.layers.add(layer, zIndex);
 		} catch (e) {
 			//TODO: warn user
 			console.error(e);
@@ -79,7 +82,7 @@ export class GameRenderer {
 export const rendererContextGameplay = 1;
 
 export const gameRenderer = new GameRenderer();
-export const renderingContextInit = new EventHandlerRegistry<[GameGLContext, number]>();
+export const renderingContextInit = new EventHandlerRegistry<[number, GameGLContext]>();
 
 windowResizeHandler.register(gameRenderer.resize);
 gameStartRegistry.register(() => gameRenderer.switchContext(rendererContextGameplay));

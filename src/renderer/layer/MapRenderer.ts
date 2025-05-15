@@ -79,6 +79,6 @@ export const mapRenderer = new MapRenderer();
 
 mapTransformHandler.scale.register(mapRenderer.onMapScale);
 mapTransformHandler.move.register(mapRenderer.onMapMove);
-gameStartRegistry.register(() => gameRenderer.registerLayer(mapRenderer));
+gameStartRegistry.register(() => gameRenderer.registerLayer(mapRenderer, 5));
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));

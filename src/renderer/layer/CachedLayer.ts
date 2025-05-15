@@ -32,13 +32,14 @@ export abstract class CachedLayer extends BaseRendererLayer {
 	 * Resize the canvas to the given width and height.
 	 * @param width width of the canvas
 	 * @param height height of the canvas
+	 * @param transparent whether the canvas should be transparent or not. If true, the texture will include an alpha channel
 	 * @protected
 	 */
-	protected resizeCanvas(width: number, height: number) {
+	protected resizeCanvas(width: number, height: number, transparent: boolean = false) {
 		this.width = width;
 		this.height = height;
 		this.context.deleteTexture(this._texture);
-		this._texture = this.context.createTexture(width, height, null, {minFilter: WebGL2RenderingContext.LINEAR});
+		this._texture = this.context.createTexture(width, height, null, {minFilter: WebGL2RenderingContext.LINEAR, internalFormat: transparent ? WebGL2RenderingContext.RGBA : WebGL2RenderingContext.RGB, format: transparent ? WebGL2RenderingContext.RGBA : WebGL2RenderingContext.RGB});
 		this.framebuffer = this.context.createFramebuffer(this._texture);
 		this.context.resetFramebuffer();
 	}

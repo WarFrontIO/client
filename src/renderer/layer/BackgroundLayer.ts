@@ -32,4 +32,4 @@ class BackgroundLayer implements RendererLayer {
 export const backgroundLayer = new BackgroundLayer();
 
 registerSettingListener("theme", backgroundLayer.updateTheme.bind(backgroundLayer));
-renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(backgroundLayer));
+renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(backgroundLayer, 0));

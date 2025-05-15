@@ -170,16 +170,48 @@ export class GameGLContext {
 
 				if (attribute.data) {
 					if (!attribute.usage) throw new InvalidArgumentException("Usage must be specified if data is set");
-					this.raw.bindBuffer(this.raw.ARRAY_BUFFER, attribute.buffer ?? this.raw.createBuffer());
+					this.raw.bindBuffer(this.raw.ARRAY_BUFFER, attribute.buffer ?? this.createBuffer());
 					this.raw.bufferData(this.raw.ARRAY_BUFFER, attribute.data, attribute.usage);
 				} else if (attribute.buffer) {
 					this.raw.bindBuffer(this.raw.ARRAY_BUFFER, attribute.buffer);
 				} // We otherwise expect the buffer to be already bound
 
-				this.raw.vertexAttribPointer(location, attribute.size, attribute.type, attribute.normalized ?? false, attribute.stride ?? 0, attribute.offset ?? 0);
+				if (attribute.asInt) {
+					this.raw.vertexAttribIPointer(location, attribute.size, attribute.type, attribute.stride ?? 0, attribute.offset ?? 0);
+				} else {
+					this.raw.vertexAttribPointer(location, attribute.size, attribute.type, attribute.normalized ?? false, attribute.stride ?? 0, attribute.offset ?? 0);
+				}
 			}
 		}
 		return vertexArray;
+	}
+
+	/**
+	 * Creates a buffer to use when passing attribute data.
+	 */
+	createBuffer(): WebGLBuffer {
+		const buffer = this.raw.createBuffer();
+		if (!buffer) throw new AssertionFailedException("Could not create a buffer");
+		return buffer;
+	}
+
+	/**
+	 * Sets the data of the given buffer.
+	 * @param buffer The buffer to set the data of
+	 * @param data The data to set
+	 * @param usage The usage of the data. Recommendations: {@link WebGL2RenderingContext.STREAM_DRAW} {@link WebGL2RenderingContext.STATIC_DRAW} {@link WebGL2RenderingContext.DYNAMIC_DRAW}
+	 */
+	bufferData(buffer: WebGLBuffer, data: ArrayBufferView, usage: GLenum) {
+		this.raw.bindBuffer(this.raw.ARRAY_BUFFER, buffer);
+		this.raw.bufferData(this.raw.ARRAY_BUFFER, data, usage);
+	}
+
+	/**
+	 * Deletes the given buffer.
+	 * @param buffer The buffer to delete
+	 */
+	deleteBuffer(buffer: WebGLBuffer) {
+		this.raw.deleteBuffer(buffer);
 	}
 
 	/**
@@ -257,12 +289,38 @@ export class GameGLContext {
 	}
 
 	/**
+	 * Draw without blending.
+	 */
+	stopBlend() {
+		this.raw.disable(this.raw.BLEND);
+	}
+
+	/**
+	 * Draw with blending.
+	 * @param src The source blend factor
+	 * @param dst The destination blend factor
+	 */
+	startBlend(src: GLenum | null = null, dst: GLenum | null = null) {
+		this.raw.enable(this.raw.BLEND);
+		if (src && dst) this.raw.blendFunc(src, dst);
+	}
+
+	/**
 	 * Draws the given number of triangles starting at the given index.
 	 * @param count The number of triangles to draw. NOT the number of vertices
 	 * @param start The index to start drawing from
 	 */
 	drawTriangles(count: GLsizei, start: GLint = 0) {
 		this.raw.drawArrays(this.raw.TRIANGLES, start, count * 3);
+	}
+
+	/**
+	 * Draws the given number of points starting at the given index.
+	 * @param count The number of points to draw
+	 * @param start The index to start drawing from
+	 */
+	drawPoints(count: number, start: GLint = 0) {
+		this.raw.drawArrays(this.raw.POINTS, start, count);
 	}
 }
 
@@ -357,6 +415,12 @@ type AttributeOptions = {
 	 * {@link WebGL2RenderingContext.DYNAMIC_DRAW} when content changes (only use this if buffer is specified).
 	 */
 	usage?: GLenum,
+	/**
+	 * Whether to use integer values.
+	 *
+	 * Default: false
+	 */
+	asInt?: boolean,
 };
 
 export type WebGLUniforms<T extends string> = {

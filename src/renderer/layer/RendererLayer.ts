@@ -1,3 +1,5 @@
+import type {GameGLContext} from "../GameGLContext";
+
 /**
  * Represents a layer that can be rendered by the game renderer.
  * Must be registered with the game renderer to work properly.
@@ -6,6 +8,7 @@
  * - viewport (reset using {@link GameGLContext.viewport} without params)
  * - framebuffer (reset using {@link GameGLContext.resetFramebuffer})
  * - activeTexture (reset using {@link GameGLContext.resetActiveTexture}), note that {@link GameGLContext.bindTexture} mutates this if unit parameter is provided
+ * - blending (reset using {@link GameGLContext.startBlend})
  *
  * @see GameRenderer#registerLayer
  */
