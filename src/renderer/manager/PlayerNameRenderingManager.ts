@@ -258,8 +258,8 @@ export class PlayerNameRenderingData {
 	private setPosAt(tile: number, size: number): void {
 		this.size = size;
 		this.index = tile;
-		this.nameX = tile % gameMap.width;
-		this.nameY = Math.floor(tile / gameMap.width);
+		this.nameX = tile % gameMap.width - size + 1;
+		this.nameY = Math.floor(tile / gameMap.width) - size + 1;
 	}
 
 	/**

@@ -97,11 +97,11 @@ export class GameGLContext {
 	 * @param arr Initial texture data, make sure this fits the type and format passed to options
 	 * @param options Various settings for texture setup {@link TextureOptions}
 	 */
-	createTexture(width: number, height: number, arr: ArrayBufferView | null = null, options: TextureOptions = {}): WebGLTexture {
+	createTexture(width: number, height: number, arr: ArrayBufferView | TexImageSource | null = null, options: TextureOptions = {}): WebGLTexture {
 		const texture = this.raw.createTexture();
 		if (!texture) throw new AssertionFailedException("Could not create a texture");
 		this.raw.bindTexture(this.raw.TEXTURE_2D, texture);
-		this.raw.texImage2D(this.raw.TEXTURE_2D, 0, options.internalFormat ?? this.raw.RGB, width, height, 0, options.format ?? this.raw.RGB, options.type ?? this.raw.UNSIGNED_BYTE, arr);
+		this.raw.texImage2D(this.raw.TEXTURE_2D, 0, options.internalFormat ?? this.raw.RGB, width, height, 0, options.format ?? this.raw.RGB, options.type ?? this.raw.UNSIGNED_BYTE, arr as TexImageSource);
 
 		this.raw.texParameteri(this.raw.TEXTURE_2D, this.raw.TEXTURE_MIN_FILTER, options.minFilter ?? this.raw.NEAREST);
 		this.raw.texParameteri(this.raw.TEXTURE_2D, this.raw.TEXTURE_MAG_FILTER, options.magFilter ?? this.raw.NEAREST);
@@ -138,7 +138,7 @@ export class GameGLContext {
 	 */
 	static positionAttribute(): AttributeOptions;
 	static positionAttribute(data: ArrayBufferView, type: GLenum, usage: GLenum): AttributeOptions;
-	static positionAttribute(data: ArrayBufferView | null = null, type: GLenum = WebGL2RenderingContext.BYTE, usage: GLenum = WebGL2RenderingContext.STREAM_DRAW): AttributeOptions {
+	static positionAttribute(data: ArrayBufferView | null = null, type: GLenum = WebGL2RenderingContext.BYTE, usage: GLenum = WebGL2RenderingContext.STATIC_DRAW): AttributeOptions {
 		return {
 			name: "pos",
 			size: 2,
