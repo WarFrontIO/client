@@ -19,6 +19,12 @@ function encodeFontData(data) {
 		writer.writeBits(8, char["xadvance"]);
 		writer.writeBits(8, char["width"]);
 		writer.writeBits(8, char["height"]);
+		const kernings = data["kernings"].filter(k => k["first"] === char["id"]);
+		writer.writeBits(16, kernings.length);
+		for (const kern of kernings) {
+			writer.writeBits(16, kern["second"]);
+			writer.writeBits(8, kern["amount"] + 128);
+		}
 	}
 	writer.writeBits(8, data["common"]["lineHeight"]);
 	return Buffer.from(writer.compress()).toString("base64");

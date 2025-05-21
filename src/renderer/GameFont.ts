@@ -9,7 +9,7 @@ export class GameFont {
 	private readonly vao: WebGLVertexArrayObject;
 	private readonly uniforms: WebGLUniforms<"texture_data" | "offset" | "size">;
 	private readonly texture: WebGLTexture;
-	private readonly charData: { sx1: number, sy1: number, sx2: number, sy2: number, tx1: number, ty1: number, tx2: number, ty2: number, xAdvance: number }[] = [];
+	private readonly charData: { sx1: number, sy1: number, sx2: number, sy2: number, tx1: number, ty1: number, tx2: number, ty2: number, xAdvance: number, kernings: number[] }[] = [];
 	private readonly positionBuffer: WebGLBuffer;
 	private readonly charBuffer: WebGLBuffer;
 	private readonly blurBuffer: WebGLBuffer;
@@ -49,10 +49,15 @@ export class GameFont {
 			const xAdvance = reader.readBits(8);
 			const width = reader.readBits(8);
 			const height = reader.readBits(8);
+			const kerningCount = reader.readBits(16);
+			const kernings = [];
+			for (let j = 0; j < kerningCount; j++) {
+				kernings[reader.readBits(16)] = reader.readBits(8) - 128;
+			}
 			this.charData[char] = {
 				sx1: x / textureWidth, sy1: y / textureHeight, sx2: (x + width) / textureWidth, sy2: (y + height) / textureHeight,
 				tx1: xOffset, ty1: yOffset, tx2: xOffset + width, ty2: yOffset + height,
-				xAdvance
+				xAdvance, kernings
 			};
 		}
 		return reader.readBits(8);
@@ -79,7 +84,7 @@ export class GameFont {
 			for (let i = 0; i < entry.string.length; i++) {
 				const charData = this.charData[entry.string.charCodeAt(i)]
 				if (!charData) throw new Error(`Char ${entry.string[i]} not found in font data`);
-				length += charData.xAdvance;
+				length += charData.xAdvance - (charData.kernings[entry.string.charCodeAt(i + 1)] ?? 0);
 			}
 			const fontSize = Math.min(entry.size / length, 0.4 * entry.size / this.lineHeight);
 			const x = entry.x + (entry.size - fontSize * length) / 2;
@@ -110,7 +115,7 @@ export class GameFont {
 				characters[12 * i + 9] = charData.sy2;
 				characters[12 * i + 10] = charData.sx2;
 				characters[12 * i + 11] = charData.sy2;
-				xOffset += charData.xAdvance;
+				xOffset += charData.xAdvance - (charData.kernings[entry.string.charCodeAt(i + 1)] ?? 0);
 			}
 			blur.fill(1 - mapNavigationHandler.zoom * fontSize / parentHeight * 120, offset * 6, (offset + entry.string.length) * 6);
 			offset += entry.string.length;
