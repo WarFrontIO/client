@@ -1,6 +1,7 @@
 import {GameGLContext, WebGLUniforms} from "./GameGLContext";
 import {msdfTextureFragmentShader, msdfTextureVertexShader} from "./shader/ShaderManager";
 import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
+import {StreamReader} from "../map/codec/src/util/StreamReader";
 
 export class GameFont {
 	private readonly context: GameGLContext;
@@ -8,13 +9,14 @@ export class GameFont {
 	private readonly vao: WebGLVertexArrayObject;
 	private readonly uniforms: WebGLUniforms<"texture_data" | "offset" | "size">;
 	private readonly texture: WebGLTexture;
-	private readonly data: { chars: { char: string, x: number, y: number, xoffset: number, yoffset: number, xadvance: number, width: number, height: number }[], common: {lineHeight: number} };
+	private readonly charData: { x: number, y: number, xOffset: number, yOffset: number, xAdvance: number, width: number, height: number }[] = [];
 	private readonly image: HTMLImageElement;
 	private readonly positionBuffer: WebGLBuffer;
 	private readonly charBuffer: WebGLBuffer;
 	private readonly blurBuffer: WebGLBuffer;
+	private readonly lineHeight: number;
 
-	constructor(context: GameGLContext, image: HTMLImageElement, data: { chars: { char: string, x: number, y: number, xoffset: number, yoffset: number, xadvance: number, width: number, height: number }[], common: {lineHeight: number} }) {
+	constructor(context: GameGLContext, image: HTMLImageElement, data: Uint8Array) {
 		this.image = image;
 		this.context = context;
 		this.program = context.requireProgram(msdfTextureVertexShader, msdfTextureFragmentShader, "Font renderer failed to init");
@@ -24,17 +26,35 @@ export class GameFont {
 		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer}, {name: "char", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.charBuffer}, {name: "blur", size: 1, type: WebGL2RenderingContext.FLOAT, buffer: this.blurBuffer});
 		this.uniforms = context.loadUniforms(this.program, "texture_data", "offset", "size");
 		this.texture = context.createTexture(image.width, image.height, image, {minFilter: WebGL2RenderingContext.LINEAR, magFilter: WebGL2RenderingContext.LINEAR});
-		this.data = data;
+		this.lineHeight = this.parseData(data);
 	}
 
-	static async fromRaw(context: GameGLContext, image: string, data: unknown): Promise<GameFont> {
+	static async fromRaw(context: GameGLContext, image: string, data: string): Promise<GameFont> {
 		return new Promise(resolve => {
 			const img = new Image();
 			img.src = image;
 			img.onload = (() => {
-				resolve(new GameFont(context, img, data as { chars: { char: string, x: number, y: number, xoffset: number, yoffset: number, xadvance: number, width: number, height: number }[], common: {lineHeight: number} }));
+				console.log(data.length)
+				resolve(new GameFont(context, img, Uint8Array.from(atob(data), c => c.charCodeAt(0))));
 			});
 		});
+	}
+
+	private parseData(data: Uint8Array): number {
+		const reader = new StreamReader(data);
+		const charCount = reader.readBits(16);
+		for (let i = 0; i < charCount; i++) {
+			const char = reader.readBits(16);
+			const x = reader.readBits(12);
+			const y = reader.readBits(12);
+			const xOffset = reader.readBits(8) - 128;
+			const yOffset = reader.readBits(8) - 128;
+			const xAdvance = reader.readBits(8);
+			const width = reader.readBits(8);
+			const height = reader.readBits(8);
+			this.charData[char] = {x, y, xOffset, yOffset, xAdvance, width, height};
+		}
+		return reader.readBits(8);
 	}
 
 	drawText(data: { string: string, nameX: number, nameY: number, size: number, baselineBottom?: boolean }[]) {
@@ -58,29 +78,29 @@ export class GameFont {
 			let xOffset = 0;
 			let length: number = 0;
 			for (let i = 0; i < string.length; i++) {
-				const charData = this.data.chars.find(c => c.char === string[i]);
+				const charData = this.charData[string[i].charCodeAt(0)]
 				if (!charData) throw new Error(`Char ${string[i]} not found in font data`);
-				length += charData.xadvance;
+				length += charData.xAdvance;
 			}
-			const fontSize = Math.min(size / length, 0.4 * size / this.data.common.lineHeight);
+			const fontSize = Math.min(size / length, 0.4 * size / this.lineHeight);
 			nameX += (size - fontSize * length) / 2;
-			if (baselineBottom) nameY += size / 2 - fontSize * this.data.common.lineHeight;
+			if (baselineBottom) nameY += size / 2 - fontSize * this.lineHeight;
 			for (let i = offset; i < offset + string.length; i++) {
-				const charData = this.data.chars.find(c => c.char === string[i - offset]);
+				const charData = this.charData[string.charCodeAt(i - offset)];
 				if (!charData) throw new Error(`Char ${string[i - offset]} not found in font data`);
 
-				positions[12 * i] = nameX + (xOffset + charData.xoffset) * fontSize;
-				positions[12 * i + 1] = nameY + charData.yoffset * fontSize;
-				positions[12 * i + 2] = nameX + (xOffset + charData.xoffset + charData.width) * fontSize;
-				positions[12 * i + 3] = nameY + charData.yoffset * fontSize;
-				positions[12 * i + 4] = nameX + (xOffset + charData.xoffset + charData.width) * fontSize;
-				positions[12 * i + 5] = nameY + (charData.yoffset + charData.height) * fontSize;
-				positions[12 * i + 6] = nameX + (xOffset + charData.xoffset) * fontSize;
-				positions[12 * i + 7] = nameY + charData.yoffset * fontSize;
-				positions[12 * i + 8] = nameX + (xOffset + charData.xoffset) * fontSize;
-				positions[12 * i + 9] = nameY + (charData.yoffset + charData.height) * fontSize;
-				positions[12 * i + 10] = nameX + (xOffset + charData.xoffset + charData.width) * fontSize;
-				positions[12 * i + 11] = nameY + (charData.yoffset + charData.height) * fontSize;
+				positions[12 * i] = nameX + (xOffset + charData.xOffset) * fontSize;
+				positions[12 * i + 1] = nameY + charData.yOffset * fontSize;
+				positions[12 * i + 2] = nameX + (xOffset + charData.xOffset + charData.width) * fontSize;
+				positions[12 * i + 3] = nameY + charData.yOffset * fontSize;
+				positions[12 * i + 4] = nameX + (xOffset + charData.xOffset + charData.width) * fontSize;
+				positions[12 * i + 5] = nameY + (charData.yOffset + charData.height) * fontSize;
+				positions[12 * i + 6] = nameX + (xOffset + charData.xOffset) * fontSize;
+				positions[12 * i + 7] = nameY + charData.yOffset * fontSize;
+				positions[12 * i + 8] = nameX + (xOffset + charData.xOffset) * fontSize;
+				positions[12 * i + 9] = nameY + (charData.yOffset + charData.height) * fontSize;
+				positions[12 * i + 10] = nameX + (xOffset + charData.xOffset + charData.width) * fontSize;
+				positions[12 * i + 11] = nameY + (charData.yOffset + charData.height) * fontSize;
 				characters[12 * i] = charData.x / this.image.width;
 				characters[12 * i + 1] = charData.y / this.image.height;
 				characters[12 * i + 2] = (charData.x + charData.width) / this.image.width;
@@ -93,7 +113,7 @@ export class GameFont {
 				characters[12 * i + 9] = (charData.y + charData.height) / this.image.height;
 				characters[12 * i + 10] = (charData.x + charData.width) / this.image.width;
 				characters[12 * i + 11] = (charData.y + charData.height) / this.image.height;
-				xOffset += charData.xadvance;
+				xOffset += charData.xAdvance;
 			}
 			blur.fill(1 - mapNavigationHandler.zoom * fontSize / parentHeight * 120, offset * 6, (offset + string.length) * 6);
 			offset += string.length;
