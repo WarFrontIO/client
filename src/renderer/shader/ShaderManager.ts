@@ -3,7 +3,7 @@ import {GameFont} from "../GameFont";
 
 // Shaders are inlined by the build process
 export const compositeVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("CompositeShader.vert");
-export const flippedTextureVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("FlippedTextureShader.vert");
+export const simpleTextureVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("SimpleTextureShader.vert");
 export const mapGridLookupVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("MapGridLookupShader.vert");
 export const msdfTextureVertexShader = (ctx: GameGLContext) => ctx.loadVertexShader("MSDFTextureShader.vert");
 

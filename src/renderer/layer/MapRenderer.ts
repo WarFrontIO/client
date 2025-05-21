@@ -2,10 +2,9 @@ import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {GameTheme} from "../GameTheme";
-import {mapRenderingFragmentShader, flippedTextureVertexShader, distanceMapFragmentShader} from "../shader/ShaderManager";
+import {mapRenderingFragmentShader, simpleTextureVertexShader, distanceMapFragmentShader} from "../shader/ShaderManager";
 import {gameMap, isPlaying} from "../../game/GameData";
-import {gameStartRegistry} from "../../game/Game";
-import {gameRenderer} from "../GameRenderer";
+import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import {HSLColor} from "../../util/HSLColor";
 
@@ -24,7 +23,7 @@ class MapRenderer extends CachedLayer {
 
 	setup(context: GameGLContext) {
 		super.setup(context);
-		this.program = context.requireProgram(flippedTextureVertexShader, mapRenderingFragmentShader, "Map renderer failed to init");
+		this.program = context.requireProgram(simpleTextureVertexShader, mapRenderingFragmentShader, "Map renderer failed to init");
 		this.vao = context.createVertexArray(this.program, GameGLContext.positionAttribute());
 		this.uniforms = context.loadUniforms(this.program, "texture_data", "palette_data");
 	}
@@ -104,7 +103,7 @@ const detailList = {
 } as Record<string, (context: GameGLContext, args: unknown) => () => void>;
 
 function buildDetail(context: GameGLContext, color: HSLColor, min: number, max: number, gradient: number): () => void {
-	const program = context.requireProgram(flippedTextureVertexShader, distanceMapFragmentShader, "Map detail failed to init");
+	const program = context.requireProgram(simpleTextureVertexShader, distanceMapFragmentShader, "Map detail failed to init");
 	const vao = context.createVertexArray(program, GameGLContext.positionAttribute());
 	const uniforms = context.loadUniforms(program, "dist_data", "min", "max", "gradient", "color");
 	const rgb = color.toRGB();
@@ -126,6 +125,6 @@ export const mapRenderer = new MapRenderer();
 
 mapTransformHandler.scale.register(mapRenderer.onMapScale);
 mapTransformHandler.move.register(mapRenderer.onMapMove);
-gameStartRegistry.register(() => gameRenderer.registerLayer(mapRenderer, 5));
+renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(mapRenderer, 5));
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));
