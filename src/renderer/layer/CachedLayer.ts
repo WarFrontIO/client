@@ -1,6 +1,6 @@
 import {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import {BaseRendererLayer} from "./BaseRendererLayer";
-import {compositeVertexShader, simpleTextureFragmentShader} from "../shader/ShaderManager";
+import {textureCompositeVertexShader, simpleTextureFragmentShader} from "../shader/ShaderManager";
 
 /**
  * Caches rendered layer in a texture.
@@ -23,7 +23,7 @@ export abstract class CachedLayer extends BaseRendererLayer {
 	framebuffer: WebGLFramebuffer;
 
 	setup(context: GameGLContext) {
-		this._program = context.requireProgram(compositeVertexShader, simpleTextureFragmentShader, "CachedLayer failed to init");
+		this._program = context.requireProgram(textureCompositeVertexShader, simpleTextureFragmentShader, "CachedLayer failed to init");
 		this._vao = context.createVertexArray(this._program, GameGLContext.positionAttribute());
 		this._uniforms = context.loadUniforms(this._program, "scale", "offset", "size", "texture_data");
 	}

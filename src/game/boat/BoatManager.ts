@@ -117,10 +117,11 @@ class BoatManager {
 		}
 	}
 
-	render(context: CanvasRenderingContext2D) {
-		for (const boat of this.boats) {
-			boat.render(context);
-		}
+	/**
+	 * @returns The boats that are currently active
+	 */
+	getBoats(): Boat[] {
+		return this.boats;
 	}
 }
 

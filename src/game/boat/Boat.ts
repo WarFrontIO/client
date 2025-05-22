@@ -1,5 +1,4 @@
 import {Player} from "../player/Player";
-import {mapNavigationHandler} from "../action/MapNavigationHandler";
 import {boatManager} from "./BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
@@ -160,17 +159,37 @@ export class Boat {
 	}
 
 	/**
-	 * Renders the boat on the given canvas context.
-	 * @param context The canvas context to render on.
+	 * @returns The x coordinate of the boat
 	 */
-	render(context: CanvasRenderingContext2D) {
-		const zoom = mapNavigationHandler.zoom;
-		const x = mapNavigationHandler.x;
-		const y = mapNavigationHandler.y;
+	getX(): number {
+		return this.x;
+	}
 
-		//TODO: Add boat sprite
-		context.beginPath();
-		context.arc(this.x * zoom + x, this.y * zoom + y, zoom, 0, 2 * Math.PI);
-		context.fill();
+	/**
+	 * @returns The y coordinate of the boat
+	 */
+	getY(): number {
+		return this.y;
+	}
+
+	/**
+	 * @returns The next x coordinate of the boat
+	 */
+	getNextX(): number {
+		return this.nextX;
+	}
+
+	/**
+	 * @returns The next y coordinate of the boat
+	 */
+	getNextY(): number {
+		return this.nextY;
+	}
+
+	/**
+	 * @returns The player that owns the boat
+	 */
+	getPlayer() {
+		return this.owner;
 	}
 }
