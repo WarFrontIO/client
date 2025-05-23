@@ -1,10 +1,11 @@
 const {readFileSync} = require("fs");
 const {LazyWriter} = require("../build/src/util/LazyWriter");
+const path = require("path");
 
 module.exports = async function (shader) {
 	return shader
-		.replace(/load(Vertex|Fragment)Shader\("([^"]+)"\);/g, (_, type, file) => `load${type}Shader(\`${readFileSync("src/renderer/shader/" + file)}\`);`)
-		.replace(/GameFont\.fromRaw\(ctx, *"([^"]+)", *"([^"]+)"\)/g, (_, image, data) => `GameFont.fromRaw(ctx, \`data:image/png;base64,${Buffer.from(readFileSync("src/renderer/font/" + image)).toString("base64")}\`, "${encodeFontData(JSON.parse(readFileSync("src/renderer/font/" + data)))}")`);
+		.replace(/load(Vertex|Fragment)Shader\("([^"]+)"\);/g, (_, type, file) => `load${type}Shader(\`${readFileSync(path.resolve("src/renderer/shader/", file))}\`);`)
+		.replace(/GameFont\.fromRaw\(ctx, *"([^"]+)", *"([^"]+)"\)/g, (_, image, data) => `GameFont.fromRaw(ctx, \`data:image/png;base64,${Buffer.from(readFileSync("src/renderer/font/" + image)).toString("base64")}\`, "${encodeFontData(JSON.parse(readFileSync(path.resolve("src/renderer/font/", data))))}")`);
 }
 
 function encodeFontData(data) {
