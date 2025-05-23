@@ -442,7 +442,7 @@ type AttributeOptions = {
 };
 
 export type WebGLUniforms<T extends string> = {
-	[K in `set${1 | 2 | 3 | 4}${"i" | "ui" | "f"}`]: (uniform: T, ...args: K extends `set${infer U extends number}${"i" | "ui" | "f"}` ? Tuple<number, U> : never) => void
+	[K in `set${1 | 2 | 3 | 4}${"i" | "ui" | "f"}`]: (uniform: T, ...args: K extends `set${infer U extends 1 | 2 | 3 | 4}${"i" | "ui" | "f"}` ? Tuple<number, U> : never) => void
 } & {
 	[K in `set${1 | 2 | 3 | 4}${"i" | "ui" | "f"}v`]: (uniform: T, data: K extends `set${1 | 2 | 3 | 4}${infer U}v` ? U extends "i" ? Int32List : U extends "ui" ? Uint32List : U extends "f" ? Float32List : never : never, srcOffset?: number, srcLength?: GLuint) => void
 } & Omit<{

@@ -17,7 +17,7 @@ export class BoatMeshDebugRenderer extends BaseRendererLayer implements DebugRen
 	private edgeCount: number;
 
 	setup(context: GameGLContext): void {
-		this.program = context.requireProgram(compositeVertexShader, constantColorFragmentShader, "Boat renderer failed to init");
+		this.program = context.requireProgram(compositeVertexShader, constantColorFragmentShader, "Boat mesh debug renderer failed to init");
 		this.positionBuffer = context.createBuffer();
 		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer});
 		this.uniforms = context.loadUniforms(this.program, "offset", "size", "color");

@@ -22,21 +22,26 @@ class DebugRenderer extends CachedLayer {
 	 * @param layers layers to be rendered
 	 */
 	updateLayers(layers: DebugRendererLayer[]): void {
-		if (!this.context) return;
 		this.mapLayers.length = 0;
 		this.liveLayers.length = 0;
-		layers.forEach(layer => layer.init(this.context));
-		this.context.raw.clearBufferiv(WebGL2RenderingContext.COLOR, 0, [0, 0, 0, 0]);
-		this.context.bindFramebuffer(this.framebuffer);
+		if (this.context) {
+			layers.forEach(layer => layer.init(this.context));
+			this.context.bindFramebuffer(this.framebuffer);
+			this.context.raw.clearBufferfv(WebGL2RenderingContext.COLOR, 0, [0, 0, 0, 0]);
+			this.context.viewport(gameMap.width, gameMap.height);
+		}
 		for (const layer of layers) {
 			if (layer.useCache) {
 				this.mapLayers.push(layer);
-				layer.render(this.context);
+				if (this.context) layer.render(this.context);
 			} else {
 				this.liveLayers.push(layer);
 			}
 		}
-		this.context.resetFramebuffer();
+		if (this.context) {
+			this.context.resetFramebuffer();
+			this.context.viewport();
+		}
 	}
 
 	render(context: GameGLContext) {
@@ -50,8 +55,10 @@ class DebugRenderer extends CachedLayer {
 		this.mapLayers.forEach(layer => layer.init(context));
 		this.liveLayers.forEach(layer => layer.init(context));
 		context.bindFramebuffer(this.framebuffer);
+		this.context.viewport(gameMap.width, gameMap.height);
 		this.mapLayers.forEach(layer => layer.render(context));
 		context.resetFramebuffer();
+		context.viewport();
 	}
 
 	onMapMove(this: void, x: number, y: number): void {
