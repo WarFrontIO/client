@@ -227,6 +227,14 @@ export class GameGLContext {
 	}
 
 	/**
+	 * Binds the framebuffer.
+	 * @param framebuffer The framebuffer to use or null to render to canvas
+	 */
+	bindFramebuffer(framebuffer: WebGLFramebuffer | null) {
+		this.raw.bindFramebuffer(this.raw.FRAMEBUFFER, framebuffer);
+	}
+
+	/**
 	 * Unbinds the framebuffer.
 	 * Call this to render to the canvas again.
 	 */
@@ -321,6 +329,16 @@ export class GameGLContext {
 	 */
 	drawPoints(count: number, start: GLint = 0) {
 		this.raw.drawArrays(this.raw.POINTS, start, count);
+	}
+
+	/**
+	 *  Draws the given number of lines starting the given index.
+	 *  Note: The lines draws by this are very thin (for proper lines, use triangles instead)
+	 * @param count The number of lines to draw. NOT the number of end
+	 * @param start The index to start drawing from
+	 */
+	drawLines(count: number, start: GLint = 0) {
+		this.raw.drawArrays(this.raw.LINES, start, count * 2);
 	}
 }
 

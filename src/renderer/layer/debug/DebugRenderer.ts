@@ -3,7 +3,8 @@ import {mapTransformHandler} from "../../../event/MapTransformHandler";
 import {gameMap} from "../../../game/GameData";
 import {registerSettingListener} from "../../../util/settings/UserSettingManager";
 import {RendererLayer} from "../RendererLayer";
-import {gameStartRegistry} from "../../../game/Game";
+import {GameGLContext} from "../../GameGLContext";
+import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../../GameRenderer";
 
 //@module renderer-debug
 
@@ -21,9 +22,12 @@ class DebugRenderer extends CachedLayer {
 	 * @param layers layers to be rendered
 	 */
 	updateLayers(layers: DebugRendererLayer[]): void {
+		if (!this.context) return;
 		this.mapLayers.length = 0;
 		this.liveLayers.length = 0;
-		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		layers.forEach(layer => layer.init(this.context));
+		this.context.raw.clearBufferiv(WebGL2RenderingContext.COLOR, 0, [0, 0, 0, 0]);
+		this.context.bindFramebuffer(this.framebuffer);
 		for (const layer of layers) {
 			if (layer.useCache) {
 				this.mapLayers.push(layer);
@@ -32,16 +36,22 @@ class DebugRenderer extends CachedLayer {
 				this.liveLayers.push(layer);
 			}
 		}
+		this.context.resetFramebuffer();
 	}
 
-	render(context: CanvasRenderingContext2D) {
-		super.render(context);
+	render(context: GameGLContext) {
+		if (this.mapLayers.length !== 0) super.render(context);
 		this.liveLayers.forEach(layer => layer.render(context));
 	}
 
-	init(): void {
-		this.resizeCanvas(gameMap.width, gameMap.height);
-		this.mapLayers.forEach(layer => layer.render(this.context));
+	init(context: GameGLContext): void {
+		super.init(context);
+		this.resizeCanvas(gameMap.width, gameMap.height, true);
+		this.mapLayers.forEach(layer => layer.init(context));
+		this.liveLayers.forEach(layer => layer.init(context));
+		context.bindFramebuffer(this.framebuffer);
+		this.mapLayers.forEach(layer => layer.render(context));
+		context.resetFramebuffer();
 	}
 
 	onMapMove(this: void, x: number, y: number): void {
@@ -58,10 +68,10 @@ export const debugRenderer = new DebugRenderer();
 
 mapTransformHandler.scale.register(debugRenderer.onMapScale);
 mapTransformHandler.move.register(debugRenderer.onMapMove);
-gameStartRegistry.register(debugRenderer.init.bind(debugRenderer));
+renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(debugRenderer, 50));
 
 registerSettingListener("debug-renderer", (_, obj) => debugRenderer.updateLayers(obj.getEnabledOptions()));
 
-export interface DebugRendererLayer extends RendererLayer {
+export type DebugRendererLayer = {
 	useCache: boolean;
-}
+} & RendererLayer;

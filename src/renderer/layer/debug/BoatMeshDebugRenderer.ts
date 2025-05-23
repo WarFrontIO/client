@@ -2,33 +2,64 @@ import {areaCalculator} from "../../../map/area/AreaCalculator";
 import {DebugRendererLayer} from "./DebugRenderer";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
+import {GameGLContext, WebGLUniforms} from "../../GameGLContext";
+import {BaseRendererLayer} from "../BaseRendererLayer";
+import {compositeVertexShader, constantColorFragmentShader} from "../../shader/ShaderManager";
 
 //@module renderer-debug
 
-export class BoatMeshDebugRenderer implements DebugRendererLayer {
+export class BoatMeshDebugRenderer extends BaseRendererLayer implements DebugRendererLayer {
 	readonly useCache = false;
+	private program: WebGLProgram;
+	private vao: WebGLVertexArrayObject;
+	private uniforms: WebGLUniforms<"offset" | "size" | "color">;
+	private positionBuffer: WebGLBuffer;
+	private edgeCount: number;
 
-	render(context: CanvasRenderingContext2D): void {
-		context.strokeStyle = "red";
-		context.fillStyle = "orange";
+	setup(context: GameGLContext): void {
+		this.program = context.requireProgram(compositeVertexShader, constantColorFragmentShader, "Boat renderer failed to init");
+		this.positionBuffer = context.createBuffer();
+		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer});
+		this.uniforms = context.loadUniforms(this.program, "offset", "size", "color");
+	}
+
+	init(context: GameGLContext) {
+		super.init(context);
+		let edgeCount = 0;
 		for (const nodes of areaCalculator.nodeIndex) {
 			for (const node of nodes) {
-				context.beginPath();
-				context.arc((node.x + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.x, (node.y + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.y, mapNavigationHandler.zoom / 2, 0, 2 * Math.PI);
-				context.fill();
+				edgeCount += node.edges.length; //this includes both ways
 			}
 		}
+		this.edgeCount = edgeCount / 2;
+
+		const edges = new Float32Array(edgeCount * 2);
+		let offset = 0;
 		for (const nodes of areaCalculator.nodeIndex) {
 			for (const node of nodes) {
 				for (const neighbor of node.edges) {
 					if (neighbor.node.x < node.x || (neighbor.node.x === node.x && neighbor.node.y < node.y)) continue; // Only draw each edge once
-					context.beginPath();
-					context.moveTo((node.x + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.x, (node.y + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.y);
-					context.lineTo((neighbor.node.x + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.x, (neighbor.node.y + 0.5) * mapNavigationHandler.zoom + mapNavigationHandler.y);
-					context.stroke();
+					edges[offset++] = node.x + 0.5;
+					edges[offset++] = node.y + 0.5;
+					edges[offset++] = neighbor.node.x + 0.5;
+					edges[offset++] = neighbor.node.y + 0.5;
 				}
 			}
 		}
+		context.bufferData(this.positionBuffer, edges, WebGL2RenderingContext.STATIC_DRAW);
+	}
+
+	render(context: GameGLContext): void {
+		context.bind(this.program, this.vao);
+
+		const parentWidth = context.raw.canvas.width;
+		const parentHeight = context.raw.canvas.height;
+
+		this.uniforms.set2f("offset", mapNavigationHandler.x / parentWidth, mapNavigationHandler.y / parentHeight);
+		this.uniforms.set2f("size", mapNavigationHandler.zoom / parentWidth, mapNavigationHandler.zoom / parentHeight);
+		this.uniforms.set4f("color", 1, 0, 0, 0.8);
+
+		context.drawLines(this.edgeCount);
 	}
 }
 
