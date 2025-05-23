@@ -19,4 +19,4 @@ export const msdfTextureFragmentShader = (ctx: GameGLContext) => ctx.loadFragmen
 export const simpleColorFragmentShader = (ctx: GameGLContext) => ctx.loadFragmentShader("SimpleColorShader.frag");
 export const constantColorFragmentShader = (ctx: GameGLContext) => ctx.loadFragmentShader("ConstantColorShader.frag");
 
-export const mapFontData = async (ctx: GameGLContext) => await GameFont.fromRaw(ctx, "../../../resources/themes/overpass-regular.png", "../../../resources/themes/overpass-regular.json");
+export const mapFontData = async (ctx: GameGLContext) => await GameFont.fromRaw(ctx, "./../../../resources/themes/overpass-regular.png", "./../../../resources/themes/overpass-regular.json");
