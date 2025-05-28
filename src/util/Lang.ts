@@ -20,7 +20,7 @@ export const tUnsafe = languageProxy<Record<string, string>>() as (key: string, 
  * Set the generic parameter to your default language file, this will allow type-safe argument support.
  */
 export function languageProxy<B extends Record<string, string>>() {
-	return function <T extends LanguageKey<B>>(key: T, ...args: ExtractArgsRecursive<T, B> extends never ? [] : [Args<T, B>]): Example<T, B> {
+	return function <T extends LanguageKey<B>>(key: T, ...args: ({} extends Args<T, B> ? [] : never) | [Args<T, B>]): Example<T, B> {
 		let data = args[0] === undefined ? langData[key] : findContext<B>(key, args[0]);
 		if (!data) return `Missing language string: ${key}` as Example<T, B>;
 		const inline = data.matchAll(/{{([^},]+)(?:,([^}]+))?}}/g);
@@ -130,11 +130,13 @@ let pluralRulesOrdinal: Intl.PluralRules;
 setLanguage("eng", eng);
 
 type LanguageKey<B> = (keyof B | { [K in keyof B]: K extends `${infer A}_${string}` ? A : never }[keyof B]) & string;
-type Args<T extends LanguageKey<B>, B> = { [K in ExtractArgsRecursive<T, B> as ExtractName<K>]: ExtractType<K> };
+type Args<T extends LanguageKey<B>, B> = { [K in ExtractArgsRecursive<T, B> as ExtractName<K>]: ExtractType<K> } & ImplicitArgs<T, B>;
+type ImplicitArgs<T extends LanguageKey<B>, B> = T extends keyof B ? {} | { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B] : { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B];
 type ExtractArgsRecursive<T extends LanguageKey<B>, B> = (T extends keyof B ? ExtractArgs<B[T]> : never) | { [K in keyof B]: K extends `${T}_${string}` ? ExtractArgs<B[K]> : never }[keyof B];
 type ExtractArgs<T> = T extends `{{${infer A}}}${infer B}` ? A | ExtractArgs<B> : T extends `${string}${infer A}` ? ExtractArgs<A> : never;
+type ExtractImplicit<T extends string> = T extends `${string}_${string}` ? {count: number, context: string} : T extends "zero" | "one" | "two" | "few" | "many" | "other" | "singular" ? {count: number} | {context: string} : {context: string};
 type Trim<T> = T extends ` ${infer A}` ? Trim<A> : T extends `${infer A} ` ? Trim<A> : T;
 type ExtractName<T extends string> = T extends `${infer A},${string}` ? Trim<A> : Trim<T>;
-type ExtractType<T extends string> = T extends `${string}, ${infer A}` ? MatchType<Trim<A>> : string;
+type ExtractType<T extends string> = T extends `${string},${infer A}` ? MatchType<Trim<A>> : string;
 type MatchType<T extends string> = T extends "number" ? number : T;
 type Example<T extends LanguageKey<B>, B> = T extends keyof B ? B[T] : { [K in keyof B]: K extends `${T}_${string}` ? B[K] : never }[keyof B];
