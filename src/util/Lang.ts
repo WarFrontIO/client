@@ -20,7 +20,7 @@ export const tUnsafe = languageProxy<Record<string, string>>() as (key: string, 
  * Set the generic parameter to your default language file, this will allow type-safe argument support.
  */
 export function languageProxy<B extends Record<string, string>>() {
-	return function <T extends LanguageKey<B>>(key: T, ...args: ({} extends Args<T, B> ? [] : never) | [Args<T, B>]): Example<T, B> {
+	return function <T extends LanguageKey<B>>(key: T, ...args: ({} extends Args<T, B> ? [] : never) | (Args<T, B> extends Record<string, never> ? [Record<string, never>] : [Args<T, B>])): Example<T, B> {
 		let data = args[0] === undefined ? langData[key] : findContext<B>(key, args[0]);
 		if (!data) return `Missing language string: ${key}` as Example<T, B>;
 		const inline = data.matchAll(/{{([^},]+)(?:,([^}]+))?}}/g);
@@ -130,8 +130,8 @@ let pluralRulesOrdinal: Intl.PluralRules;
 setLanguage("eng", eng);
 
 type LanguageKey<B> = (keyof B | { [K in keyof B]: K extends `${infer A}_${string}` ? A : never }[keyof B]) & string;
-type Args<T extends LanguageKey<B>, B> = { [K in ExtractArgsRecursive<T, B> as ExtractName<K>]: ExtractType<K> } & ImplicitArgs<T, B>;
-type ImplicitArgs<T extends LanguageKey<B>, B> = T extends keyof B ? {} | { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B] : { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B];
+type Args<T extends LanguageKey<B>, B> = ImplicitArgs<T, B, { [K in ExtractArgsRecursive<T, B> as ExtractName<K>]: ExtractType<K> }, { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B]>;
+type ImplicitArgs<T extends LanguageKey<B>, B, C, D> = T extends keyof B ? C | C & D : C & D;
 type ExtractArgsRecursive<T extends LanguageKey<B>, B> = (T extends keyof B ? ExtractArgs<B[T]> : never) | { [K in keyof B]: K extends `${T}_${string}` ? ExtractArgs<B[K]> : never }[keyof B];
 type ExtractArgs<T> = T extends `{{${infer A}}}${infer B}` ? A | ExtractArgs<B> : T extends `${string}${infer A}` ? ExtractArgs<A> : never;
 type ExtractImplicit<T extends string> = T extends `${string}_${string}` ? {count: number, context: string} : T extends "zero" | "one" | "two" | "few" | "many" | "other" | "singular" ? {count: number} | {context: string} : {context: string};
