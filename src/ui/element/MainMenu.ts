@@ -1,4 +1,4 @@
-import {mapFromId} from "../../map/MapRegistry";
+import {getDefaultMapIds, mapFromId} from "../../map/MapRegistry";
 import {getSetting, getSettingObject} from "../../util/settings/UserSettingManager";
 import {startGame} from "../../game/Game";
 import {gameModeFromId} from "../../game/mode/GameModeRegistry";
@@ -7,6 +7,9 @@ import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
+import {t} from "../../util/Lang";
+import {buildButton} from "../type/TextNode";
+import {buildContainer} from "../type/ContentField";
 //import {openMultiplayerLobby} from "./MultiplayerLobby";
 
 //@module ui
@@ -21,9 +24,13 @@ const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
 registerClickListener("btnStartSingleplayer", () => {
-	hideAllUIElements();
-	showUIElement("GameHud");
-	startGame(mapFromId(Math.floor(Math.random() * 2)), gameModeFromId(GameModeIds.FFA), 23452345, [{name: getSetting("player-name")}], 0, true);
+	showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
+		buildButton(map.name).onClick(() => {
+			hideAllUIElements();
+			showUIElement("GameHud");
+			startGame(mapFromId(map.id), gameModeFromId(GameModeIds.FFA), 23452345, [{name: getSetting("player-name")}], 0, true);
+		}))
+	));
 });
 
 registerClickListener("linkImprint", () => showPanel("Site Notice"));

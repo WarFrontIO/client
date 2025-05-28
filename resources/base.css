@@ -930,9 +930,19 @@ input:checked + .slider {
 	grid-template-columns: 1fr 1fr;
 }
 
+.grid-3col {
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media screen and (max-width: 1023px) {
+	.grid-3col {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
 @media screen and (max-width: 767px) {
-	.grid-2col {
-		grid-template-columns: 1fr !important;
+	.grid-2col, .grid-3col {
+		grid-template-columns: 1fr;
 	}
 }
 

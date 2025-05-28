@@ -38,6 +38,13 @@ export function mapFromId(id: number): GameMap {
 	return map;
 }
 
+/**
+ * @returns an object containing the names and ids of all default maps (bundled with the game)
+ */
+export function getDefaultMapIds(): {name: string, id: number}[] {
+	return mapRegistry.map((v, i) => ({name: v.name, id: i}));
+}
+
 // The following lines are filled in by the build process
 // BUILD_MAPS_REGISTER
 // End of map register block
