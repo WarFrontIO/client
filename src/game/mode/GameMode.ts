@@ -1,5 +1,6 @@
 import {territoryManager} from "../TerritoryManager";
 import {HSLColor} from "../../util/HSLColor";
+import {GameResult} from "../result/GameResult";
 
 /**
  * All game mode-specific logic should be implemented in a subclass of this class.
@@ -26,4 +27,10 @@ export abstract class GameMode {
 	processPlayerColor(_player: number, color: HSLColor): HSLColor {
 		return color;
 	}
+
+	/**
+	 * Returns the result of the game if it can be considered finished.
+	 * @returns The result of the game or null if the game is still in progress
+	 */
+	abstract getResult(): GameResult | null;
 }

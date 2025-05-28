@@ -113,6 +113,9 @@ export const languageChangeRegistry = new EventHandlerRegistry();
  * - Context: Context data suffix
  */
 const eng = {
+	"game.result.title": "Game Result",
+	"game.winner.single": "Player {{name}} won the game!",
+	"game.action.leave": "Leave Game",
 	"menu.map.select": "Select a map to play",
 	"setting.select.wf@theme": "Theme",
 	"setting.select.wf@debug-renderer": "Toggle Debug Renderers",

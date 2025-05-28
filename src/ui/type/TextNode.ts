@@ -91,11 +91,13 @@ export function buildIcon(icon: string, ...classes: string[]): TextNode {
 /**
  * Builds a button element.
  * @param text The text of the button
+ * @param type The type of the button
+ * @param classes The classes of the button
  * @returns The button element
  */
-export function buildButton(text: string): TextNode {
+export function buildButton(text: string, type: "primary" | "secondary" | "danger" | "success" = "primary", ...classes: string[]): TextNode {
 	const element = document.createElement("button");
-	element.classList.add("btn", "btn-primary");
+	element.classList.add("btn", "btn-" + type, ...classes);
 	return new TextNode(element).setText(text);
 }
 
