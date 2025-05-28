@@ -23,14 +23,16 @@ export function languageProxy<B extends Record<string, string>>() {
 	return function <T extends LanguageKey<B>>(key: T, ...args: ({} extends Args<T, B> ? [] : never) | (Args<T, B> extends Record<string, never> ? [Record<string, never>] : [Args<T, B>])): Example<T, B> {
 		let data = args[0] === undefined ? langData[key] : findContext<B>(key, args[0]);
 		if (!data) return `Missing language string: ${key}` as Example<T, B>;
+		const stringArgs = args[0] as Record<string, unknown> ?? [];
 		const inline = data.matchAll(/{{([^},]+)(?:,([^}]+))?}}/g);
 		for (const match of inline) {
-			const arg = match[1] ? match[1].trim() : "";
-			if (arg === "") continue;
+			const arg = (match[1] ? match[1].trim() : "");
+			const value = stringArgs[arg];
+			if (arg === "" || value === undefined) continue;
 			if (match[2] && match[2].trim() === "number") {
-				data = data.replace(match[0], numberFormat.format(arg as unknown as number));
+				data = data.replace(match[0], numberFormat.format(value as number));
 			} else {
-				data = data.replace(match[0], arg);
+				data = data.replace(match[0], value as string);
 			}
 		}
 		return data as Example<T, B>; //Show the English preview in the editor
