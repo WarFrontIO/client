@@ -18,14 +18,14 @@ export abstract class CachedLayer extends BaseRendererLayer {
 
 	private _program: WebGLProgram;
 	private _vao: WebGLVertexArrayObject;
-	private _uniforms: WebGLUniforms<"scale" | "offset" | "size" | "texture_data">;
+	private _uniforms: WebGLUniforms<"offset" | "size" | "texture_data">;
 	private _texture: WebGLTexture;
 	framebuffer: WebGLFramebuffer;
 
 	setup(context: GameGLContext) {
 		this._program = context.requireProgram(textureCompositeVertexShader, simpleTextureFragmentShader, "CachedLayer failed to init");
 		this._vao = context.createVertexArray(this._program, GameGLContext.positionAttribute());
-		this._uniforms = context.loadUniforms(this._program, "scale", "offset", "size", "texture_data");
+		this._uniforms = context.loadUniforms(this._program, "offset", "size", "texture_data");
 	}
 
 	/**
@@ -52,8 +52,7 @@ export abstract class CachedLayer extends BaseRendererLayer {
 		const parentHeight = this.context.raw.canvas.height;
 
 		this._uniforms.set2f("offset", this.dx / parentWidth, this.dy / parentHeight);
-		this._uniforms.set2f("size", parentWidth / this.width, parentHeight / this.height);
-		this._uniforms.set1f("scale", this.scale);
+		this._uniforms.set2f("size", this.scale * this.width / parentWidth, this.scale * this.height / parentHeight);
 		this._uniforms.set1i("texture_data", 0);
 
 		context.drawTriangles(2);

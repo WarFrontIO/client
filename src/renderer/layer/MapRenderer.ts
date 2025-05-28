@@ -40,8 +40,8 @@ class MapRenderer extends CachedLayer {
 		this.context.viewport(gameMap.width, gameMap.height);
 
 		const palette = this.createPalette(theme);
-		const mapData = this.context.createTexture(gameMap.width, gameMap.height, gameMap.tiles, {type: WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5});
-		const depthData = this.context.createTexture(gameMap.width, gameMap.height, Uint16Array.from(gameMap.distanceMap), {type: WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5});
+		const mapData = this.context.createTexture(gameMap.width, gameMap.height, gameMap.tiles, {type: WebGL2RenderingContext.UNSIGNED_SHORT, internalFormat: WebGL2RenderingContext.R16UI, format: WebGL2RenderingContext.RED_INTEGER});
+		const depthData = this.context.createTexture(gameMap.width, gameMap.height, gameMap.distanceMap, {type: WebGL2RenderingContext.SHORT, internalFormat: WebGL2RenderingContext.R16I, format: WebGL2RenderingContext.RED_INTEGER});
 
 		this.context.bindTexture(depthData, 2);
 		this.context.bindTexture(palette, 1);
@@ -61,14 +61,14 @@ class MapRenderer extends CachedLayer {
 	}
 
 	private createPalette(theme: GameTheme): WebGLTexture {
-		const colors = new Uint8Array(2048 * 32 * 3);
+		const colors = new Uint8Array(2 ** 16 * 3);
 		for (const tileType of gameMap.tileTypes) {
 			const color = theme.getTileColor(tileType).toRGB();
 			colors[tileType.id * 3] = color.r;
 			colors[tileType.id * 3 + 1] = color.g;
 			colors[tileType.id * 3 + 2] = color.b;
 		}
-		return this.context.createTexture(2048, 32, colors);
+		return this.context.createTexture(2 ** 8, 2 ** 8, colors);
 	}
 
 	onMapMove(this: void, x: number, y: number): void {

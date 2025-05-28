@@ -1,6 +1,5 @@
 import {boatManager} from "../../game/boat/BoatManager";
-import {gameRenderer} from "../GameRenderer";
-import {gameStartRegistry} from "../../game/Game";
+import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import {BaseRendererLayer} from "./BaseRendererLayer";
 import {colorCompositeVertexShader, simpleColorFragmentShader} from "../shader/ShaderManager";
@@ -83,4 +82,4 @@ class BoatRenderer extends BaseRendererLayer {
 
 export const boatRenderer = new BoatRenderer();
 
-gameStartRegistry.register(() => gameRenderer.registerLayer(boatRenderer, 20));
+renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(boatRenderer, 20));

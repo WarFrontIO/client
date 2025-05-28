@@ -347,14 +347,14 @@ type TextureOptions = {
 	 * The internal format to use for the texture. Must be compatible with format and type.
 	 *
 	 * Default: {@link WebGL2RenderingContext.RGB}
-	 * @see https://registry.khronos.org/webgl/specs/latest/2.0/#TEXTURE_TYPES_FORMATS_FROM_DOM_ELEMENTS_TABLE
+	 * @see https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml#id-1.6.11.1
 	 */
 	internalFormat?: GLint,
 	/**
 	 * The texture format to use. Must be compatible with internalFormat and type.
 	 *
 	 * Default: {@link WebGL2RenderingContext.RGB}
-	 * @see https://registry.khronos.org/webgl/specs/latest/2.0/#TEXTURE_TYPES_FORMATS_FROM_DOM_ELEMENTS_TABLE
+	 * @see https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml#id-1.6.11.1
 	 */
 	format?: GLenum,
 	/**
@@ -362,7 +362,7 @@ type TextureOptions = {
 	 *
 	 * Default: Default: {@link WebGL2RenderingContext.UNSIGNED_BYTE}
 	 * @see https://registry.khronos.org/webgl/specs/latest/2.0/#TEXTURE_PIXELS_TYPE_TABLE
-	 * @see https://registry.khronos.org/webgl/specs/latest/2.0/#TEXTURE_TYPES_FORMATS_FROM_DOM_ELEMENTS_TABLE
+	 * @see https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml#id-1.6.11.1
 	 */
 	type?: GLenum,
 	/**
