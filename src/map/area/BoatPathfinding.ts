@@ -278,6 +278,7 @@ function onNeighborWater(tile: number, closure: (tile: number) => void) {
  * @param points The points to append.
  */
 function appendSmoothed(path: number[], points: number[]) {
+	if (points.length === 0) return;
 	if (path.length === 0) {
 		path.push(points[0]);
 	}
