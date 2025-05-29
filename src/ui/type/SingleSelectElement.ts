@@ -60,8 +60,8 @@ export class SingleSelectElement extends UIElement {
 	 * @param setting The setting to link
 	 */
 	linkSetting(setting: SingleSelectSetting<unknown>): this {
-		this.handleRegistry(setting.getRegistry(), (_, obj) => this.setValue(obj.getSelectedOption()));
 		this.handleRegistry(setting.getOptionRegistry(), option => this.addOption(option, option));
+		this.handleRegistry(setting.getRegistry(), (_, obj) => this.setValue(obj.getSelectedOption()));
 		this.onChanged(value => setting.select(value).save());
 		return this;
 	}
