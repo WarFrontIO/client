@@ -114,6 +114,7 @@ export abstract class Setting<T> {
 	 */
 	parse(value: string, version: number): void {
 		this.fromString(this.applyUpdaters(value, version));
+		this.save();
 		if (this.initialized) this.registry.broadcast(this.value);
 	}
 
@@ -135,7 +136,6 @@ export abstract class Setting<T> {
 				throw new UnsupportedDataException(`No updater found for setting ${this.saveId} from version ${oldVer}`);
 			}
 		}
-		this.save();
 		return value;
 	}
 
