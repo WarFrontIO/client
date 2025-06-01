@@ -12,6 +12,7 @@ import {gameMode} from "./GameData";
 import {showPanel} from "../ui/type/UIPanel";
 import {buildButton, buildTextNode} from "../ui/type/TextNode";
 import {t} from "../util/Lang";
+import {mapActionHandler} from "./action/MapActionHandler";
 
 //@module game
 
@@ -50,6 +51,7 @@ gameTicker.registry.register(() => {
 			buildButton(t("game.action.leave"), "danger", "btn-block").onClick(() => window.location.reload())
 		);
 		gameTicker.stop();
+		mapActionHandler.disable();
 		//TODO: allow continuing if player wants to
 	}
 });
