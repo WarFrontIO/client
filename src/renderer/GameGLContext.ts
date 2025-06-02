@@ -307,10 +307,22 @@ export class GameGLContext {
 	 * Draw with blending.
 	 * @param src The source blend factor
 	 * @param dst The destination blend factor
+	 * @param srcAlpha The source alpha blend factor
+	 * @param dstAlpha The destination alpha blend factor
 	 */
-	startBlend(src: GLenum | null = null, dst: GLenum | null = null) {
+	startBlend(src: GLenum | null = null, dst: GLenum | null = null, srcAlpha: GLenum | null = null, dstAlpha: GLenum | null = null) {
 		this.raw.enable(this.raw.BLEND);
-		if (src && dst) this.raw.blendFunc(src, dst);
+		if (src && dst) this.raw.blendFuncSeparate(src, dst, srcAlpha ?? src, dstAlpha ?? dst);
+	}
+
+	/**
+	 * Default blending settings used for layering.
+	 * This guarantees the following:
+	 * - colors are mixed as expected (higher alpha => stronger tone)
+	 * - alpha values get lower as more layers are drawn (most importantly, drawing over a solid color does not decrease alpha)
+	 */
+	startBlendNatural() {
+		this.startBlend(this.raw.SRC_ALPHA, this.raw.ONE_MINUS_SRC_ALPHA, this.raw.ONE);
 	}
 
 	/**

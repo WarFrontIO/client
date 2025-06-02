@@ -8,7 +8,7 @@ import type {GameGLContext} from "../GameGLContext";
  * - viewport (reset using {@link GameGLContext.viewport} without params)
  * - framebuffer (reset using {@link GameGLContext.resetFramebuffer})
  * - activeTexture (reset using {@link GameGLContext.resetActiveTexture}), note that {@link GameGLContext.bindTexture} mutates this if unit parameter is provided
- * - blending (reset using {@link GameGLContext.startBlend})
+ * - blending (reset using {@link GameGLContext.startBlendNatural})
  *
  * @see GameRenderer#registerLayer
  */

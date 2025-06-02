@@ -26,7 +26,7 @@ export class GameRenderer {
 		this.canvas.style.zIndex = "-1";
 		//TODO: Notify user if webgl is not supported (can't play this game...)
 		this.context = new GameGLContext(this.canvas.getContext("webgl2", {premultipliedAlpha: false}) as WebGL2RenderingContext);
-		this.context.startBlend(WebGL2RenderingContext.SRC_ALPHA, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA)
+		this.context.startBlendNatural();
 
 		this.doRenderTick();
 
