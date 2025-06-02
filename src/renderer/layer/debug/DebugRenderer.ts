@@ -44,12 +44,12 @@ class DebugRenderer extends CachedLayer {
 		}
 	}
 
-	render(context: GameGLContext) {
+	override render(context: GameGLContext) {
 		if (this.mapLayers.length !== 0) super.render(context);
 		this.liveLayers.forEach(layer => layer.render(context));
 	}
 
-	init(context: GameGLContext): void {
+	override init(context: GameGLContext): void {
 		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height, true);
 		this.mapLayers.forEach(layer => layer.init(context));

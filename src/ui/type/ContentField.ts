@@ -72,12 +72,12 @@ export class ContentField extends UIElement {
 	 * @param classes The classes
 	 * @returns This panel
 	 */
-	addBodyClass(...classes: string[]): this {
+	override addBodyClass(...classes: string[]): this {
 		this.bodyElement.classList.add(...classes);
 		return this;
 	}
 
-	destroy() {
+	override destroy() {
 		super.destroy();
 		this.children.forEach(child => child.destroy());
 	}

@@ -13,7 +13,7 @@ export class ClientPlayer extends Player {
 		areaIndex = new Uint16Array(areaCalculator.preprocessMap());
 	}
 
-	addTile(tile: number) {
+	override addTile(tile: number) {
 		super.addTile(tile);
 
 		gameMap.onNeighbors(tile, neighbor => {
@@ -23,7 +23,7 @@ export class ClientPlayer extends Player {
 		});
 	}
 
-	removeTile(tile: number) {
+	override removeTile(tile: number) {
 		super.removeTile(tile);
 
 		gameMap.onNeighbors(tile, neighbor => {

@@ -28,7 +28,7 @@ class TerritoryRenderer extends CachedLayer {
 	private tileBuffer: WebGLBuffer;
 	private updateBuffer: WebGLBuffer;
 
-	setup(context: GameGLContext) {
+	override setup(context: GameGLContext) {
 		super.setup(context);
 		this.program = context.requireProgram(mapGridLookupVertexShader, territoryRenderingFragmentShader, "Territory renderer failed to init");
 		this.tileBuffer = context.createBuffer();
@@ -38,7 +38,7 @@ class TerritoryRenderer extends CachedLayer {
 		this.updatePalette(getSetting("theme"));
 	}
 
-	init(context: GameGLContext): void {
+	override init(context: GameGLContext): void {
 		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height, true);
 	}
@@ -60,7 +60,7 @@ class TerritoryRenderer extends CachedLayer {
 		this.palette = this.context.createTexture(256, 512, colors, {internalFormat: WebGL2RenderingContext.RGBA, format: WebGL2RenderingContext.RGBA});
 	}
 
-	render(context: GameGLContext) {
+	override render(context: GameGLContext) {
 		if (this.manager.tiles.length > 0) {
 			this.context.bind(this.program, this.vao, this.framebuffer);
 			this.context.stopBlend();

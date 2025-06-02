@@ -23,7 +23,7 @@ export class BoatMeshDebugRenderer extends BaseRendererLayer implements DebugRen
 		this.uniforms = context.loadUniforms(this.program, "offset", "size", "color");
 	}
 
-	init(context: GameGLContext) {
+	override init(context: GameGLContext) {
 		super.init(context);
 		let edgeCount = 0;
 		for (const nodes of areaCalculator.nodeIndex) {

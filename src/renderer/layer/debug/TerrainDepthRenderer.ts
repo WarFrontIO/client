@@ -25,7 +25,7 @@ export class TerrainDepthRenderer extends BaseRendererLayer implements DebugRend
 		this.palette = context.createTexture(3, 1, new Uint8Array([0, 0, 0, 128, 0, 255, 0, 128, 0, 0, 255, 128, 255, 0, 255, 128]), {internalFormat: WebGL2RenderingContext.RGBA, format: WebGL2RenderingContext.RGBA, magFilter: WebGL2RenderingContext.LINEAR});
 	}
 
-	init(context: GameGLContext) {
+	override init(context: GameGLContext) {
 		super.init(context);
 
 		const tiles = new Uint32Array(gameMap.width * gameMap.height);

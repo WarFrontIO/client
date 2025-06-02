@@ -11,7 +11,8 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "exactOptionalPropertyTypes": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true
   },
   "exclude": ["test"]
 }

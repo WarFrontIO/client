@@ -4,7 +4,7 @@ import {Setting} from "./Setting";
 
 export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends Setting<T> {
 	readonly type = "multi-select";
-	protected initialized: boolean = true; // We pretty much always only check all options, so an empty object is fine
+	protected override initialized: boolean = true; // We pretty much always only check all options, so an empty object is fine
 	protected initialEnabled: null | string[] = null;
 
 	static init<T = never>(category: SettingCategory | null, version: number = 0) {

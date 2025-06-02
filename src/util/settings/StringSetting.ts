@@ -3,7 +3,7 @@ import {Setting} from "./Setting";
 
 export class StringSetting extends Setting<string> {
 	readonly type = "string";
-	protected initialized: boolean = true;
+	protected override initialized: boolean = true;
 	protected readonly mutators: ((value: string) => string)[] = [];
 	protected readonly rules: { errorMessage: string, rule: (value: string) => boolean }[] = [];
 

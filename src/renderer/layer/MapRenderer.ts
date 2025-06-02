@@ -22,14 +22,14 @@ class MapRenderer extends CachedLayer {
 	private uniforms: WebGLUniforms<"texture_data" | "palette_data">;
 	private details: (() => void)[];
 
-	setup(context: GameGLContext) {
+	override setup(context: GameGLContext) {
 		super.setup(context);
 		this.program = context.requireProgram(simpleTextureVertexShader, mapRenderingFragmentShader, "Map renderer failed to init");
 		this.vao = context.createVertexArray(this.program, GameGLContext.positionAttribute());
 		this.uniforms = context.loadUniforms(this.program, "texture_data", "palette_data");
 	}
 
-	init(context: GameGLContext): void {
+	override init(context: GameGLContext): void {
 		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height);
 		this.forceRepaint(getSetting("theme"));

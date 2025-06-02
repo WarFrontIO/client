@@ -7,7 +7,7 @@ import {ContentField} from "./ContentField";
  * A panel element.
  */
 export class UIPanel extends ContentField {
-	protected readonly element: HTMLDialogElement;
+	protected override readonly element: HTMLDialogElement;
 	protected readonly titleElement: HTMLElement;
 	protected closeHandler: () => void = () => {};
 
@@ -16,7 +16,7 @@ export class UIPanel extends ContentField {
 		this.titleElement = titleElement;
 	}
 
-	initDefaultListeners() {
+	override initDefaultListeners() {
 		this.showListeners.register(() => this.element.showModal());
 		this.hideListeners.register(() => this.element.close());
 	}

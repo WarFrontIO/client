@@ -9,7 +9,7 @@ export class CachedEventHandlerRegistry<T extends unknown[]> extends EventHandle
 	 * @param args The arguments to broadcast
 	 * @internal Only call this method if you are the event source
 	 */
-	broadcast(...args: T): void {
+	override broadcast(...args: T): void {
 		super.broadcast(...args);
 		this.cache.push(args);
 	}
@@ -19,7 +19,7 @@ export class CachedEventHandlerRegistry<T extends unknown[]> extends EventHandle
 	 * The listener will be called with all cached events.
 	 * @param listener The listener to register
 	 */
-	register(listener: (this: void, ...args: T) => void) {
+	override register(listener: (this: void, ...args: T) => void) {
 		super.register(listener);
 		for (const args of this.cache) {
 			listener(...args);

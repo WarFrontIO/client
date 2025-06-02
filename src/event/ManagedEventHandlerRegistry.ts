@@ -23,7 +23,7 @@ export class AsymmetricEventHandlerRegistry<T extends unknown[], R extends unkno
 	 * Note: you most likely have to bind the listener to the correct context or specify "this: void" in the listener.
 	 * @param listener The listener to register.
 	 */
-	register(listener: (this: void, ...args: [...T, ...R]) => void) {
+	override register(listener: (this: void, ...args: [...T, ...R]) => void) {
 		this.initialHandler(listener);
 		super.register(listener);
 	}
@@ -33,7 +33,7 @@ export class AsymmetricEventHandlerRegistry<T extends unknown[], R extends unkno
 	 * @param args The arguments to pass to the listeners.
 	 * @internal Only call this method if you are the event source.
 	 */
-	broadcast<U extends unknown[] = T>(...args: ([...T, ...R] extends [...U, ...R] ? U : never) & T) {
+	override broadcast<U extends unknown[] = T>(...args: ([...T, ...R] extends [...U, ...R] ? U : never) & T) {
 		this.listeners.forEach(listener => this.handleListener(listener, ...args));
 	}
 }

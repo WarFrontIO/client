@@ -32,7 +32,7 @@ export class TerritoryTransaction extends Transaction {
 		this.tiles.add(tile);
 	}
 
-	apply() {
+	override apply() {
 		if (this.tiles.size === 0) return;
 		super.apply();
 	}
