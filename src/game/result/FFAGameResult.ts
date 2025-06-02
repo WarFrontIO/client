@@ -1,5 +1,5 @@
+import type {Player} from "../player/Player";
 import {GameResult} from "./GameResult";
-import {Player} from "../player/Player";
 import {t} from "../../util/Lang";
 
 export class FFAGameResult extends GameResult {

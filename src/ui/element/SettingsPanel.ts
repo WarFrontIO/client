@@ -1,17 +1,17 @@
+import type {Setting, SettingCategory} from "../../util/settings/Setting";
+import type {UIElement} from "../UIElement";
 import {buildPanel, showPanel} from "../type/UIPanel";
-import {buildContainer, ContentField} from "../type/ContentField";
-import {Setting, SettingCategory} from "../../util/settings/Setting";
+import {buildContainer, type ContentField} from "../type/ContentField";
 import {buildButton, buildIcon, buildSectionHeader} from "../type/TextNode";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
 import {BooleanSetting} from "../../util/settings/BooleanSetting";
-import {UIElement} from "../UIElement";
 import {AssertionFailedException} from "../../util/Exceptions";
 import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 import {StringSetting} from "../../util/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
-import {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
+import {MultiSelectSetting, type Option} from "../../util/settings/MultiSelectSetting";
 import {getUIElement} from "../UIManager";
 import {tUnsafe} from "../../util/Lang";
 

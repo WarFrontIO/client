@@ -1,8 +1,8 @@
+import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
+import type {DebugRendererLayer} from "./DebugRenderer";
 import {areaCalculator} from "../../../map/area/AreaCalculator";
-import {DebugRendererLayer} from "./DebugRenderer";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
-import {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 import {compositeVertexShader, constantColorFragmentShader} from "../../shader/ShaderManager";
 

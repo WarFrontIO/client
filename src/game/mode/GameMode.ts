@@ -1,6 +1,6 @@
+import type {HSLColor} from "../../util/HSLColor";
+import type {GameResult} from "../result/GameResult";
 import {territoryManager} from "../TerritoryManager";
-import {HSLColor} from "../../util/HSLColor";
-import {GameResult} from "../result/GameResult";
 
 /**
  * All game mode-specific logic should be implemented in a subclass of this class.

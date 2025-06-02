@@ -1,7 +1,7 @@
+import type {TerritoryTransaction} from "./transaction/TerritoryTransaction";
 import {playerManager} from "./player/PlayerManager";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "./GameData";
-import {TerritoryTransaction} from "./transaction/TerritoryTransaction";
 
 class TerritoryManager {
 	tileOwners: Uint16Array;

@@ -1,9 +1,9 @@
 import {Player} from "../player/Player";
 import {HSLColor} from "../../util/HSLColor";
 import {actuallyHandleAttack} from "../attack/AttackActionValidator";
-import {BotTrigger, selectBotTriggers} from "./modifier/BotTrigger";
-import {BotConstraints, selectBotConstraints} from "./modifier/BotConstraints";
-import {BotStrategy, selectBotStrategy} from "./BotStrategy";
+import {type BotTrigger, selectBotTriggers} from "./modifier/BotTrigger";
+import {type BotConstraints, selectBotConstraints} from "./modifier/BotConstraints";
+import {type BotStrategy, selectBotStrategy} from "./BotStrategy";
 import {territoryManager} from "../TerritoryManager";
 import {random} from "../Random";
 import {gameMap, gameMode} from "../GameData";

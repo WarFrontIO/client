@@ -1,4 +1,4 @@
-import {BasePacket} from "./protocol/packet/BasePacket";
+import type {BasePacket} from "./protocol/packet/BasePacket";
 
 const validators: Record<number, (packet: IncomingPacket) => boolean> = {};
 

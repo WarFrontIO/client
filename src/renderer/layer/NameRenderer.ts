@@ -1,10 +1,10 @@
+import type {GameGLContext} from "../GameGLContext";
+import type {GameFont, GameTextEntry} from "../GameFont";
 import {playerNameRenderingManager} from "../manager/PlayerNameRenderingManager";
 import {playerManager} from "../../game/player/PlayerManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {BaseRendererLayer} from "./BaseRendererLayer";
-import {GameGLContext} from "../GameGLContext";
 import {mapFontData} from "../shader/ShaderManager";
-import {GameFont, GameTextEntry} from "../GameFont";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {formatTroops} from "../../util/StringFormatter";
 

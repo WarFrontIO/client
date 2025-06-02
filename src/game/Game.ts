@@ -1,4 +1,5 @@
-import {GameMap} from "../map/GameMap";
+import type {GameMap} from "../map/GameMap";
+import type {GameMode} from "./mode/GameMode";
 import {mapNavigationHandler} from "./action/MapNavigationHandler";
 import {territoryManager} from "./TerritoryManager";
 import {playerManager} from "./player/PlayerManager";
@@ -9,7 +10,6 @@ import {random} from "./Random";
 import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
-import {GameMode} from "./mode/GameMode";
 import {boatManager} from "./boat/BoatManager";
 import {initGameData} from "./GameData";
 import {ClientPlayer} from "./player/ClientPlayer";

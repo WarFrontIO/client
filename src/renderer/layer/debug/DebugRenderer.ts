@@ -1,9 +1,9 @@
+import type {GameGLContext} from "../../GameGLContext";
+import type {RendererLayer} from "../RendererLayer";
 import {CachedLayer} from "../CachedLayer";
 import {mapTransformHandler} from "../../../event/MapTransformHandler";
 import {gameMap} from "../../../game/GameData";
 import {registerSettingListener} from "../../../util/settings/UserSettingManager";
-import {RendererLayer} from "../RendererLayer";
-import {GameGLContext} from "../../GameGLContext";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../../GameRenderer";
 
 //@module renderer-debug

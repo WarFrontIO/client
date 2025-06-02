@@ -1,4 +1,4 @@
-import {GameMap} from "../map/GameMap";
+import type {GameMap} from "../map/GameMap";
 
 /**
  * Ray traces on the game map to find the first non-water tile.

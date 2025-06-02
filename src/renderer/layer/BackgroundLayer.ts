@@ -1,8 +1,8 @@
+import type {GameGLContext} from "../GameGLContext";
+import type {RendererLayer} from "./RendererLayer";
+import type {GameTheme} from "../GameTheme";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
-import {GameTheme} from "../GameTheme";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
-import {RendererLayer} from "./RendererLayer";
-import {GameGLContext} from "../GameGLContext";
 
 //@module renderer
 

@@ -1,5 +1,6 @@
+import type {Node} from "./AreaCalculator";
 import {PriorityQueue} from "../../util/PriorityQueue";
-import {areaCalculator, Node} from "./AreaCalculator";
+import {areaCalculator} from "./AreaCalculator";
 import {territoryManager} from "../../game/TerritoryManager";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {gameMap} from "../../game/GameData";

@@ -1,3 +1,5 @@
+import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
+import type {GameTheme} from "../GameTheme";
 import {CachedLayer} from "./CachedLayer";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {gameMap} from "../../game/GameData";
@@ -7,9 +9,7 @@ import {registerTransactionExecutor} from "../../game/transaction/TransactionExe
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
 import {borderManager} from "../../game/BorderManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
-import {GameTheme} from "../GameTheme";
 import {playerManager} from "../../game/player/PlayerManager";
-import {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 //@module renderer

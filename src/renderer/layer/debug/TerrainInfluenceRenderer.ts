@@ -1,7 +1,7 @@
-import {DebugRendererLayer} from "./DebugRenderer";
+import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
+import type {DebugRendererLayer} from "./DebugRenderer";
 import {gameMap} from "../../../game/GameData";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
-import {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import {linearLookupFragmentShader, mapGridLookupVertexShader} from "../../shader/ShaderManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 

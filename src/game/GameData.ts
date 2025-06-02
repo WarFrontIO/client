@@ -1,5 +1,5 @@
-import {GameMap} from "../map/GameMap";
-import {GameMode} from "./mode/GameMode";
+import type {GameMap} from "../map/GameMap";
+import type {GameMode} from "./mode/GameMode";
 
 /**
  * The map of the current game.

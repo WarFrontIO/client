@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "es2015",
     "target": "es2017",
+    "moduleResolution": "bundler",
     "rootDir": "src",
     "sourceMap": true,
     "strict": true,
@@ -9,7 +10,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true
   },
   "exclude": ["test"]
 }

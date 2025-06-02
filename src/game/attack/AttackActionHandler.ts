@@ -1,6 +1,6 @@
+import type {Player} from "../player/Player";
 import {playerManager} from "../player/PlayerManager";
 import {gameTicker} from "../GameTicker";
-import {Player} from "../player/Player";
 import {AttackExecutor} from "./AttackExecutor";
 import {gameMap} from "../GameData";
 

@@ -1,6 +1,6 @@
+import type {HSLColor} from "../../util/HSLColor";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
-import {HSLColor} from "../../util/HSLColor";
 import {gameMap, gameMode} from "../GameData";
 import {spawnManager} from "./SpawnManager";
 

@@ -1,4 +1,4 @@
-import {Player} from "../player/Player";
+import type {Player} from "../player/Player";
 import {gameTicker} from "../GameTicker";
 
 export abstract class GameResult {

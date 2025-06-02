@@ -1,4 +1,4 @@
-import {TileType as TileTypeBase} from "./codec/MapCodec";
+import type {TileType as TileTypeBase} from "./codec/MapCodec";
 import {PriorityQueue} from "../util/PriorityQueue";
 import {checkLineOfSight} from "../util/VoxelRayTrace";
 import {SafeMap} from "../util/SafeMap";

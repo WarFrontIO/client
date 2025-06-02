@@ -1,5 +1,5 @@
+import type {HSLColor} from "../../util/HSLColor";
 import {Player} from "./Player";
-import {HSLColor} from "../../util/HSLColor";
 import {areaCalculator} from "../../map/area/AreaCalculator";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";

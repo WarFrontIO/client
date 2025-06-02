@@ -1,9 +1,9 @@
+import type {Setting, SettingCategory} from "./Setting";
+import type {DebugRendererLayer} from "../../renderer/layer/debug/DebugRenderer";
+import type {GameTheme} from "../../renderer/GameTheme";
 import {SettingRegistry} from "./SettingRegistry";
 import {MultiSelectSetting} from "./MultiSelectSetting";
-import {Setting, SettingCategory} from "./Setting";
 import {SingleSelectSetting} from "./SingleSelectSetting";
-import {GameTheme} from "../../renderer/GameTheme";
-import {DebugRendererLayer} from "../../renderer/layer/debug/DebugRenderer";
 import {StringSetting} from "./StringSetting";
 import {gameServerAddress} from "../Constants";
 

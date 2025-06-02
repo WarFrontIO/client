@@ -1,5 +1,5 @@
+import type {APIUserAccount} from "../protocol/util/ProtocolUtils";
 import {endpointPOST} from "./Endpoint";
-import {APIUserAccount} from "../protocol/util/ProtocolUtils";
 
 /**
  * Redirects the user to the login page for the given service

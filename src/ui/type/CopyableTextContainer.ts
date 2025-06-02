@@ -1,5 +1,5 @@
 import {UIElement} from "../UIElement";
-import {buildTooltipContainer, TooltipContainer} from "./TooltipContainer";
+import {buildTooltipContainer, type TooltipContainer} from "./TooltipContainer";
 
 export class CopyableTextContainer extends UIElement {
 	protected readonly titleElement: HTMLElement;

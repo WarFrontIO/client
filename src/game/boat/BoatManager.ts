@@ -1,10 +1,10 @@
+import type {Player} from "../player/Player";
 import {Boat} from "./Boat";
 import {clientPlayer, playerManager} from "../player/PlayerManager";
 import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
 import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
 import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
-import {Player} from "../player/Player";
 import {bordersTile} from "../../util/MathUtil";
 import {gameMap} from "../GameData";
 import {validatePacket} from "../../network/PacketValidator";

@@ -1,6 +1,6 @@
+import type {Player} from "../player/Player";
 import {playerManager} from "../player/PlayerManager";
 import {territoryManager} from "../TerritoryManager";
-import {Player} from "../player/Player";
 import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
 import {attackActionHandler} from "./AttackActionHandler";
 import {packetRegistry, submitGameAction} from "../../network/NetworkManager";

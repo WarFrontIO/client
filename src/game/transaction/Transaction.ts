@@ -1,4 +1,4 @@
-import {Player} from "../player/Player";
+import type {Player} from "../player/Player";
 import {getTransactionExecutors, registerTransactionType} from "./TransactionExecutors";
 
 export abstract class Transaction {

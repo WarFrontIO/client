@@ -1,4 +1,4 @@
-import {Player} from "../player/Player";
+import type {Player} from "../player/Player";
 import {boatManager} from "./BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";

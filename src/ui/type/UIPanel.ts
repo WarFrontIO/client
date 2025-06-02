@@ -1,4 +1,4 @@
-import {UIElement} from "../UIElement";
+import type {UIElement} from "../UIElement";
 import {blockInteraction, registerClickListener} from "../UIEventResolver";
 import {hideUIElement, registerUIElement, showUIElement} from "../UIManager";
 import {ContentField} from "./ContentField";

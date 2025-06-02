@@ -1,5 +1,5 @@
+import type {Setting, SettingCategory} from "./Setting";
 import {InvalidArgumentException} from "../Exceptions";
-import {Setting, SettingCategory} from "./Setting";
 import {StringSetting} from "./StringSetting";
 import {NumberSetting} from "./NumberSetting";
 import {IntegerSetting} from "./IntegerSetting";

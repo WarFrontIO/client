@@ -1,5 +1,6 @@
+import type {SettingCategory} from "./Setting";
 import {InvalidArgumentException} from "../Exceptions";
-import {Setting, SettingCategory} from "./Setting";
+import {Setting} from "./Setting";
 
 export class MultiSelectSetting<S, T extends Record<string, Option<S>>> extends Setting<T> {
 	readonly type = "multi-select";

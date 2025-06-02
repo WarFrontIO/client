@@ -1,4 +1,4 @@
-import {Player} from "./Player";
+import type {Player} from "./Player";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";

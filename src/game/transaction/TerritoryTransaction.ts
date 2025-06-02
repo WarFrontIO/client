@@ -1,5 +1,5 @@
+import type {Player} from "../player/Player";
 import {Transaction} from "./Transaction";
-import {Player} from "../player/Player";
 import {getTransactionExecutors, registerTransactionType} from "./TransactionExecutors";
 import {InvalidArgumentException} from "../../util/Exceptions";
 

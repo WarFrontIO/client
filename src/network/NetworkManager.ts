@@ -1,3 +1,5 @@
+import type {BasePacket} from "./protocol/packet/BasePacket";
+import type {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
 import {PacketRegistry, PROTOCOL_VERSION} from "./protocol/PacketRegistry";
 import {awaitSafeForward, getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
@@ -7,9 +9,7 @@ import {getSetting} from "../util/settings/UserSettingManager";
 import {timedPromise} from "../util/TimedPromise";
 import {SocketErrorCodes} from "./protocol/util/SocketErrorCodes";
 import {deserializePacket} from "./protocol/DataTransferContext";
-import {BasePacket} from "./protocol/packet/BasePacket";
 import {isLocalGame} from "../game/GameData";
-import {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
 import {NetworkException} from "../util/Exceptions";
 import {doPacketValidation} from "./PacketValidator";
 import {displayAlert} from "../ui/type/TextNode";

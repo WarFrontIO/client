@@ -1,4 +1,4 @@
-import {GameGLContext, WebGLUniforms} from "./GameGLContext";
+import type {GameGLContext, WebGLUniforms} from "./GameGLContext";
 import {msdfTextureFragmentShader, msdfTextureVertexShader} from "./shader/ShaderManager";
 import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
 import {StreamReader} from "../map/codec/src/util/StreamReader";

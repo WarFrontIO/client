@@ -1,5 +1,6 @@
+import type {TileType} from "../map/codec/MapCodec";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is used in generated code
 import {HSLColor} from "../util/HSLColor";
-import {TileType} from "../map/codec/MapCodec";
 import {getSettingObject} from "../util/settings/UserSettingManager";
 
 //@module ui

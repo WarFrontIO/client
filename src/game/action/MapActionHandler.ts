@@ -1,4 +1,5 @@
-import {ClickEventListener, interactionManager} from "../../event/InteractionManager";
+import type {ClickEventListener} from "../../event/InteractionManager";
+import {interactionManager} from "../../event/InteractionManager";
 import {mapNavigationHandler} from "./MapNavigationHandler";
 import {clientPlayer} from "../player/PlayerManager";
 import {spawnManager} from "../player/SpawnManager";

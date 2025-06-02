@@ -1,4 +1,4 @@
-import {GameGLContext} from "../GameGLContext";
+import type {GameGLContext} from "../GameGLContext";
 import {GameFont} from "../GameFont";
 
 // Shaders are inlined by the build process

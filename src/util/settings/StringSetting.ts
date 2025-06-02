@@ -1,4 +1,5 @@
-import {Setting, SettingCategory} from "./Setting";
+import type {SettingCategory} from "./Setting";
+import {Setting} from "./Setting";
 
 export class StringSetting extends Setting<string> {
 	readonly type = "string";

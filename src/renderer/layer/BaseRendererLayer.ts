@@ -1,5 +1,5 @@
-import {RendererLayer} from "./RendererLayer";
-import {GameGLContext} from "../GameGLContext";
+import type {GameGLContext} from "../GameGLContext";
+import type {RendererLayer} from "./RendererLayer";
 
 export abstract class BaseRendererLayer implements RendererLayer {
 	protected context: GameGLContext;

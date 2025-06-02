@@ -1,5 +1,5 @@
+import type {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
-import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {packetRegistry} from "../network/NetworkManager";
 import {isLocalGame} from "./GameData";
 import {doPacketValidation} from "../network/PacketValidator";

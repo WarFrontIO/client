@@ -1,4 +1,4 @@
-import {Player} from "../player/Player";
+import type {Player} from "../player/Player";
 import {territoryManager} from "../TerritoryManager";
 import {bordersTile} from "../../util/MathUtil";
 import {random} from "../Random";

@@ -1,9 +1,5 @@
-import {
-	DragEventListener,
-	interactionManager,
-	MultiTouchEventListener,
-	ScrollEventListener
-} from "../../event/InteractionManager";
+import type {DragEventListener, MultiTouchEventListener, ScrollEventListener} from "../../event/InteractionManager";
+import {interactionManager} from "../../event/InteractionManager";
 import {mapTransformHandler} from "../../event/MapTransformHandler";
 import {gameMap, isPlaying} from "../GameData";
 import {windowResizeHandler} from "../../event/WindowResizeHandler";

@@ -1,7 +1,7 @@
+import type {BotPlayer} from "./BotPlayer";
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap, gameMode} from "../GameData";
-import {BotPlayer} from "./BotPlayer";
 import {playerManager} from "../player/PlayerManager";
 import {borderManager} from "../BorderManager";
 

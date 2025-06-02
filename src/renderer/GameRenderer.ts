@@ -1,4 +1,4 @@
-import {RendererLayer} from "./layer/RendererLayer";
+import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {gameStartRegistry} from "../game/Game";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";

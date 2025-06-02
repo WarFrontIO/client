@@ -1,4 +1,4 @@
-import {Transaction} from "./Transaction";
+import type {Transaction} from "./Transaction";
 import {InvalidArgumentException} from "../../util/Exceptions";
 
 const pool: Record<string, ((this: Transaction) => void)[]> = {};

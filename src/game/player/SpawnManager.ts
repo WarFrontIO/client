@@ -1,6 +1,6 @@
+import type {Player} from "./Player";
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
-import {Player} from "./Player";
 import {gameMap, isLocalGame} from "../GameData";
 import {packetRegistry, sendPacket} from "../../network/NetworkManager";
 import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundlePacket";

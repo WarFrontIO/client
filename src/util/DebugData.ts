@@ -1,5 +1,5 @@
-import {LazyWriter} from "../map/codec/src/util/LazyWriter";
-import {StreamReader} from "../map/codec/src/util/StreamReader";
+import type {LazyWriter} from "../map/codec/src/util/LazyWriter";
+import type {StreamReader} from "../map/codec/src/util/StreamReader";
 
 const events: DebugEvent[] = [];
 

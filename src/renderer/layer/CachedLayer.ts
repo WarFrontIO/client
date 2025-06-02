@@ -1,4 +1,5 @@
-import {GameGLContext, WebGLUniforms} from "../GameGLContext";
+import type {WebGLUniforms} from "../GameGLContext";
+import {GameGLContext} from "../GameGLContext";
 import {BaseRendererLayer} from "./BaseRendererLayer";
 import {textureCompositeVertexShader, simpleTextureFragmentShader} from "../shader/ShaderManager";
 

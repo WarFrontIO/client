@@ -1,5 +1,5 @@
+import type {GameTheme} from "../GameTheme";
 import {territoryManager} from "../../game/TerritoryManager";
-import {GameTheme} from "../GameTheme";
 import {gameMap, isPlaying} from "../../game/GameData";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 

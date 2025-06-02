@@ -1,4 +1,5 @@
-import {InteractionListeners, interactionManager, InteractionType} from "../event/InteractionManager";
+import type {InteractionListeners} from "../event/InteractionManager";
+import {interactionManager, InteractionType} from "../event/InteractionManager";
 import {resolveElement} from "./UIElement";
 import {AssertionFailedException} from "../util/Exceptions";
 import {SafeMap} from "../util/SafeMap";

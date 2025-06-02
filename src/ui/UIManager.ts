@@ -1,4 +1,4 @@
-import {UIElement} from "./UIElement";
+import type {UIElement} from "./UIElement";
 import {InvalidArgumentException} from "../util/Exceptions";
 import {getSetting, getSettingObject, registerSettingListener} from "../util/settings/UserSettingManager";
 import {ContentField} from "./type/ContentField";

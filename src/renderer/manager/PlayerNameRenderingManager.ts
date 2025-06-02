@@ -1,4 +1,4 @@
-import {Player} from "../../game/player/Player";
+import type {Player} from "../../game/player/Player";
 import {formatTroops} from "../../util/StringFormatter";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {territoryManager} from "../../game/TerritoryManager";

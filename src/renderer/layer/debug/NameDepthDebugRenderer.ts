@@ -1,10 +1,10 @@
-import {DebugRendererLayer} from "./DebugRenderer";
+import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
+import type {DebugRendererLayer} from "./DebugRenderer";
 import {playerNameRenderingManager} from "../../manager/PlayerNameRenderingManager";
 import {gameMap} from "../../../game/GameData";
 import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
 import {getSettingObject} from "../../../util/settings/UserSettingManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
-import {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import {linearLookupFragmentShader, mapGridCompositeVertexShader} from "../../shader/ShaderManager";
 
 //@module renderer-debug

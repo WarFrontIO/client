@@ -53,7 +53,8 @@ module.exports = tslint.config(
                     allowNumber: true
                 }
             ],
-	        "@typescript-eslint/prefer-nullish-coalescing": "error"
+	        "@typescript-eslint/prefer-nullish-coalescing": "error",
+	        "@typescript-eslint/consistent-type-imports": "error"
         },
         languageOptions: {
             parserOptions: {
