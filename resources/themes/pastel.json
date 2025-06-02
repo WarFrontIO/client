@@ -2,12 +2,12 @@
   "territory": [
     "saturation * 0.5",
     "lightness = 0.75",
-    "alpha = 0.45"
+    "alpha = 0.5"
   ],
   "border": [
     "saturation * 0.5",
     "lightness = 0.65",
-    "alpha = 0.7"
+    "alpha = 0.75"
   ],
   "tileColors": {
     "grass": "rgb(238 - 2 * i, 238 - 2 * i, 190 - i)",
