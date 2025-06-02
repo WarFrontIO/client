@@ -2,7 +2,7 @@ import {gameTicker} from "../../game/GameTicker";
 import {formatTime, formatTroops} from "../../util/StringFormatter";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
 import {blockInteraction, registerClickListener, registerDragListener} from "../UIEventResolver";
-import {loadStaticElement, showUIElement} from "../UIManager";
+import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
@@ -60,6 +60,8 @@ gameTicker.registry.register(() => {
 });
 
 gameStartRegistry.register(() => {
+	hideAllUIElements();
+	showUIElement("GameHud");
 	setSliderValue(0.5);
 	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
 	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";

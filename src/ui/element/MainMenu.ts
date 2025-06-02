@@ -6,7 +6,7 @@ import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
-import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
+import {loadStaticElement} from "../UIManager";
 import {t} from "../../util/Lang";
 import {buildButton} from "../type/TextNode";
 import {buildContainer} from "../type/ContentField";
@@ -25,11 +25,7 @@ const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u
 
 registerClickListener("btnStartSingleplayer", () => {
 	showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
-		buildButton(map.name).onClick(() => {
-			hideAllUIElements();
-			showUIElement("GameHud");
-			startGame(mapFromId(map.id), gameModeFromId(GameModeIds.FFA), 23452345, [{name: getSetting("player-name")}], 0, true);
-		}))
+		buildButton(map.name).onClick(() => startGame(mapFromId(map.id), gameModeFromId(GameModeIds.FFA), 23452345, [{name: getSetting("player-name")}], 0, true)))
 	));
 });
 

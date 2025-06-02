@@ -1,6 +1,5 @@
 import {disconnectFromServer, packetRegistry} from "../network/NetworkManager";
 import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
-import {hideAllUIElements, showUIElement} from "../ui/UIManager";
 import {mapFromId} from "../map/MapRegistry";
 import {gameModeFromId} from "./mode/GameModeRegistry";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
@@ -17,8 +16,6 @@ import {mapActionHandler} from "./action/MapActionHandler";
 //@module game
 
 packetRegistry.handle(GameStartPacket, function () {
-	hideAllUIElements();
-	showUIElement("GameHud");
 	startGame(mapFromId(this.map), gameModeFromId(this.mode), this.seed, this.players, this.clientId, false);
 });
 
