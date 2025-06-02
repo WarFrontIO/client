@@ -2,6 +2,10 @@ import {GameMode} from "./GameMode";
 import {largestPlayers} from "../GameStats";
 import {playerManager} from "../player/PlayerManager";
 import {FFAGameResult} from "../result/FFAGameResult";
+import {registerGameMode} from "./GameModeRegistry";
+import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
+
+//@module game
 
 export class FFAGameMode extends GameMode {
 	getResult() {
@@ -13,3 +17,5 @@ export class FFAGameMode extends GameMode {
 		return null;
 	}
 }
+
+registerGameMode(GameModeIds.FFA, new FFAGameMode());
