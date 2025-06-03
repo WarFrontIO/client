@@ -1,37 +1,20 @@
 import type {Player} from "../player/Player";
 import {Boat} from "./Boat";
-import {clientPlayer, playerManager} from "../player/PlayerManager";
-import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
+import {playerManager} from "../player/PlayerManager";
+import {calculateBoatWaypoints} from "../../map/area/BoatPathfinding";
 import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
-import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
+import {packetRegistry, validatePacket} from "../../network/PacketManager";
 import {bordersTile} from "../../util/MathUtil";
 import {gameMap} from "../GameData";
-import {validatePacket} from "../../network/PacketValidator";
 import {triggerDebugEvent} from "../../util/DebugData";
+import {gameInitHandler} from "../Game";
 
 class BoatManager {
 	private readonly boats: Boat[] = [];
 
-	reset(): void {
-		this.boats.length = 0;
-	}
-
-	/**
-	 * Requests a new boat for the local player.
-	 * @param target The target position
-	 * @param power The percentage of the player's troops to send
-	 */
-	requestBoat(target: number, power: number): void {
-		const coast = this.findCoastNear(target);
-		if (coast === null) {
-			return;
-		}
-		const start = findStartingPoint(coast);
-
-		if (start !== null) {
-			submitGameAction(new BoatActionPacket(clientPlayer.id, start, coast, power));
-		}
+	reset(this: void): void {
+		boatManager.boats.length = 0;
 	}
 
 	/**
@@ -39,7 +22,7 @@ class BoatManager {
 	 * @param tile The tile to find water near.
 	 * @returns The coast tile or null if no coast was found.
 	 */
-	private findCoastNear(tile: number): number | null {
+	findCoastNear(tile: number): number | null {
 		const x = tile % gameMap.width;
 		const y = Math.floor(tile / gameMap.width);
 
@@ -128,6 +111,7 @@ class BoatManager {
 export const boatManager = new BoatManager();
 
 gameTicker.registry.register(boatManager.tick);
+gameInitHandler.register(boatManager.reset);
 
 validatePacket(BoatActionPacket, packet => {
 	return playerManager.validatePlayer(packet.player)

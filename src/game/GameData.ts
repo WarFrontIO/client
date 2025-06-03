@@ -24,3 +24,7 @@ export function initGameData(map: GameMap, mode: GameMode, isLocal: boolean): vo
 	isLocalGame = isLocal;
 	isPlaying = true;
 }
+
+export function resetGameData(): void {
+	isPlaying = false;
+}

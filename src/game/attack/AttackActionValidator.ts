@@ -3,24 +3,9 @@ import {playerManager} from "../player/PlayerManager";
 import {territoryManager} from "../TerritoryManager";
 import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
 import {attackActionHandler} from "./AttackActionHandler";
-import {packetRegistry, submitGameAction} from "../../network/NetworkManager";
-import {gameMap, gameMode, isLocalGame} from "../GameData";
+import {packetRegistry, validatePacket} from "../../network/PacketManager";
+import {gameMap, gameMode} from "../GameData";
 import {borderManager} from "../BorderManager";
-import {validatePacket} from "../../network/PacketValidator";
-
-/**
- * Filters out invalid attacks and submits the attack action.
- * @param attacker The player that is attacking
- * @param target The player that is being attacked
- * @param power The percentage of troops that are attacking
- */
-export function preprocessAttack(attacker: number, target: number, power: number): void {
-	if (!isLocalGame && !(gameMode.canAttack(attacker, target) && hasBorderWith(playerManager.getPlayer(attacker), target))) {
-		return; // No need to send an invalid attack. For local games, we'll do the same check in the handler anyway
-	}
-
-	submitGameAction(new AttackActionPacket(attacker, target === territoryManager.OWNER_NONE ? attacker : target, power));
-}
 
 export function hasBorderWith(player: Player, target: number): boolean {
 	for (const tile of borderManager.getBorderTiles(player.id)) {

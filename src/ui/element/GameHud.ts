@@ -6,8 +6,11 @@ import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager"
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
-import {gameStartRegistry} from "../../game/Game";
+import {gameResultRegistry, gameInitHandler} from "../../game/Game";
 import {clientPlayer} from "../../game/player/PlayerManager";
+import {showPanel} from "../type/UIPanel";
+import {t} from "../../util/Lang";
+import {buildButton, buildTextNode} from "../type/TextNode";
 
 //@module ui
 
@@ -59,7 +62,7 @@ gameTicker.registry.register(() => {
 	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";
 });
 
-gameStartRegistry.register(() => {
+gameInitHandler.register(() => {
 	hideAllUIElements();
 	showUIElement("GameHud");
 	setSliderValue(0.5);
@@ -69,3 +72,10 @@ gameStartRegistry.register(() => {
 
 blockInteraction(gameClock);
 blockInteraction(resolveElement("selectorContainer"));
+
+gameResultRegistry.register(result => {
+	showPanel(t("game.result.title"),
+		buildTextNode(result.getWinnerString()),
+		buildButton(t("game.action.leave"), "danger", "btn-block").onClick(() => window.location.reload())
+	);
+})

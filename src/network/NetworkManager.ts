@@ -1,7 +1,7 @@
 import type {BasePacket} from "./protocol/packet/BasePacket";
 import type {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
-import {PacketRegistry, PROTOCOL_VERSION} from "./protocol/PacketRegistry";
-import {awaitSafeForward, getUserToken} from "./NetworkAuthenticator";
+import {PROTOCOL_VERSION} from "./protocol/PacketRegistry";
+import {getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
 import {HandshakeResponsePacket} from "./protocol/packet/handshake/HandshakeResponsePacket";
 import {HandshakeAuthPacket} from "./protocol/packet/handshake/HandshakeAuthPacket";
@@ -11,10 +11,9 @@ import {SocketErrorCodes} from "./protocol/util/SocketErrorCodes";
 import {deserializePacket} from "./protocol/DataTransferContext";
 import {isLocalGame} from "../game/GameData";
 import {NetworkException} from "../util/Exceptions";
-import {doPacketValidation} from "./PacketValidator";
-import {displayAlert} from "../ui/type/TextNode";
-
-export const packetRegistry = new PacketRegistry<void>();
+import {doPacketValidation, packetRegistry} from "./PacketManager";
+import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {gameQuitRegistry} from "../game/Game";
 
 let openSocket: WebSocket | null = null;
 let socketReady = false;
@@ -66,24 +65,9 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 			clearTimeout(socketTimeout);
 			socketReady = false;
 			reject(new NetworkException("Socket closed"));
+			socketCloseRegistry.broadcast(e.code);
 			if (e.code !== SocketErrorCodes.NO_ERROR as number) {
 				//TODO: Mark connection as dead, and try to reconnect
-				switch (e.code) {
-					case SocketErrorCodes.SERVER_OUT_OF_DATE as number:
-						displayAlert("secondary", "This third party server is out of date, ask the server administrator to update it");
-						break;
-					case SocketErrorCodes.OUT_OF_DATE as number:
-						displayAlert("secondary", "Server is for a newer version of the game, reloading the page...")
-						setTimeout(() => {
-							awaitSafeForward().then(() => window.location.reload()).catch(() => {});
-						}, 5000);
-						break;
-					case SocketErrorCodes.NO_GAME_SERVER as number:
-						displayAlert("secondary", "No game server is available, please try again later");
-						break;
-					default:
-						displayAlert("danger", "Connection to server lost");
-				}
 				console.error(`Socket closed with code ${e.code}`);
 			}
 		}
@@ -103,12 +87,8 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 				openSocket.close(SocketErrorCodes.BAD_MESSAGE);
 			}
 		};
-		openSocket.addEventListener("ping", () => {
-			clearTimeout(socketTimeout);
-			socketTimeout = setTimeout(() => {
-				openSocket?.close(SocketErrorCodes.NO_ERROR);
-			}, 30 * 1000);
-		});
+		openSocket.addEventListener("ping", resetTimeout);
+		resetTimeout();
 
 		if (abortSignal) {
 			try {
@@ -126,12 +106,26 @@ export function connectToServer(host: string, abortSignal: AbortSignal | undefin
 	});
 }
 
+export const socketCloseRegistry = new EventHandlerRegistry<[SocketErrorCodes]>();
+
+/**
+ * Resets the timeout of the socket connection.
+ */
+function resetTimeout() {
+	clearTimeout(socketTimeout);
+	socketTimeout = setTimeout(() => {
+		openSocket?.close(SocketErrorCodes.NO_ERROR);
+	}, 30 * 1000);
+}
+
 /**
  * Disconnects from the server
  */
 export function disconnectFromServer() {
 	openSocket?.close(SocketErrorCodes.NO_ERROR);
 }
+
+gameQuitRegistry.register(disconnectFromServer);
 
 /**
  * Awaits a handshake response from the server
@@ -163,9 +157,10 @@ export function sendPacket<T extends BasePacket<T>>(packet: T, force: boolean = 
  * @param action The action to submit.
  */
 export function submitGameAction<T extends GameActionPacket<T>>(action: T): void {
+	if (!doPacketValidation(action)) return;
 	if (isLocalGame) {
 		packetRegistry.getPacketHandler(action.id).call(action);
-	} else if (doPacketValidation(action)) {
+	} else {
 		sendPacket(action);
 	}
 }

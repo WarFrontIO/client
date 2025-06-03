@@ -1,6 +1,6 @@
 import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
-import {gameStartRegistry} from "../game/Game";
+import {gameInitHandler} from "../game/Game";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
 import {SortedArray} from "../util/SortedArray";
@@ -85,4 +85,4 @@ export const gameRenderer = new GameRenderer();
 export const renderingContextInit = new EventHandlerRegistry<[number, GameGLContext]>();
 
 windowResizeHandler.register(gameRenderer.resize);
-gameStartRegistry.register(() => gameRenderer.switchContext(rendererContextGameplay));
+gameInitHandler.register(() => gameRenderer.switchContext(rendererContextGameplay));

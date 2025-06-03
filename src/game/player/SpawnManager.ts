@@ -1,13 +1,12 @@
 import type {Player} from "./Player";
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
-import {gameMap, isLocalGame} from "../GameData";
-import {packetRegistry, sendPacket} from "../../network/NetworkManager";
+import {gameMap} from "../GameData";
+import {packetRegistry} from "../../network/PacketManager";
 import {SpawnBundlePacket} from "../../network/protocol/packet/game/SpawnBundlePacket";
-import {clientPlayer, playerManager} from "./PlayerManager";
-import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
-import {gameTicker} from "../GameTicker";
+import {playerManager} from "./PlayerManager";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
+import {actuallyStartGame} from "../Game";
 
 class SpawnManager {
 	spawnPoints: number[];
@@ -135,19 +134,17 @@ class SpawnManager {
 	}
 
 	/**
-	 * Requests a spawn for the local player.
-	 * @param target The target position
+	 * Finalize the spawn selection and start the game.
+	 * This assigns random spawn points to players who didn't select their spawn yet.
 	 */
-	requestSpawn(target: number): void {
-		if (isLocalGame) {
-			if (!this.selectSpawnPoint(clientPlayer.id, target)) {
-				return;
+	finalizeSelection() {
+		for (const player of playerManager.getPlayers()) {
+			if (player.getTerritorySize() === 0) {
+				spawnManager.randomSpawnPoint(player);
 			}
-			this.isSelecting = false;
-			gameTicker.start();
-		} else {
-			sendPacket(new SpawnRequestPacket(target));
 		}
+		spawnManager.isSelecting = false;
+		actuallyStartGame();
 	}
 
 	/**
@@ -183,6 +180,15 @@ class SpawnManager {
 
 		transaction.apply(); //This intentionally ignores the "target" pixels
 		return true;
+	}
+
+	/**
+	 * Checks whether the given tile is a valid spawning spot.
+	 * @param tile The tile to check the spawn point of.
+	 * @returns true if the tile is a valid spawn point, false otherwise
+	 */
+	isValidSpawnPoint(tile: number): boolean {
+		return this.getSpawnPixels(tile).length !== 0;
 	}
 
 	/**

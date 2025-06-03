@@ -1,15 +1,17 @@
 import type {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
-import {packetRegistry} from "../network/NetworkManager";
+import {packetRegistry, doPacketValidation} from "../network/PacketManager";
 import {isLocalGame} from "./GameData";
-import {doPacketValidation} from "../network/PacketValidator";
+import {IllegalStateException} from "../util/Exceptions";
 
 class GameTicker {
 	private readonly TICK_INTERVAL = 1000 / 20; // 50ms
 	isRunning = false;
-	private ticker: NodeJS.Timeout;
+	isPaused = false;
+	private ticker: ReturnType<typeof setInterval>;
 	private tickCount: number;
 	private tickStart: number;
+	private pauseStart: number;
 	readonly dataPacketQueue: GameTickPacket[] = [];
 
 	/**
@@ -23,7 +25,7 @@ class GameTicker {
 	/**
 	 * Starts and resets the game ticker.
 	 * Do not call this to implement a pause behavior.
-	 * @internal
+	 * @internal Use {@link actuallyStartGame} instead
 	 */
 	start() {
 		if (this.isRunning) {
@@ -38,10 +40,32 @@ class GameTicker {
 	/**
 	 * Stops the game ticker.
 	 * Do not call this to implement a pause behavior.
-	 * @internal
+	 * @internal Use {@link quitGame} instead
 	 */
 	stop() {
+		this.isPaused = false;
+		this.isRunning = false;
 		clearInterval(this.ticker);
+	}
+
+	/**
+	 * Pauses the game ticker.
+	 * @internal Use {@link pauseGame} instead
+	 */
+	pause() {
+		this.isPaused = true;
+		this.pauseStart = performance.now();
+	}
+
+	/**
+	 * Resumes a paused game ticker.
+	 * @internal Use {@link resumeGame} instead
+	 */
+	resume() {
+		if (!this.isPaused) throw new IllegalStateException("Game is not paused");
+		if (!this.isRunning) throw new IllegalStateException("Game is not running");
+		this.isPaused = false;
+		this.tickStart += performance.now() - this.pauseStart;
 	}
 
 	private tick() {
@@ -51,7 +75,7 @@ class GameTicker {
 			return;
 		}
 
-		if (this.dataPacketQueue.length > 1) { // This might happen if the page was in the background for a while
+		if (this.dataPacketQueue.length > 3) { // This might happen if the page was in the background for a while
 			const targetTick = (Math.ceil(this.tickCount / 10) + this.dataPacketQueue.length - 1) * 10;
 			console.warn(`Game tick is behind by ${targetTick - this.tickCount} ticks`);
 			for (let i = this.tickCount; i < targetTick; i++) this.actuallyDoTick();

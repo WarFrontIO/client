@@ -1,4 +1,7 @@
 import type {BasePacket} from "./protocol/packet/BasePacket";
+import {PacketRegistry} from "./protocol/PacketRegistry";
+
+export const packetRegistry = new PacketRegistry<void>();
 
 const validators: Record<number, (packet: IncomingPacket) => boolean> = {};
 
