@@ -7,7 +7,6 @@ import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
-import {borderManager} from "../../game/BorderManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {playerManager} from "../../game/player/PlayerManager";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
@@ -104,15 +103,14 @@ registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(ter
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
 	//TODO: this needs to be less magical for clearing
-	const borders = borderManager.transitionTiles(this.tiles, this.attacker?.id ?? -1, this.defendant?.id ?? -1);
 	if (this.attacker) {
-		territoryRenderer.manager.paintTiles(borders.territory, this.attacker.id);
-		territoryRenderer.manager.paintBorderTiles(borders.attacker, this.attacker.id);
+		territoryRenderer.manager.paintTiles(this.borderData.territory, this.attacker.id);
+		territoryRenderer.manager.paintBorderTiles(this.borderData.attacker, this.attacker.id);
 	} else {
 		territoryRenderer.manager.clearTiles(this.tiles);
 	}
 
 	if (this.defendant) {
-		territoryRenderer.manager.paintBorderTiles(borders.defender, this.defendant.id);
+		territoryRenderer.manager.paintBorderTiles(this.borderData.defender, this.defendant.id);
 	}
 });

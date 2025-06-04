@@ -1,6 +1,5 @@
 import type {TerritoryTransaction} from "./transaction/TerritoryTransaction";
 import {playerManager} from "./player/PlayerManager";
-import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {gameMap} from "./GameData";
 
 class TerritoryManager {
@@ -62,15 +61,6 @@ class TerritoryManager {
 	 */
 	getOwner(tile: number): number {
 		return this.tileOwners[tile];
-	}
-
-	/**
-	 * Checks if a tile is part of a player's territory excluding the player's border.
-	 * @param tile The tile to check.
-	 * @returns True if the tile is part of a player's territory, false otherwise.
-	 */
-	isTerritory(tile: number): boolean {
-		return playerNameRenderingManager.isConsidered(tile);
 	}
 
 	/**

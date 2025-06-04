@@ -2,6 +2,7 @@ import type {GameTheme} from "../GameTheme";
 import {territoryManager} from "../../game/TerritoryManager";
 import {gameMap, isPlaying} from "../../game/GameData";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
+import {borderManager} from "../../game/BorderManager";
 
 /**
  * When a player claims a tile, three types of updates are required:
@@ -60,7 +61,7 @@ export class TerritoryRenderingManager {
 			const owner = territoryManager.getOwner(i);
 			if (owner !== territoryManager.OWNER_NONE && owner !== territoryManager.OWNER_NONE - 1) {
 				this.tiles.push(i);
-				this.updates.push(territoryManager.isTerritory(i) ? owner : 65536 + owner);
+				this.updates.push(borderManager.getBorderTiles(owner).has(i) ? 65536 + owner : owner);
 			}
 		}
 	}

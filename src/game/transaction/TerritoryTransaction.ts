@@ -1,3 +1,4 @@
+import {borderManager, type BorderTransitionResult} from "../BorderManager";
 import type {Player} from "../player/Player";
 import {Transaction} from "./Transaction";
 import {getTransactionExecutors, registerTransactionType} from "./TransactionExecutors";
@@ -7,6 +8,7 @@ export class TerritoryTransaction extends Transaction {
 	protected readonly attacker: Player | null;
 	protected readonly defendant: Player | null;
 	protected readonly tiles: Set<number> = new Set();
+	protected borderData: BorderTransitionResult;
 
 	/**
 	 * Create a new territory transaction.
@@ -34,6 +36,7 @@ export class TerritoryTransaction extends Transaction {
 
 	override apply() {
 		if (this.tiles.size === 0) return;
+		this.borderData = borderManager.transitionTiles(this.tiles, this.attacker?.id ?? -1, this.defendant?.id ?? -1);
 		super.apply();
 	}
 

@@ -7,7 +7,6 @@ import {playerManager} from "./player/PlayerManager";
 import {Player} from "./player/Player";
 import {spawnManager} from "./player/SpawnManager";
 import {random} from "./Random";
-import {playerNameRenderingManager} from "../renderer/manager/PlayerNameRenderingManager";
 import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {initGameData, resetGameData} from "./GameData";
@@ -32,12 +31,12 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	territoryManager.reset();
 	const maxPlayers = spawnManager.init(500);
 	borderManager.reset(maxPlayers);
-	playerNameRenderingManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
 	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, maxPlayers);
 
 	random.reset(seed);
 	gameInitHandler.broadcast();
+	playerManager.randomizeSpawnPoints();
 }
 
 /**

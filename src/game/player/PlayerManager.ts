@@ -2,7 +2,6 @@ import type {Player} from "./Player";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
-import {playerNameRenderingManager} from "../../renderer/manager/PlayerNameRenderingManager";
 
 class PlayerManager {
 	private humanCount: number;
@@ -28,8 +27,10 @@ class PlayerManager {
 		for (let i = humans.length; i < maxPlayers; i++) {
 			this.registerPlayer(new BotPlayer(this.players.length), true);
 		}
+	}
 
-		playerNameRenderingManager.finishRegistration(this.players);
+	randomizeSpawnPoints(): void {
+		this.bots.forEach(bot => spawnManager.randomSpawnPoint(bot));
 	}
 
 	/**
@@ -38,11 +39,9 @@ class PlayerManager {
 	 * @param isBot Whether the player is a bot.
 	 */
 	registerPlayer(player: Player, isBot: boolean): void {
-		playerNameRenderingManager.registerPlayer(player);
 		this.players.push(player);
 		if (isBot) {
 			this.bots.push(player as BotPlayer);
-			spawnManager.randomSpawnPoint(player);
 		}
 	}
 
