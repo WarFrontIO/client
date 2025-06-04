@@ -8,7 +8,7 @@ import {packetRegistry, validatePacket} from "../../network/PacketManager";
 import {bordersTile} from "../../util/MathUtil";
 import {gameMap} from "../GameData";
 import {triggerDebugEvent} from "../../util/DebugData";
-import {gameInitHandler} from "../Game";
+import {gameInitRegistry} from "../Game";
 
 class BoatManager {
 	private readonly boats: Boat[] = [];
@@ -111,7 +111,7 @@ class BoatManager {
 export const boatManager = new BoatManager();
 
 gameTicker.registry.register(boatManager.tick);
-gameInitHandler.register(boatManager.reset);
+gameInitRegistry.register(boatManager.reset);
 
 validatePacket(BoatActionPacket, packet => {
 	return playerManager.validatePlayer(packet.player)

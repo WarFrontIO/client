@@ -1,7 +1,6 @@
 import type {GameMap} from "../map/GameMap";
 import type {GameMode} from "./mode/GameMode";
 import type {GameResult} from "./result/GameResult";
-import {mapNavigationHandler} from "./action/MapNavigationHandler";
 import {territoryManager} from "./TerritoryManager";
 import {playerManager} from "./player/PlayerManager";
 import {Player} from "./player/Player";
@@ -27,7 +26,6 @@ import {gameTicker} from "./GameTicker";
 export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean) {
 	initGameData(map, mode, isLocal);
 	gameLoadRegistry.broadcast();
-	mapNavigationHandler.enable();
 	territoryManager.reset();
 	const maxPlayers = spawnManager.init(500);
 	borderManager.reset(maxPlayers);
@@ -35,7 +33,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, maxPlayers);
 
 	random.reset(seed);
-	gameInitHandler.broadcast();
+	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();
 }
 
@@ -86,7 +84,7 @@ export function quitGame() {
  * If {@link GameTicker.isPaused} is false this event was fired along gameInit or gameResult.
  */
 export const gameLoadRegistry = new EventHandlerRegistry<[]>();
-export const gameInitHandler = new EventHandlerRegistry<[]>();
+export const gameInitRegistry = new EventHandlerRegistry<[]>();
 export const gameStartRegistry = new EventHandlerRegistry<[]>();
 export const gamePauseRegistry = new EventHandlerRegistry<[]>();
 export const gameResumeRegistry = new EventHandlerRegistry<[]>();

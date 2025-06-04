@@ -4,7 +4,7 @@ import {territoryManager} from "../../game/TerritoryManager";
 import {gameMap} from "../../game/GameData";
 import {playerManager} from "../../game/player/PlayerManager";
 import {borderManager} from "../../game/BorderManager";
-import {gameInitHandler} from "../../game/Game";
+import {gameInitRegistry} from "../../game/Game";
 import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
 import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
 
@@ -207,7 +207,7 @@ export class PlayerNameRenderingData {
 
 export const playerNameRenderingManager = new PlayerNameRenderingManager();
 
-gameInitHandler.register(() => playerNameRenderingManager.reset(playerManager.getPlayers()));
+gameInitRegistry.register(() => playerNameRenderingManager.reset(playerManager.getPlayers()));
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
 	const attackerName = new PlayerNameUpdate(this.attacker?.id ?? -1, false);

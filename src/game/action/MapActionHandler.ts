@@ -9,7 +9,7 @@ import {hasBorderWith} from "../attack/AttackActionValidator";
 import {isLocalGame, isPlaying} from "../GameData";
 import {sendPacket, submitGameAction} from "../../network/NetworkManager";
 import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
-import {gameInitHandler, gameStartRegistry} from "../Game";
+import {gameInitRegistry, gameStartRegistry} from "../Game";
 import {gameTicker} from "../GameTicker";
 import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
 import {findStartingPoint} from "../../map/area/BoatPathfinding";
@@ -78,5 +78,5 @@ export const mapActionHandler = new MapActionHandler();
 
 interactionManager.click.register(mapActionHandler, -100);
 
-gameInitHandler.register(() => mapActionHandler.setAction(MapActionHandler.spawnSelectAction));
+gameInitRegistry.register(() => mapActionHandler.setAction(MapActionHandler.spawnSelectAction));
 gameStartRegistry.register(() => mapActionHandler.setAction(MapActionHandler.attackAction));

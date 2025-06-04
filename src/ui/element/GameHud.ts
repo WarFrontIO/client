@@ -6,7 +6,7 @@ import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager"
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
-import {gameResultRegistry, gameInitHandler} from "../../game/Game";
+import {gameResultRegistry, gameInitRegistry} from "../../game/Game";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {showPanel} from "../type/UIPanel";
 import {t} from "../../util/Lang";
@@ -62,7 +62,7 @@ gameTicker.registry.register(() => {
 	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";
 });
 
-gameInitHandler.register(() => {
+gameInitRegistry.register(() => {
 	hideAllUIElements();
 	showUIElement("GameHud");
 	setSliderValue(0.5);

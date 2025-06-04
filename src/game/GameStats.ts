@@ -1,11 +1,11 @@
 import type {Player} from "./player/Player";
 import {gameTicker} from "./GameTicker";
-import {gameInitHandler} from "./Game";
+import {gameInitRegistry} from "./Game";
 import {playerManager} from "./player/PlayerManager";
 
 export let largestPlayers: Player[] = [];
 
-gameInitHandler.register(() => {
+gameInitRegistry.register(() => {
 	largestPlayers = [...playerManager.getPlayers()];
 });
 

@@ -10,18 +10,18 @@ import {loadStaticElement} from "../UIManager";
 import {t} from "../../util/Lang";
 import {buildButton} from "../type/TextNode";
 import {buildContainer} from "../type/ContentField";
-import {openMultiplayerLobby} from "./MultiplayerLobby";
+//import {openMultiplayerLobby} from "./MultiplayerLobby";
 
 //@module ui
 
 loadStaticElement("MainMenu")
 
-const btnStartMultiplayer: HTMLButtonElement = (window.document.getElementById("btnStartMultiplayer") as HTMLButtonElement);
+//const btnStartMultiplayer: HTMLButtonElement = (window.document.getElementById("btnStartMultiplayer") as HTMLButtonElement);
 const btnStartSingleplayer: HTMLButtonElement = (window.document.getElementById("btnStartSingleplayer") as HTMLButtonElement);
 
 const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u1E00-\u1EFF\-_. ({)}<>]*$/;
 
-registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
+//registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
 registerClickListener("btnStartSingleplayer", () => {
 	showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
@@ -34,7 +34,7 @@ registerClickListener("linkPrivacy", () => showPanel("Privacy Policy"));
 
 loadValidatedInput("playerNameInput", "playerNameInputValidation")
 	.onInput((_value, valid) => {
-		btnStartMultiplayer.disabled = !valid;
+		//btnStartMultiplayer.disabled = !valid;
 		btnStartSingleplayer.disabled = !valid;
 	})
 	.mutate(value => value.trim())
